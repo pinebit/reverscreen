@@ -10,19 +10,10 @@ class ImageCropWidget : public QDialog
     Q_OBJECT
 
 public:
-    enum SelectionMode {
-        FineSelection,
-        SnapSelection,
-        AreaSelection
-    };
-
     explicit ImageCropWidget(QWidget* parent);
-    void setImage(std::shared_ptr<QPixmap> image, SelectionMode selectionMode);
+    void setImage(std::shared_ptr<QPixmap> image);
     QPixmap getCroppedImage();
     bool proceed();
-
-signals:
-    void selectionModeChanged(SelectionMode mode);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -47,7 +38,5 @@ private:
     bool _isSelecting;
     QPoint _startPoint;
     QPoint _endPoint;
-    SelectionMode _selectionMode;
-
     QVector<QRect> _boxes;
 };

@@ -7,13 +7,12 @@
 
 #include <memory>
 
-#include "imagecropwidget.h"
-
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
 class QtAwesome;
+class ImageCropWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -27,7 +26,6 @@ private slots:
     void on_actionNew_triggered();
     void on_actionCopy_triggered();
     void on_actionSave_triggered();
-    void selectionModeChanged(ImageCropWidget::SelectionMode mode);
 
 private:
     QPixmap grabScreen();
@@ -41,7 +39,6 @@ private:
     QtAwesome *awesome;
     ImageCropWidget *imageCrop;
     QLabel* imageLabel;
-    ImageCropWidget::SelectionMode lastSelectionMode;
 };
 
 #endif // MAINWINDOW_H

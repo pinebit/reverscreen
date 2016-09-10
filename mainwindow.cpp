@@ -14,6 +14,7 @@
 #include <QTime>
 
 #include <QtAwesome.h>
+#include <imagecropwidget.h>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -49,8 +50,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setCentralWidget(ui->scrollArea);
     ui->statusBar->showMessage(tr("Click NEW button for a new snipping."));
-
-    lastSelectionMode = ImageCropWidget::SnapSelection;
 }
 
 MainWindow::~MainWindow()
@@ -96,11 +95,6 @@ void MainWindow::on_actionSave_triggered()
     while (dialog.exec() == QDialog::Accepted && !saveFile(dialog.selectedFiles().first())) {}
 }
 
-void MainWindow::selectionModeChanged(ImageCropWidget::SelectionMode mode)
-{
-    lastSelectionMode = mode;
-}
-
 QPixmap MainWindow::grabScreen()
 {
     QScreen *screen = QGuiApplication::primaryScreen();
@@ -110,8 +104,7 @@ QPixmap MainWindow::grabScreen()
 bool MainWindow::cropImage(std::shared_ptr<QPixmap> image)
 {
     imageCrop = new ImageCropWidget(this);
-    connect(imageCrop, &ImageCropWidget::selectionModeChanged, this, &selectionModeChanged);
-    imageCrop->setImage(image, lastSelectionMode);
+    imageCrop->setImage(image);
 
     if (!imageCrop->proceed()) {
         ui->statusBar->showMessage(tr("Snipping cancelled."));

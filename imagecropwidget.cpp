@@ -13,8 +13,6 @@
 #include <asmopencv.h>
 #include <linesdetector.h>
 
-#include "opencv2/highgui/highgui.hpp"
-
 #define MAX_DISTANCE (256 * 256)
 #define MIN_AREA     (4*4)
 
@@ -29,13 +27,10 @@ ImageCropWidget::ImageCropWidget(QWidget* parent):
     this->setWindowState(Qt::WindowFullScreen);
     this->setFocusPolicy(Qt::StrongFocus);
     this->setFocus();
-
-    _selectionMode = SnapSelection;
 }
 
-void ImageCropWidget::setImage(std::shared_ptr<QPixmap> image, SelectionMode selectionMode)
+void ImageCropWidget::setImage(std::shared_ptr<QPixmap> image)
 {
-    _selectionMode = selectionMode;
     _source = new QPixmap(*image);
     this->setGeometry(0, 0, _source->width(), _source->height());
     this->repaint();
@@ -151,24 +146,7 @@ void ImageCropWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void ImageCropWidget::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Tab) {
-        switch (_selectionMode) {
-        case FineSelection:
-            _selectionMode = SnapSelection;
-            break;
-        case SnapSelection:
-            _selectionMode = AreaSelection;
-            break;
-        case AreaSelection:
-            _selectionMode = FineSelection;
-            break;
-        }
-
-        emit selectionModeChanged(_selectionMode);
-
-        this->update();
-    }
-    else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+    if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
         finish();
     }
     else if (event->key() == Qt::Key_Escape) {
@@ -233,21 +211,7 @@ void ImageCropWidget::drawBanner(QPainter &painter)
 
     painter.fillRect(rect, brush);
 
-    // text
-    QString text = "";
-    switch (_selectionMode) {
-    case FineSelection:
-        text = tr("Fine");
-        break;
-    case SnapSelection:
-        text = tr("Snap");
-        break;
-    case AreaSelection:
-        text = tr("Area");
-        break;
-    }
-
-    text = text + tr(" selection mode is active (press [TAB] to switch)");
+    QString text = "Use mouse to select and adjust a region. Press Enter when done.";
 
     QPen pen(Qt::white);
     painter.setPen(pen);
