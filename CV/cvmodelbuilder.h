@@ -23,4 +23,6 @@ public:
 signals:
     void signalBuildCompleted(QSharedPointer<CvModel> model);
 
+private:
+    void build(const QImage& image, const CvModelBuilderOptions& options);
 };

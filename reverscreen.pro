@@ -1,4 +1,4 @@
-QT += core gui
+QT += core gui concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -12,7 +12,8 @@ SOURCES += main.cpp\
     linesdetector.cpp \
     CV/cvmodelbuilder.cpp \
     CV/cvmodel.cpp \
-    CV/cvmodelbuilderoptions.cpp
+    CV/cvmodelbuilderoptions.cpp \
+    regionselector.cpp
 
 HEADERS  += mainwindow.h \
     imagecropwidget.h \
@@ -20,7 +21,8 @@ HEADERS  += mainwindow.h \
     linesdetector.h \
     CV/cvmodelbuilder.h \
     CV/cvmodel.h \
-    CV/cvmodelbuilderoptions.h
+    CV/cvmodelbuilderoptions.h \
+    regionselector.h
 
 FORMS    += mainwindow.ui
 

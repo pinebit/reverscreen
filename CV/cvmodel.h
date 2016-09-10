@@ -11,7 +11,7 @@
 class CvModel
 {
 public:
-    std::vector<std::vector<cv::Point>> contours() const {
+    std::vector<std::vector<cv::Point>> const& contours() const {
         return _contours;
     }
 
