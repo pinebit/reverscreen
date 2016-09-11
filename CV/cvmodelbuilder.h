@@ -9,9 +9,10 @@
 #include <CV/cvmodel.h>
 #include <CV/cvmodelbuilderoptions.h>
 
+Q_DECLARE_METATYPE(QSharedPointer<CvModel>)
 
 // Implements computer vision logic.
-class CvModelBuilder : QObject
+class CvModelBuilder : public QObject
 {
     Q_OBJECT
 

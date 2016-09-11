@@ -1,6 +1,8 @@
 #include <CV/cvmodelbuilderoptions.h>
 
-CvModelBuilderOptions::CvModelBuilderOptions(bool _boostContrast)
-    : _boostContrast(_boostContrast)
+CvModelBuilderOptions::CvModelBuilderOptions()
 {
+    boostContrast = true;
+    cannyThreshold1 = 100;
+    cannyThreshold2 = 300;
 }

@@ -15,13 +15,15 @@ public:
         return _contours;
     }
 
-    std::vector<cv::Rect> boundingBoxes() const;
+    std::vector<cv::Rect> boundingBoxes() const {
+        return _boxes;
+    }
 
 private:
     friend class CvModelBuilder;
 
-    CvModel();
+    CvModel(const std::vector<std::vector<cv::Point>>& _contours);
 
     std::vector<std::vector<cv::Point>> _contours;
-    std::vector<cv::Vec4i> _hierarchy;
+    std::vector<cv::Rect> _boxes;
 };

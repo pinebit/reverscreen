@@ -5,8 +5,10 @@
 #include <QImage>
 #include <QSharedPointer>
 #include <QPaintEvent>
+#include <QCursor>
 
-class CvModel;
+// app
+#include <selectionstrategy.h>
 
 
 // UI control enabling region selection on a given image
@@ -15,12 +17,29 @@ class RegionSelector : public QWidget
     Q_OBJECT
 
 public:
-    explicit RegionSelector(QWidget *parent, const QImage& image, QSharedPointer<CvModel> model);
+    explicit RegionSelector(QWidget *parent, const QImage& image);
+
+    void setSelectionStrategy(QSharedPointer<SelectionStrategy> strategy, QCursor cursor);
+    QImage getSelectedImage();
+
+signals:
+    void signalRegionUpdated(QRect region);
 
 protected:
     void paintEvent(QPaintEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void wheelEvent(QWheelEvent* event);
+
+private:
+    void drawRegionRect(QPainter& painter);
+    void drawRegionShaders(QPainter& painter);
+    void drawHintRect(QPainter& painter);
 
 private:
     QImage _image;
-    QSharedPointer<CvModel> _model;
+    QSharedPointer<SelectionStrategy> _strategy;
+    QPoint _startPoint;
+    QPoint _endPoint;
 };

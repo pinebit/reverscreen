@@ -8,23 +8,24 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    imagecropwidget.cpp \
-    linesdetector.cpp \
     CV/cvmodelbuilder.cpp \
     CV/cvmodel.cpp \
     CV/cvmodelbuilderoptions.cpp \
-    regionselector.cpp
+    regionselector.cpp \
+    fineselectionstrategy.cpp \
+    snapselectionstrategy.cpp
 
 HEADERS  += mainwindow.h \
-    imagecropwidget.h \
-    asmopencv.h \
-    linesdetector.h \
     CV/cvmodelbuilder.h \
     CV/cvmodel.h \
     CV/cvmodelbuilderoptions.h \
-    regionselector.h
+    regionselector.h \
+    selectionstrategy.h \
+    fineselectionstrategy.h \
+    snapselectionstrategy.h \
+    fullscreenselectiondialog.h
 
-FORMS    += mainwindow.ui
+FORMS    +=
 
 RESOURCES += \
     reverscreen.qrc

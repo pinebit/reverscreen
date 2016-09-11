@@ -1,18 +1,16 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <QFileDialog>
-#include <QLabel>
-
-#include <memory>
-
-namespace Ui {
-    class MainWindow;
-}
+#include <QStatusBar>
+#include <QToolBar>
+#include <QAction>
+#include <QScrollArea>
 
 class QtAwesome;
-class ImageCropWidget;
+class RegionSelector;
+class CvModelBuilder;
+class CvModel;
 
 class MainWindow : public QMainWindow
 {
@@ -20,25 +18,33 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
 
 private slots:
-    void on_actionNew_triggered();
-    void on_actionCopy_triggered();
-    void on_actionSave_triggered();
+    void slotActionNew();
+    void slotActionCopy();
+    void slotActionSave();
+    void slotBuildCompleted(QSharedPointer<CvModel> model);
 
 private:
-    QPixmap grabScreen();
-    bool cropImage(std::shared_ptr<QPixmap> image);
     bool saveFile(const QString &fileName);
     void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
     void centerWindow();
     void delay(int millisecondsToWait);
+    void grabScreenshot();
+    void setupUi();
 
-    Ui::MainWindow *ui;
+    // CV
+    CvModelBuilder* builder;
+    QImage currentImage;
+
+    // UI
     QtAwesome *awesome;
-    ImageCropWidget *imageCrop;
-    QLabel* imageLabel;
+    RegionSelector *regionSelector;
+    QToolBar* toolbar;
+    QStatusBar* statusbar;
+    QAction* actionNew;
+    QAction* actionCopy;
+    QAction* actionSave;
+    QScrollArea* scrollArea;
 };
 
-#endif // MAINWINDOW_H

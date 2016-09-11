@@ -6,19 +6,13 @@ using namespace std;
 using namespace cv;
 
 
-vector<Rect> CvModel::boundingBoxes() const
+CvModel::CvModel(const std::vector<std::vector<cv::Point>>& _contours)
+    : _contours(_contours)
 {
-    vector<Rect> boxes;
-    boxes.reserve(_contours.size());
+    _boxes.reserve(_contours.size());
 
     for (auto const& contour: _contours) {
         Rect rt = boundingRect(contour);
-        boxes.push_back(rt);
+        _boxes.push_back(rt);
     }
-
-    return boxes;
-}
-
-CvModel::CvModel()
-{
 }

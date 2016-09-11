@@ -1,6 +1,3 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-
 #include <QMessageBox>
 #include <QImage>
 #include <QScreen>
@@ -12,82 +9,51 @@
 #include <QStyle>
 #include <QDesktopWidget>
 #include <QTime>
+#include <QGuiApplication>
+#include <QApplication>
+#include <QLabel>
+#include <QSharedPointer>
 
 #include <QtAwesome.h>
-#include <imagecropwidget.h>
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+#include <mainwindow.h>
+#include <regionselector.h>
+#include <fineselectionstrategy.h>
+#include <snapselectionstrategy.h>
+#include <CV/cvmodelbuilder.h>
+#include <CV/cvmodel.h>
+
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
 {
-    ui->setupUi(this);
+    setupUi();
 
-    awesome = new QtAwesome(this);
-    awesome->initFontAwesome();
-    awesome->setDefaultOption("scale-factor", 0.8);
-    awesome->setDefaultOption("color", QColor(100,50,70));
-    awesome->setDefaultOption("color-disabled", QColor(70,70,70,60));
-    awesome->setDefaultOption("color-active", QColor(180,60,80));
-    awesome->setDefaultOption("color-selected", QColor(200,70,90));
+    builder = new CvModelBuilder(this);
+    connect(builder, &builder->signalBuildCompleted, this, &this->slotBuildCompleted);
 
-    ui->actionNew->setIcon(awesome->icon(fa::cameraretro));
-    ui->actionCopy->setIcon(awesome->icon(fa::copy));
-    ui->actionSave->setIcon(awesome->icon(fa::save));
-
-    imageLabel = new QLabel;
-    imageLabel->setBackgroundRole(QPalette::Base);
-    imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    imageLabel->setScaledContents(true);
-    imageLabel->setAlignment(Qt::AlignCenter);
-
-    ui->scrollArea->setBackgroundRole(QPalette::BrightText);
-    ui->scrollArea->setWidget(imageLabel);
-    ui->scrollArea->setWidgetResizable(false);
-    ui->scrollArea->setVisible(false);
-
-    ui->actionCopy->setDisabled(true);
-    ui->actionSave->setDisabled(true);
-
-    setCentralWidget(ui->scrollArea);
-    ui->statusBar->showMessage(tr("Click NEW button for a new snipping."));
+    grabScreenshot();
 }
 
-MainWindow::~MainWindow()
+void MainWindow::slotActionNew()
 {
-    delete ui;
-}
-
-void MainWindow::on_actionNew_triggered()
-{
-    this->hide();
+    hide();
     delay(300);
 
-    std::shared_ptr<QPixmap> screenshot(new QPixmap(grabScreen()));
-
-    if (cropImage(screenshot)) {
-        imageLabel->setPixmap(*screenshot);
-        imageLabel->adjustSize();
-        ui->scrollArea->setVisible(true);
-
-        resize(screenshot->width() + 40, screenshot->height() + 80);
-        centerWindow();
-
-        ui->actionCopy->setDisabled(false);
-        ui->actionSave->setDisabled(false);
-    }
-
-    this->show();
+    grabScreenshot();
 }
 
-void MainWindow::on_actionCopy_triggered()
+void MainWindow::slotActionCopy()
 {
+    /*
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setPixmap(*imageLabel->pixmap());
 
     ui->statusBar->showMessage(tr("Copied to the clipboard."));
+    */
 }
 
-void MainWindow::on_actionSave_triggered()
+void MainWindow::slotActionSave()
 {
     QFileDialog dialog(this, tr("Save Image As"));
     initializeImageFileDialog(dialog, QFileDialog::AcceptSave);
@@ -95,32 +61,21 @@ void MainWindow::on_actionSave_triggered()
     while (dialog.exec() == QDialog::Accepted && !saveFile(dialog.selectedFiles().first())) {}
 }
 
-QPixmap MainWindow::grabScreen()
+void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
-    return screen->grabWindow(QApplication::desktop()->winId());
-}
+    QSharedPointer<SelectionStrategy> strategy(new SnapSelectionStrategy(model));
+    regionSelector = new RegionSelector(scrollArea, currentImage);
+    regionSelector->setSelectionStrategy(strategy, QCursor(Qt::CrossCursor));
+    scrollArea->setWidget(regionSelector);
 
-bool MainWindow::cropImage(std::shared_ptr<QPixmap> image)
-{
-    imageCrop = new ImageCropWidget(this);
-    imageCrop->setImage(image);
+    setCursor(Qt::ArrowCursor);
 
-    if (!imageCrop->proceed()) {
-        ui->statusBar->showMessage(tr("Snipping cancelled."));
-        return false;
-    }
-    else
-    {
-        *image = imageCrop->getCroppedImage();
-        delete imageCrop;
-        ui->statusBar->showMessage(tr("Snipping created."));
-        return true;
-    }
+    show();
 }
 
 bool MainWindow::saveFile(const QString &fileName)
 {
+    /*
     QImageWriter writer(fileName);
 
     const QImage& image = imageLabel->pixmap()->toImage();
@@ -132,6 +87,8 @@ bool MainWindow::saveFile(const QString &fileName)
     }
     const QString message = tr("Saved \"%1\"").arg(QDir::toNativeSeparators(fileName));
     statusBar()->showMessage(message);
+    */
+
     return true;
 }
 
@@ -177,8 +134,80 @@ void MainWindow::centerWindow()
 void MainWindow::delay(int millisecondsToWait)
 {
     QTime dieTime = QTime::currentTime().addMSecs( millisecondsToWait );
-    while( QTime::currentTime() < dieTime )
-    {
+    while( QTime::currentTime() < dieTime ) {
         QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
     }
+}
+
+void MainWindow::grabScreenshot()
+{
+    QScreen *screen = QGuiApplication::primaryScreen();
+    currentImage = screen->grabWindow(QApplication::desktop()->winId()).toImage();
+
+    setCursor(Qt::WaitCursor);
+
+    CvModelBuilderOptions options;
+    builder->buildAsync(currentImage, options);
+}
+
+void MainWindow::setupUi()
+{
+    // awesome font
+    awesome = new QtAwesome(this);
+    awesome->initFontAwesome();
+    awesome->setDefaultOption("scale-factor", 0.8);
+    awesome->setDefaultOption("color", QColor(100,50,70));
+    awesome->setDefaultOption("color-disabled", QColor(70,70,70,60));
+    awesome->setDefaultOption("color-active", QColor(180,60,80));
+    awesome->setDefaultOption("color-selected", QColor(200,70,90));
+
+    // geometry & title
+    setWindowTitle(tr("REVERSCREEN"));
+    setMinimumSize(QSize(400, 300));
+
+    // font
+    QFont font;
+    font.setFamily(QStringLiteral("Calibri"));
+    font.setPointSize(10);
+    setFont(font);
+
+    // icon
+    QIcon icon;
+    icon.addFile(QStringLiteral(":/images/reverscreen.png"), QSize(), QIcon::Normal, QIcon::Off);
+    setWindowIcon(icon);
+    setUnifiedTitleAndToolBarOnMac(true);
+
+    // toolbar
+    toolbar = new QToolBar(this);
+    toolbar->setFont(font);
+    toolbar->setMovable(false);
+    toolbar->setFloatable(false);
+    toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    addToolBar(Qt::TopToolBarArea, toolbar);
+
+    // statusbar
+    statusbar = new QStatusBar(this);
+    statusbar->setFont(font);
+    setStatusBar(statusbar);
+    statusbar->showMessage(tr("Ready."));
+
+    // actions
+    actionNew = new QAction(awesome->icon(fa::cameraretro), tr("NEW"), this);
+    actionCopy = new QAction(awesome->icon(fa::copy), tr("COPY"), this);
+    actionSave = new QAction(awesome->icon(fa::save), tr("SAVE"), this);
+
+    connect(actionNew, &actionNew->triggered, this, &slotActionNew);
+    connect(actionCopy, &actionCopy->triggered, this, &slotActionCopy);
+    connect(actionSave, &actionSave->triggered, this, &slotActionSave);
+
+    toolbar->insertAction(0, actionNew);
+    toolbar->insertAction(0, actionCopy);
+    toolbar->insertAction(0, actionSave);
+
+    // central widget
+    scrollArea = new QScrollArea(this);
+    scrollArea->setBackgroundRole(QPalette::BrightText);
+    scrollArea->setWidget(new QLabel(tr("LOADING...")));
+
+    setCentralWidget(scrollArea);
 }

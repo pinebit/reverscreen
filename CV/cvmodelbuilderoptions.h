@@ -1,25 +1,12 @@
 #pragma once
 
 
-// Represent immutable set of options for CvModelBuilder
-class CvModelBuilderOptions
+// Represent set of options for CvModelBuilder
+struct CvModelBuilderOptions
 {
-public:
-    CvModelBuilderOptions(bool _boostContrast = true);
+    CvModelBuilderOptions();
 
-    bool boostContrast() const {
-        return _boostContrast;
-    }
-
-    double cannyThreshold1() const {
-        return 100;
-    }
-
-    double cannyThreshold2() const {
-        return 300;
-    }
-
-private:
-    bool _boostContrast;
+    bool boostContrast;
+    double cannyThreshold1;
+    double cannyThreshold2;
 };
-
