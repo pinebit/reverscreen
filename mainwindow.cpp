@@ -46,6 +46,7 @@ void MainWindow::slotActionNew()
     FullscreenSelectionDialog dialog(this, _currentImage);
     if (dialog.exec() == QDialog::Accepted) {
         updateImage(dialog.getImage());
+        _statusbar->showMessage(tr("A screen region is captured."));
     }
 
     show();
@@ -64,7 +65,15 @@ void MainWindow::slotActionSave()
     QFileDialog dialog(this, tr("Save Image As"));
     initializeImageFileDialog(dialog, QFileDialog::AcceptSave);
 
-    while (dialog.exec() == QDialog::Accepted && !saveFile(dialog.selectedFiles().first())) {}
+    while (dialog.exec() == QDialog::Accepted && !saveImage(dialog.selectedFiles().first())) {}
+}
+
+void MainWindow::slotActionOpen()
+{
+    QFileDialog dialog(this, tr("Open Image"));
+    initializeImageFileDialog(dialog, QFileDialog::AcceptOpen);
+
+    while (dialog.exec() == QDialog::Accepted && !openImage(dialog.selectedFiles().first())) {}
 }
 
 void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
@@ -79,7 +88,7 @@ void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
     show();
 }
 
-bool MainWindow::saveFile(const QString &fileName)
+bool MainWindow::saveImage(const QString &fileName)
 {
     QImageWriter writer(fileName);
 
@@ -89,8 +98,26 @@ bool MainWindow::saveFile(const QString &fileName)
                                  .arg(QDir::toNativeSeparators(fileName)), writer.errorString());
         return false;
     }
+
     const QString message = tr("Saved \"%1\"").arg(QDir::toNativeSeparators(fileName));
     _statusbar->showMessage(message);
+
+    return true;
+}
+
+bool MainWindow::openImage(const QString &fileName)
+{
+    QImageReader reader(fileName);
+
+    QImage image = reader.read();
+    if (image.isNull()) {
+        return false;
+    }
+
+    const QString message = tr("Opened \"%1\"").arg(QDir::toNativeSeparators(fileName));
+    _statusbar->showMessage(message);
+
+    updateImage(image);
 
     return true;
 }
@@ -191,14 +218,18 @@ void MainWindow::setupUi()
 
     // actions
     _actionNew = new QAction(_awesome->icon(fa::cameraretro), tr("NEW"), this);
+    _actionOpen = new QAction(_awesome->icon(fa::filepictureo), tr("OPEN"), this);
     _actionCopy = new QAction(_awesome->icon(fa::copy), tr("COPY"), this);
     _actionSave = new QAction(_awesome->icon(fa::save), tr("SAVE"), this);
 
     connect(_actionNew, &_actionNew->triggered, this, &slotActionNew);
+    connect(_actionOpen, &_actionOpen->triggered, this, &slotActionOpen);
     connect(_actionCopy, &_actionCopy->triggered, this, &slotActionCopy);
     connect(_actionSave, &_actionSave->triggered, this, &slotActionSave);
 
     _toolbar->insertAction(0, _actionNew);
+    _toolbar->insertAction(0, _actionOpen);
+    _toolbar->insertSeparator(0);
     _toolbar->insertAction(0, _actionCopy);
     _toolbar->insertAction(0, _actionSave);
 

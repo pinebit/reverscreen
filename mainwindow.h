@@ -23,10 +23,12 @@ private slots:
     void slotActionNew();
     void slotActionCopy();
     void slotActionSave();
+    void slotActionOpen();
     void slotBuildCompleted(QSharedPointer<CvModel> model);
 
 private:
-    bool saveFile(const QString &fileName);
+    bool saveImage(const QString &fileName);
+    bool openImage(const QString &fileName);
     void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
     void centerWindow();
     void delay(int millisecondsToWait);
@@ -43,6 +45,7 @@ private:
     QToolBar* _toolbar;
     QStatusBar* _statusbar;
     QAction* _actionNew;
+    QAction* _actionOpen;
     QAction* _actionCopy;
     QAction* _actionSave;
     QScrollArea* _scrollArea;
