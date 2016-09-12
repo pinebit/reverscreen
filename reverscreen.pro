@@ -29,16 +29,14 @@ HEADERS  += mainwindow.h \
     fullscreenselectiondialog.h \
     fadeanimation.h
 
-FORMS    +=
-
 RESOURCES += \
     reverscreen.qrc
 
-INCLUDEPATH += C:/OpenCV/mingw/install/include
-LIBS += -L"C:/OpenCV/mingw/install/x86/mingw/lib" \
-    -lopencv_core2413 \
-    -lopencv_imgproc2413 \
-    -lopencv_highgui2413
+INCLUDEPATH += C:/OpenCV/mingw_release/include
+LIBS += -L"C:/OpenCV/mingw_release/x86/mingw/lib"
+LIBS += \
+    -lopencv_core2413.dll \
+    -lopencv_imgproc2413.dll
 
 QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 
@@ -48,12 +46,3 @@ include(QtAwesome/QtAwesome.pri)
 
 SUBDIRS += \
     QtAwesome/QtAwesome.pro
-
-DISTFILES += \
-    images/copy.png \
-    images/new.png \
-    images/save.png \
-    website/css/animate.css \
-    website/css/styles.css \
-    website/index.html \
-    README.md
