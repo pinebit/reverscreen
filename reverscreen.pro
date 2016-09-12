@@ -32,8 +32,18 @@ HEADERS  += mainwindow.h \
 RESOURCES += \
     reverscreen.qrc
 
+CONFIG(release, debug|release)
+{
 INCLUDEPATH += C:/OpenCV/mingw_release/include
 LIBS += -L"C:/OpenCV/mingw_release/x86/mingw/lib"
+}
+
+CONFIG(debug, debug|release)
+{
+INCLUDEPATH += C:/OpenCV/mingw_debug/include
+LIBS += -L"C:/OpenCV/mingw_debug/x86/mingw/lib"
+}
+
 LIBS += \
     -lopencv_core2413.dll \
     -lopencv_imgproc2413.dll
@@ -45,4 +55,5 @@ win32:RC_ICONS += images/reverscreen.ico
 include(QtAwesome/QtAwesome.pri)
 
 SUBDIRS += \
+    QtAwesome/QtAwesome.pro \
     QtAwesome/QtAwesome.pro
