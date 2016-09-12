@@ -30,21 +30,21 @@ private:
     void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
     void centerWindow();
     void delay(int millisecondsToWait);
-    void grabScreenshot();
+    void updateImage(const QImage& image);
     void setupUi();
 
     // CV
-    CvModelBuilder* builder;
-    QImage currentImage;
+    CvModelBuilder* _builder;
+    QImage _currentImage;
 
     // UI
-    QtAwesome *awesome;
-    RegionSelector *regionSelector;
-    QToolBar* toolbar;
-    QStatusBar* statusbar;
-    QAction* actionNew;
-    QAction* actionCopy;
-    QAction* actionSave;
-    QScrollArea* scrollArea;
+    QtAwesome* _awesome;
+    RegionSelector* _regionSelector;
+    QToolBar* _toolbar;
+    QStatusBar* _statusbar;
+    QAction* _actionNew;
+    QAction* _actionCopy;
+    QAction* _actionSave;
+    QScrollArea* _scrollArea;
 };
 

@@ -6,7 +6,6 @@
 #include <regionselector.h>
 
 static const QColor RegionColor = Qt::red;
-static const QColor HintRectColor = Qt::darkGreen;
 static const QColor ShaderColor = QColor::fromRgba(0x50a0a0a0);
 
 RegionSelector::RegionSelector(QWidget *parent, const QImage& image)
@@ -14,7 +13,6 @@ RegionSelector::RegionSelector(QWidget *parent, const QImage& image)
     , _image(image)
 {
     resize(image.size());
-    setMouseTracking(true);
 }
 
 void RegionSelector::setSelectionStrategy(QSharedPointer<SelectionStrategy> strategy, QCursor cursor)
@@ -55,30 +53,47 @@ void RegionSelector::mousePressEvent(QMouseEvent *event)
     }
 }
 
+void RegionSelector::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        event->accept();
+        emit signalSelectionFinished();
+    }
+}
+
 void RegionSelector::mouseMoveEvent(QMouseEvent *event)
 {
-    event->accept();
+    if (event->buttons() == Qt::LeftButton) {
+        event->accept();
 
-    if (event->buttons() == Qt::NoButton) {
-        QRect hint = _strategy->hint(event->pos());
-        _startPoint = hint.topLeft();
-        _endPoint = hint.bottomRight();
-    }
-    else if (event->buttons() == Qt::LeftButton) {
         _endPoint = _strategy->end(QRect(_startPoint, event->pos()));
-    }
 
-    update();
+        update();
+    }
 }
 
 void RegionSelector::keyPressEvent(QKeyEvent *event)
 {
-    Q_UNUSED(event);
+    if (event->key() == Qt::Key_Escape) {
+        event->accept();
+        emit signalSelectionCancelled();
+    }
 }
 
 void RegionSelector::wheelEvent(QWheelEvent *event)
 {
     Q_UNUSED(event);
+}
+
+void RegionSelector::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    event->accept();
+
+    QRect hint = _strategy->hint(event->pos());
+    _startPoint = hint.topLeft();
+    _endPoint = hint.bottomRight();
+
+    update();
 }
 
 void RegionSelector::drawRegionRect(QPainter &painter)

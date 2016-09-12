@@ -13,7 +13,9 @@ SOURCES += main.cpp\
     CV/cvmodelbuilderoptions.cpp \
     regionselector.cpp \
     fineselectionstrategy.cpp \
-    snapselectionstrategy.cpp
+    snapselectionstrategy.cpp \
+    fullscreenselectiondialog.cpp \
+    fadeanimation.cpp
 
 HEADERS  += mainwindow.h \
     CV/cvmodelbuilder.h \
@@ -23,7 +25,8 @@ HEADERS  += mainwindow.h \
     selectionstrategy.h \
     fineselectionstrategy.h \
     snapselectionstrategy.h \
-    fullscreenselectiondialog.h
+    fullscreenselectiondialog.h \
+    fadeanimation.h
 
 FORMS    +=
 
