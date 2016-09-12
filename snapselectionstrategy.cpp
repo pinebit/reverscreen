@@ -11,6 +11,8 @@
 using namespace cv;
 using namespace std;
 
+#define MIN_AREA    32
+
 
 inline QRect convertRect(const Rect& rect) {
     return QRect(rect.x, rect.y, rect.width, rect.height);
@@ -36,6 +38,10 @@ QRect SnapSelectionStrategy::hint(const QPoint &point)
     for (auto const& box: _model->boundingBoxes()) {
         if (box.contains(cv_point)) {
             int area = box.area();
+            if (area < MIN_AREA) {
+                continue;
+            }
+
             if (area < min_area) {
                 min_area = area;
                 min_rect = box;
@@ -54,6 +60,10 @@ QPoint SnapSelectionStrategy::begin(const QPoint &point)
     int sy = point.y();
 
     for (auto const& box: _model->boundingBoxes()) {
+        if (box.area() < MIN_AREA) {
+            continue;
+        }
+
         QList<QPoint> points;
         QRect qrect = convertRect(box);
         points << qrect.topLeft() << qrect.topRight() << qrect.bottomLeft() << qrect.bottomRight();
@@ -84,6 +94,10 @@ QPoint SnapSelectionStrategy::end(const QRect &rect)
     int sy = rect.bottom();
 
     for (auto const& box: _model->boundingBoxes()) {
+        if (box.area() < MIN_AREA) {
+            continue;
+        }
+
         QList<QPoint> points;
         QRect qbox = convertRect(box);
         points << qbox.topLeft() << qbox.topRight() << qbox.bottomLeft() << qbox.bottomRight();
