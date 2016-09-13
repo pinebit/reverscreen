@@ -9,41 +9,45 @@ CONFIG += c++11
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    CV/cvmodelbuilder.cpp \
-    CV/cvmodel.cpp \
-    CV/cvmodelbuilderoptions.cpp \
+    cv/cvmodelbuilder.cpp \
+    cv/cvmodel.cpp \
+    cv/cvmodelbuilderoptions.cpp \
     regionselector.cpp \
     fineselectionstrategy.cpp \
     snapselectionstrategy.cpp \
     fullscreenselectiondialog.cpp \
     fadeanimation.cpp \
-    colorpicker.cpp
+    dock/colorswidget.cpp \
+    dock/cropwidget.cpp \
+    widgetfactory.cpp
 
 HEADERS  += mainwindow.h \
-    CV/cvmodelbuilder.h \
-    CV/cvmodel.h \
-    CV/cvmodelbuilderoptions.h \
+    cv/cvmodelbuilder.h \
+    cv/cvmodel.h \
+    cv/cvmodelbuilderoptions.h \
     regionselector.h \
     selectionstrategy.h \
     fineselectionstrategy.h \
     snapselectionstrategy.h \
     fullscreenselectiondialog.h \
     fadeanimation.h \
-    colorpicker.h
+    dock/colorswidget.h \
+    dock/cropwidget.h \
+    widgetfactory.h
 
 RESOURCES += \
     reverscreen.qrc
 
 CONFIG(release, debug|release)
 {
-INCLUDEPATH += C:/OpenCV/mingw_release/include
-LIBS += -L"C:/OpenCV/mingw_release/x86/mingw/lib"
+INCLUDEPATH += C:/Opencv/mingw_release/include
+LIBS += -L"C:/Opencv/mingw_release/x86/mingw/lib"
 }
 
 CONFIG(debug, debug|release)
 {
-INCLUDEPATH += C:/OpenCV/mingw_debug/include
-LIBS += -L"C:/OpenCV/mingw_debug/x86/mingw/lib"
+INCLUDEPATH += C:/Opencv/mingw_debug/include
+LIBS += -L"C:/Opencv/mingw_debug/x86/mingw/lib"
 }
 
 LIBS += \

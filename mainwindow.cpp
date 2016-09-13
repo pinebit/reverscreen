@@ -20,7 +20,8 @@
 
 #include <mainwindow.h>
 #include <regionselector.h>
-#include <colorpicker.h>
+#include <dock/colorswidget.h>
+#include <dock/cropwidget.h>
 #include <fullscreenselectiondialog.h>
 #include <fineselectionstrategy.h>
 #include <snapselectionstrategy.h>
@@ -89,7 +90,7 @@ void MainWindow::slotActionCrop()
 
 void MainWindow::slotSelectionStarted()
 {
-    if (_colorPickerDock->isVisible()) {
+    if (_colorsDock->isVisible()) {
         QRect region = _regionSelector->selectedRegion();
         QColor color = _currentImage.pixelColor(region.left(), region.top());
         emit signalColorPicked(color);
@@ -190,10 +191,10 @@ void MainWindow::updateImage(const QImage& image)
 
     connect(_regionSelector, &_regionSelector->signalSelectionStarted, this, &this->slotSelectionStarted);
 
-    ColorPicker* colorPicker = new ColorPicker(_colorPickerDock);
+    ColorsWidget* colorPicker = new ColorsWidget(_colorsDock);
     connect(this, &this->signalColorPicked, colorPicker, &colorPicker->slotColorChanged);
     connect(colorPicker, &colorPicker->signalRemoveColor, this, &this->slotRemoveColor);
-    _colorPickerDock->setWidget(colorPicker);
+    _colorsDock->setWidget(colorPicker);
 
     setCursor(Qt::ArrowCursor);
 
@@ -212,7 +213,7 @@ void MainWindow::setupUi()
     // awesome font
     _awesome = new QtAwesome(this);
     _awesome->initFontAwesome();
-    _awesome->setDefaultOption("scale-factor", 0.8);
+    _awesome->setDefaultOption("scale-factor", 0.7);
     _awesome->setDefaultOption("color", QColor(100,50,70));
     _awesome->setDefaultOption("color-disabled", QColor(70,70,70,60));
     _awesome->setDefaultOption("color-active", QColor(180,60,80));
@@ -249,13 +250,11 @@ void MainWindow::setupUi()
     // _actionOpen = new QAction(_awesome->icon(fa::filepictureo), tr("Open"), this);
     _actionCopy = new QAction(_awesome->icon(fa::copy), tr("Copy"), this);
     _actionSave = new QAction(_awesome->icon(fa::save), tr("Save"), this);
-    _actionCrop = new QAction(_awesome->icon(fa::crop), tr("Crop"), this);
 
     connect(_actionNew, &_actionNew->triggered, this, &slotActionNew);
     // connect(_actionOpen, &_actionOpen->triggered, this, &slotActionOpen);
     connect(_actionCopy, &_actionCopy->triggered, this, &slotActionCopy);
     connect(_actionSave, &_actionSave->triggered, this, &slotActionSave);
-    connect(_actionCrop, &_actionSave->triggered, this, &slotActionCrop);
 
     _toolbar->insertAction(0, _actionNew);
     // _toolbar->insertAction(0, _actionOpen);
@@ -282,16 +281,32 @@ void MainWindow::setupUi()
     setCentralWidget(_scrollArea);
 
     // docked widgets
-    _colorPickerDock = new QDockWidget(tr("Color Picker"), this);
-    _colorPickerDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    _colorPickerDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
-    _colorPickerDock->setVisible(false);
-    addDockWidget(Qt::RightDockWidgetArea, _colorPickerDock);
-    _colorPickerDock->toggleViewAction()->setIcon(_awesome->icon(fa::eyedropper));
+    _cropDock = new QDockWidget(tr("Crop"), this);
+    _cropDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    _cropDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
+    _cropDock->setVisible(false);
+    addDockWidget(Qt::RightDockWidgetArea, _cropDock);
+    _cropDock->setWidget(new CropWidget(_cropDock));
+    _cropDock->toggleViewAction()->setIcon(_awesome->icon(fa::crop));
+
+    _colorsDock = new QDockWidget(tr("Colors"), this);
+    _colorsDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    _colorsDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
+    _colorsDock->setVisible(false);
+    addDockWidget(Qt::RightDockWidgetArea, _colorsDock);
+    _colorsDock->toggleViewAction()->setIcon(_awesome->icon(fa::eyedropper));
+
+    _highlightDock = new QDockWidget(tr("Highlight"), this);
+    _highlightDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    _highlightDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
+    _highlightDock->setVisible(false);
+    addDockWidget(Qt::RightDockWidgetArea, _highlightDock);
+    _highlightDock->toggleViewAction()->setIcon(_awesome->icon(fa::lightbulbo));
 
     _toolbar->insertSeparator(0);
-    _toolbar->addAction(_actionCrop);
-    _toolbar->addAction(_colorPickerDock->toggleViewAction());
+    _toolbar->addAction(_cropDock->toggleViewAction());
+    _toolbar->addAction(_colorsDock->toggleViewAction());
+    _toolbar->addAction(_highlightDock->toggleViewAction());
 
 
     centerWindow();

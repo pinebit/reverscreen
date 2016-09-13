@@ -53,8 +53,9 @@ private:
     QAction* _actionOpen;
     QAction* _actionCopy;
     QAction* _actionSave;
-    QAction* _actionCrop;
 
-    QDockWidget* _colorPickerDock;
+    QDockWidget* _colorsDock;
+    QDockWidget* _cropDock;
+    QDockWidget* _highlightDock;
 };
 

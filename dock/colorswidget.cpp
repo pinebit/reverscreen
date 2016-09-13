@@ -1,4 +1,5 @@
-#include <colorpicker.h>
+#include <dock/colorswidget.h>
+#include <widgetfactory.h>
 
 #include <QGuiApplication>
 #include <QVBoxLayout>
@@ -8,7 +9,7 @@
 #include <QPalette>
 
 
-ColorPicker::ColorPicker(QWidget *parent)
+ColorsWidget::ColorsWidget(QWidget *parent)
     : QWidget(parent)
 {
     QVBoxLayout* vlayout = new QVBoxLayout(this);
@@ -26,22 +27,24 @@ ColorPicker::ColorPicker(QWidget *parent)
     _removeButton = new QPushButton(tr("Remove color on image"), this);
     connect(_removeButton, &_copyButton->clicked, this, &this->slotRemoveColorButton);
 
-    QLabel* infoLabel = new QLabel(tr("Click on the image to pick a color"));
-    infoLabel->setStyleSheet("QLabel { color : #555 }");
-
-    vlayout->addSpacing(16);
-    vlayout->addWidget(infoLabel);
-    vlayout->addSpacing(16);
+    vlayout->addSpacing(8);
+    vlayout->addWidget(WidgetFactory::createInfoLabel(tr("Click on the image to pick a color")));
+    vlayout->addSpacing(8);
     vlayout->addLayout(hlayout);
     vlayout->addSpacing(8);
     vlayout->addWidget(_copyButton);
+    vlayout->addSpacing(8);
+    vlayout->addWidget(WidgetFactory::createHSeparator());
+    vlayout->addSpacing(8);
+    vlayout->addWidget(WidgetFactory::createInfoLabel(tr("This action removes all pixels\nmatching the selected color.")));
     vlayout->addWidget(_removeButton);
+    vlayout->addSpacing(8);
     vlayout->addStretch();
 
     slotColorChanged(Qt::black);
 }
 
-void ColorPicker::slotColorChanged(QColor color)
+void ColorsWidget::slotColorChanged(QColor color)
 {
     _color = color;
 
@@ -53,13 +56,13 @@ void ColorPicker::slotColorChanged(QColor color)
     _hexLabel->setText(color.name().toUpper());
 }
 
-void ColorPicker::slotCopyButton()
+void ColorsWidget::slotCopyButton()
 {
     QClipboard *clipboard = QGuiApplication::clipboard();
     clipboard->setText(_hexLabel->text());
 }
 
-void ColorPicker::slotRemoveColorButton()
+void ColorsWidget::slotRemoveColorButton()
 {
     emit signalRemoveColor(_color);
 }

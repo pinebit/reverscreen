@@ -6,12 +6,12 @@
 #include <QColor>
 
 
-class ColorPicker : public QWidget
+class ColorsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit ColorPicker(QWidget *parent);
+    explicit ColorsWidget(QWidget *parent);
 
 signals:
     void signalRemoveColor(QColor color);
@@ -24,6 +24,9 @@ private slots:
     void slotRemoveColorButton();
 
 private:
+    QWidget* createHSeparator() const;
+    QLabel* createInfoLabel(const QString& text) const;
+
     QColor _color;
     QLabel* _colorLabel;
     QLabel* _hexLabel;
