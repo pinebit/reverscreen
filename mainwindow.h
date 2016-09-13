@@ -25,6 +25,7 @@ private slots:
     void slotActionOpen();
     void slotActionCrop();
     void slotSelectionStarted();
+    void slotRemoveColor(QColor color);
 
 signals:
     void signalColorPicked(QColor color);
@@ -43,14 +44,17 @@ private:
     // UI
     QtAwesome* _awesome;
     RegionSelector* _regionSelector;
+    QScrollArea* _scrollArea;
+
     QToolBar* _toolbar;
     QStatusBar* _statusbar;
+
     QAction* _actionNew;
     QAction* _actionOpen;
     QAction* _actionCopy;
     QAction* _actionSave;
     QAction* _actionCrop;
-    QScrollArea* _scrollArea;
+
     QDockWidget* _colorPickerDock;
 };
 

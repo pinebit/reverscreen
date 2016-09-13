@@ -13,16 +13,21 @@ class ColorPicker : public QWidget
 public:
     explicit ColorPicker(QWidget *parent);
 
+signals:
+    void signalRemoveColor(QColor color);
+
 public slots:
     void slotColorChanged(QColor color);
 
 private slots:
     void slotCopyButton();
+    void slotRemoveColorButton();
 
 private:
+    QColor _color;
     QLabel* _colorLabel;
     QLabel* _hexLabel;
     QPushButton* _copyButton;
-
+    QPushButton* _removeButton;
 };
 

@@ -14,6 +14,7 @@
 #include <QLabel>
 #include <QSharedPointer>
 #include <QListWidget>
+#include <QBitmap>
 
 #include <QtAwesome.h>
 
@@ -91,6 +92,14 @@ void MainWindow::slotSelectionStarted()
         QColor color = _currentImage.pixelColor(region.left(), region.top());
         emit signalColorPicked(color);
     }
+}
+
+void MainWindow::slotRemoveColor(QColor color)
+{
+    QPixmap pixmap = QPixmap::fromImage(_currentImage);
+    QBitmap mask = pixmap.createHeuristicMask();
+    pixmap.setMask(mask);
+    updateImage(pixmap.toImage());
 }
 
 bool MainWindow::saveImage(const QString &fileName)
@@ -172,10 +181,8 @@ void MainWindow::delay(int millisecondsToWait)
 
 void MainWindow::updateImage(const QImage& image)
 {
-    _currentImage = image;
-
     QSharedPointer<SelectionStrategy> strategy(new FineSelectionStrategy());
-    _regionSelector = new RegionSelector(_scrollArea, _currentImage);
+    _regionSelector = new RegionSelector(_scrollArea, image);
     _regionSelector->setSelectionStrategy(strategy, QCursor(Qt::CrossCursor));
     _scrollArea->setWidget(_regionSelector);
 
@@ -183,9 +190,17 @@ void MainWindow::updateImage(const QImage& image)
 
     ColorPicker* colorPicker = new ColorPicker(_colorPickerDock);
     connect(this, &this->signalColorPicked, colorPicker, &colorPicker->slotColorChanged);
+    connect(colorPicker, &colorPicker->signalRemoveColor, this, &this->slotRemoveColor);
     _colorPickerDock->setWidget(colorPicker);
 
     setCursor(Qt::ArrowCursor);
+
+    if (image.format() != QImage::Format_RGBA8888) {
+       _currentImage = image.convertToFormat(QImage::Format_RGBA8888);
+    }
+    else {
+        _currentImage = image;
+    }
 
     show();
 }

@@ -20,8 +20,11 @@ ColorPicker::ColorPicker(QWidget *parent)
     hlayout->addWidget(_colorLabel);
     hlayout->addWidget(_hexLabel);
 
-    _copyButton = new QPushButton(tr("COPY"), this);
+    _copyButton = new QPushButton(tr("Copy to clipboard"), this);
     connect(_copyButton, &_copyButton->clicked, this, &this->slotCopyButton);
+
+    _removeButton = new QPushButton(tr("Remove color on image"), this);
+    connect(_removeButton, &_copyButton->clicked, this, &this->slotRemoveColorButton);
 
     QLabel* infoLabel = new QLabel(tr("Click on the image to pick a color"));
     infoLabel->setStyleSheet("QLabel { color : #555 }");
@@ -32,6 +35,7 @@ ColorPicker::ColorPicker(QWidget *parent)
     vlayout->addLayout(hlayout);
     vlayout->addSpacing(8);
     vlayout->addWidget(_copyButton);
+    vlayout->addWidget(_removeButton);
     vlayout->addStretch();
 
     slotColorChanged(Qt::black);
@@ -39,6 +43,8 @@ ColorPicker::ColorPicker(QWidget *parent)
 
 void ColorPicker::slotColorChanged(QColor color)
 {
+    _color = color;
+
     QPixmap icon(32, 16);
     icon.fill(color);
 
@@ -51,4 +57,9 @@ void ColorPicker::slotCopyButton()
 {
     QClipboard *clipboard = QGuiApplication::clipboard();
     clipboard->setText(_hexLabel->text());
+}
+
+void ColorPicker::slotRemoveColorButton()
+{
+    emit signalRemoveColor(_color);
 }
