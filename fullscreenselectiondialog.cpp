@@ -11,15 +11,13 @@
 FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QImage &image)
     : QDialog(parent)
 {
-    _image = image;
-
     setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool | Qt::SubWindow);
     setWindowState(Qt::WindowFullScreen);
     setFocusPolicy(Qt::StrongFocus);
     setFocus();
 
     QSharedPointer<SelectionStrategy> strategy(new FineSelectionStrategy());
-    _regionSelector = new RegionSelector(this, _image);
+    _regionSelector = new RegionSelector(this, image);
     _regionSelector->setSelectionStrategy(strategy, QCursor(Qt::WaitCursor));
     connect(_regionSelector, &_regionSelector->signalSelectionFinished, this, this->slotSelectionFinished);
     connect(_regionSelector, &_regionSelector->signalSelectionCancelled, this, this->reject);
@@ -28,7 +26,7 @@ FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QIma
     connect(_builder, &_builder->signalBuildCompleted, this, &this->slotBuildCompleted);
 
     CvModelBuilderOptions options;
-    _builder->buildAsync(_image, options);
+    _builder->buildAsync(image, options);
 }
 
 void FullscreenSelectionDialog::slotBuildCompleted(QSharedPointer<CvModel> model)
@@ -41,6 +39,6 @@ void FullscreenSelectionDialog::slotBuildCompleted(QSharedPointer<CvModel> model
 
 void FullscreenSelectionDialog::slotSelectionFinished()
 {
-    _image = _regionSelector->getSelectedImage();
+    _selectedRegion = _regionSelector->selectedRegion();
     accept();
 }

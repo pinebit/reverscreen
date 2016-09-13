@@ -23,10 +23,9 @@ void RegionSelector::setSelectionStrategy(QSharedPointer<SelectionStrategy> stra
     update();
 }
 
-QImage RegionSelector::getSelectedImage()
+QRect RegionSelector::selectedRegion() const
 {
-    QRect normalizedRect = QRect(_startPoint, _endPoint).normalized();
-    return _image.copy(normalizedRect);
+    return QRect(_startPoint, _endPoint).normalized();
 }
 
 void RegionSelector::paintEvent(QPaintEvent *event)
@@ -50,6 +49,8 @@ void RegionSelector::mousePressEvent(QMouseEvent *event)
         _endPoint = _startPoint = _strategy->begin(event->pos());
         update();
         event->accept();
+
+        emit signalSelectionStarted();
     }
 }
 

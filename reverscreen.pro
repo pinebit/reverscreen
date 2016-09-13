@@ -16,7 +16,8 @@ SOURCES += main.cpp\
     fineselectionstrategy.cpp \
     snapselectionstrategy.cpp \
     fullscreenselectiondialog.cpp \
-    fadeanimation.cpp
+    fadeanimation.cpp \
+    colorpicker.cpp
 
 HEADERS  += mainwindow.h \
     CV/cvmodelbuilder.h \
@@ -27,7 +28,8 @@ HEADERS  += mainwindow.h \
     fineselectionstrategy.h \
     snapselectionstrategy.h \
     fullscreenselectiondialog.h \
-    fadeanimation.h
+    fadeanimation.h \
+    colorpicker.h
 
 RESOURCES += \
     reverscreen.qrc

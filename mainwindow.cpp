@@ -19,20 +19,16 @@
 
 #include <mainwindow.h>
 #include <regionselector.h>
+#include <colorpicker.h>
 #include <fullscreenselectiondialog.h>
 #include <fineselectionstrategy.h>
 #include <snapselectionstrategy.h>
-#include <CV/cvmodelbuilder.h>
-#include <CV/cvmodel.h>
 
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setupUi();
-
-    _builder = new CvModelBuilder(this);
-    connect(_builder, &_builder->signalBuildCompleted, this, &this->slotBuildCompleted);
 }
 
 void MainWindow::slotActionNew()
@@ -45,7 +41,7 @@ void MainWindow::slotActionNew()
 
     FullscreenSelectionDialog dialog(this, _currentImage);
     if (dialog.exec() == QDialog::Accepted) {
-        updateImage(dialog.getImage());
+        updateImage(_currentImage.copy(dialog.selectedRegion()));
         _statusbar->showMessage(tr("A screen region is captured."));
     }
 
@@ -76,16 +72,25 @@ void MainWindow::slotActionOpen()
     while (dialog.exec() == QDialog::Accepted && !openImage(dialog.selectedFiles().first())) {}
 }
 
-void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
+void MainWindow::slotActionCrop()
 {
-    QSharedPointer<SelectionStrategy> strategy(new SnapSelectionStrategy(model));
-    _regionSelector = new RegionSelector(_scrollArea, _currentImage);
-    _regionSelector->setSelectionStrategy(strategy, QCursor(Qt::CrossCursor));
-    _scrollArea->setWidget(_regionSelector);
+    if (!_regionSelector->selectedRegion().isValid()) {
+        return;
+    }
 
-    setCursor(Qt::ArrowCursor);
+    QSize size = _regionSelector->selectedRegion().size();
+    updateImage(_currentImage.copy(_regionSelector->selectedRegion()));
 
-    show();
+    _statusbar->showMessage(tr("Image cropped. New size: %1x%2").arg(size.width()).arg(size.height()));
+}
+
+void MainWindow::slotSelectionStarted()
+{
+    if (_colorPickerDock->isVisible()) {
+        QRect region = _regionSelector->selectedRegion();
+        QColor color = _currentImage.pixelColor(region.left(), region.top());
+        emit signalColorPicked(color);
+    }
 }
 
 bool MainWindow::saveImage(const QString &fileName)
@@ -167,12 +172,22 @@ void MainWindow::delay(int millisecondsToWait)
 
 void MainWindow::updateImage(const QImage& image)
 {
-    setCursor(Qt::WaitCursor);
-
     _currentImage = image;
 
-    CvModelBuilderOptions options;
-    _builder->buildAsync(_currentImage, options);
+    QSharedPointer<SelectionStrategy> strategy(new FineSelectionStrategy());
+    _regionSelector = new RegionSelector(_scrollArea, _currentImage);
+    _regionSelector->setSelectionStrategy(strategy, QCursor(Qt::CrossCursor));
+    _scrollArea->setWidget(_regionSelector);
+
+    connect(_regionSelector, &_regionSelector->signalSelectionStarted, this, &this->slotSelectionStarted);
+
+    ColorPicker* colorPicker = new ColorPicker(_colorPickerDock);
+    connect(this, &this->signalColorPicked, colorPicker, &colorPicker->slotColorChanged);
+    _colorPickerDock->setWidget(colorPicker);
+
+    setCursor(Qt::ArrowCursor);
+
+    show();
 }
 
 void MainWindow::setupUi()
@@ -196,10 +211,6 @@ void MainWindow::setupUi()
     font.setPointSize(10);
     setFont(font);
 
-    // icon
-    QIcon icon;
-    icon.addFile(QStringLiteral(":/images/reverscreen.png"), QSize(), QIcon::Normal, QIcon::Off);
-    setWindowIcon(icon);
     setUnifiedTitleAndToolBarOnMac(true);
 
     // toolbar
@@ -217,25 +228,27 @@ void MainWindow::setupUi()
     _statusbar->showMessage(tr("Ready."));
 
     // actions
-    _actionNew = new QAction(_awesome->icon(fa::cameraretro), tr("NEW"), this);
-    _actionOpen = new QAction(_awesome->icon(fa::filepictureo), tr("OPEN"), this);
-    _actionCopy = new QAction(_awesome->icon(fa::copy), tr("COPY"), this);
-    _actionSave = new QAction(_awesome->icon(fa::save), tr("SAVE"), this);
+    _actionNew = new QAction(_awesome->icon(fa::cameraretro), tr("New"), this);
+    // _actionOpen = new QAction(_awesome->icon(fa::filepictureo), tr("Open"), this);
+    _actionCopy = new QAction(_awesome->icon(fa::copy), tr("Copy"), this);
+    _actionSave = new QAction(_awesome->icon(fa::save), tr("Save"), this);
+    _actionCrop = new QAction(_awesome->icon(fa::crop), tr("Crop"), this);
 
     connect(_actionNew, &_actionNew->triggered, this, &slotActionNew);
-    connect(_actionOpen, &_actionOpen->triggered, this, &slotActionOpen);
+    // connect(_actionOpen, &_actionOpen->triggered, this, &slotActionOpen);
     connect(_actionCopy, &_actionCopy->triggered, this, &slotActionCopy);
     connect(_actionSave, &_actionSave->triggered, this, &slotActionSave);
+    connect(_actionCrop, &_actionSave->triggered, this, &slotActionCrop);
 
     _toolbar->insertAction(0, _actionNew);
-    _toolbar->insertAction(0, _actionOpen);
-    _toolbar->insertSeparator(0);
+    // _toolbar->insertAction(0, _actionOpen);
     _toolbar->insertAction(0, _actionCopy);
     _toolbar->insertAction(0, _actionSave);
 
     // central widget
     _scrollArea = new QScrollArea(this);
     _scrollArea->setBackgroundRole(QPalette::BrightText);
+    _scrollArea->setAlignment(Qt::AlignCenter);
 
     /*
     QListWidget* lw = new QListWidget(this);
@@ -250,6 +263,19 @@ void MainWindow::setupUi()
     */
 
     setCentralWidget(_scrollArea);
+
+    // docked widgets
+    _colorPickerDock = new QDockWidget(tr("Color Picker"), this);
+    _colorPickerDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    _colorPickerDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
+    _colorPickerDock->setVisible(false);
+    addDockWidget(Qt::RightDockWidgetArea, _colorPickerDock);
+    _colorPickerDock->toggleViewAction()->setIcon(_awesome->icon(fa::eyedropper));
+
+    _toolbar->insertSeparator(0);
+    _toolbar->addAction(_actionCrop);
+    _toolbar->addAction(_colorPickerDock->toggleViewAction());
+
 
     centerWindow();
 }

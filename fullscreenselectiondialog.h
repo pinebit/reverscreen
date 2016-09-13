@@ -16,8 +16,8 @@ class FullscreenSelectionDialog : public QDialog
 public:
     FullscreenSelectionDialog(QWidget* parent, const QImage& image);
 
-    QImage getImage() const {
-        return _image;
+    QRect selectedRegion() const {
+        return _selectedRegion;
     }
 
 private slots:
@@ -26,7 +26,7 @@ private slots:
 
 private:
     RegionSelector* _regionSelector;
-    QImage _image;
     CvModelBuilder* _builder;
+    QRect           _selectedRegion;
 };
 

@@ -6,6 +6,7 @@
 #include <QSharedPointer>
 #include <QPaintEvent>
 #include <QCursor>
+#include <QColor>
 
 // app
 #include <selectionstrategy.h>
@@ -20,10 +21,10 @@ public:
     explicit RegionSelector(QWidget *parent, const QImage& image);
 
     void setSelectionStrategy(QSharedPointer<SelectionStrategy> strategy, QCursor cursor);
-    QImage getSelectedImage();
+    QRect selectedRegion() const;
 
 signals:
-    void signalRegionUpdated(QRect region);
+    void signalSelectionStarted();
     void signalSelectionFinished();
     void signalSelectionCancelled();
 

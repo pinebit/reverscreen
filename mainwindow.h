@@ -6,11 +6,10 @@
 #include <QToolBar>
 #include <QAction>
 #include <QScrollArea>
+#include <QDockWidget>
 
 class QtAwesome;
 class RegionSelector;
-class CvModelBuilder;
-class CvModel;
 
 class MainWindow : public QMainWindow
 {
@@ -24,7 +23,11 @@ private slots:
     void slotActionCopy();
     void slotActionSave();
     void slotActionOpen();
-    void slotBuildCompleted(QSharedPointer<CvModel> model);
+    void slotActionCrop();
+    void slotSelectionStarted();
+
+signals:
+    void signalColorPicked(QColor color);
 
 private:
     bool saveImage(const QString &fileName);
@@ -35,8 +38,6 @@ private:
     void updateImage(const QImage& image);
     void setupUi();
 
-    // CV
-    CvModelBuilder* _builder;
     QImage _currentImage;
 
     // UI
@@ -48,6 +49,8 @@ private:
     QAction* _actionOpen;
     QAction* _actionCopy;
     QAction* _actionSave;
+    QAction* _actionCrop;
     QScrollArea* _scrollArea;
+    QDockWidget* _colorPickerDock;
 };
 
