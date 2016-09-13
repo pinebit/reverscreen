@@ -75,7 +75,9 @@ void MainWindow::slotActionOpen()
 
 void MainWindow::slotActionCrop()
 {
-    if (!_regionSelector->selectedRegion().isValid()) {
+    if (_regionSelector->selectedRegion().isEmpty() ||
+        _regionSelector->selectedRegion().size() == QSize(1,1)) {
+        QMessageBox::warning(this, tr("No region selected"), tr("Please use mouse to select a region to crop."));
         return;
     }
 
@@ -97,7 +99,7 @@ void MainWindow::slotSelectionStarted()
 void MainWindow::slotRemoveColor(QColor color)
 {
     QPixmap pixmap = QPixmap::fromImage(_currentImage);
-    QBitmap mask = pixmap.createHeuristicMask();
+    QBitmap mask = pixmap.createMaskFromColor(color.rgb());
     pixmap.setMask(mask);
     updateImage(pixmap.toImage());
 }
