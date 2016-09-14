@@ -21,7 +21,11 @@ SOURCES += main.cpp\
     widgetfactory.cpp \
     dock/accentwidget.cpp \
     controls/coloractionwidget.cpp \
-    awesomeservice.cpp
+    awesomeservice.cpp \
+    accent/rectangleaccentpainter.cpp \
+    accent/accentpainter.cpp \
+    accent/cinemaaccentpainter.cpp \
+    accent/hatchingaccentpainter.cpp
 
 HEADERS  += mainwindow.h \
     cv/cvmodelbuilder.h \
@@ -37,7 +41,11 @@ HEADERS  += mainwindow.h \
     widgetfactory.h \
     dock/accentwidget.h \
     controls/coloractionwidget.h \
-    awesomeservice.h
+    awesomeservice.h \
+    accent/accentpainter.h \
+    accent/rectangleaccentpainter.h \
+    accent/cinemaaccentpainter.h \
+    accent/hatchingaccentpainter.h
 
 RESOURCES += \
     reverscreen.qrc

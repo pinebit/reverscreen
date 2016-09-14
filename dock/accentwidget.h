@@ -13,7 +13,6 @@ public:
     enum AccentMode {
         Rectangle,
         Cinema,
-        Marker,
         Hatching
     };
 
