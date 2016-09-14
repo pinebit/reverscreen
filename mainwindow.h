@@ -49,6 +49,7 @@ private:
     void enableDisableUi();
     void handleDockWidgetVisibityChange(QDockWidget* dockWidget);
     AccentPainter* createDefaultAccentPainter();
+    AccentPainter* createAccentPainter();
     void setupUi();
     void setupDockWidget(QDockWidget* dockWidget, QIcon icon, QWidget* contentWidget);
 

@@ -127,31 +127,26 @@ void MainWindow::slotRemoveColor(QColor color)
 
 void MainWindow::slotAccentChanged()
 {
-    QColor color = _accentWidget->accentColor();
-    AccentPainter* accent = NULL;
-
-    switch (_accentWidget->accentMode()) {
-    case AccentWidget::Rectangle:
-        accent = new RectangleAccentPainter(color, 3);
-        break;
-    case AccentWidget::Cinema:
-        accent = new CinemaAccentPainter(color);
-        break;
-    case AccentWidget::Hatching:
-        accent = new HatchingAccentPainter(color);
-        break;
-    default:
-        qFatal("Unknown AccentMode");
-    }
-
-    _regionSelector->setAccentPainter(accent);
+    _regionSelector->setAccentPainter(createAccentPainter());
 
     update();
 }
 
 void MainWindow::slotAccentApplied()
 {
+    QPixmap pm = QPixmap::fromImage(_currentImage);
+    QPainter painter(&pm);
 
+    AccentPainter* accent = createAccentPainter();
+
+    QRect scope(0, 0, pm.width(), pm.height());
+    accent->paint(&painter, scope, _regionSelector->selectedRegion());
+
+    delete accent;
+
+    updateImage(pm.toImage());
+
+    _statusbar->showMessage(tr("Selected accent applied."));
 }
 
 void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
@@ -175,6 +170,28 @@ void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
 AccentPainter *MainWindow::createDefaultAccentPainter()
 {
     return new SelectionAccentPainter(RegionColor, ShaderColor);
+}
+
+AccentPainter *MainWindow::createAccentPainter()
+{
+    QColor color = _accentWidget->accentColor();
+    AccentPainter* accent = NULL;
+
+    switch (_accentWidget->accentMode()) {
+    case AccentWidget::Rectangle:
+        accent = new RectangleAccentPainter(color, 3);
+        break;
+    case AccentWidget::Cinema:
+        accent = new CinemaAccentPainter(color);
+        break;
+    case AccentWidget::Hatching:
+        accent = new HatchingAccentPainter(color);
+        break;
+    default:
+        qFatal("Unknown AccentMode");
+    }
+
+    return accent;
 }
 
 bool MainWindow::saveImage(const QString &fileName)
