@@ -7,6 +7,7 @@
 #include <QRadioButton>
 #include <QPushButton>
 #include <QColorDialog>
+#include <QMetaEnum>
 
 
 AccentWidget::AccentWidget(QWidget *parent)
@@ -22,39 +23,26 @@ AccentWidget::AccentWidget(QWidget *parent)
 
     // accent mode
     QGroupBox *groupBox = new QGroupBox(tr("Accent type:"));
-
-    QRadioButton *rb1 = new QRadioButton(tr("Rectangle"));
-    connect(rb1, &rb1->toggled, this, [this, rb1]() {
-        if (rb1->isChecked()) {
-            updateMode(Rectangle);
-        }
-    });
-    QRadioButton *rb2 = new QRadioButton(tr("Cinema"));
-    connect(rb2, &rb2->toggled, this, [this, rb2]() {
-        if (rb2->isChecked()) {
-            updateMode(Cinema);
-        }
-    });
-    QRadioButton *rb3 = new QRadioButton(tr("Marker"));
-    connect(rb3, &rb3->toggled, this, [this, rb3]() {
-        if (rb3->isChecked()) {
-            updateMode(Marker);
-        }
-    });
-    QRadioButton *rb4 = new QRadioButton(tr("Hatching"));
-    connect(rb4, &rb4->toggled, this, [this, rb4]() {
-        if (rb4->isChecked()) {
-            updateMode(Hatching);
-        }
-    });
-
-    rb1->setChecked(true);
-
     QVBoxLayout *vbox = new QVBoxLayout;
-    vbox->addWidget(rb1);
-    vbox->addWidget(rb2);
-    vbox->addWidget(rb3);
-    vbox->addWidget(rb4);
+
+    QMetaEnum metaEnum = QMetaEnum::fromType<AccentMode>();
+    for (int i = 0; i < metaEnum.keyCount(); i++) {
+        int value = metaEnum.value(i);
+
+        QRadioButton *rb = new QRadioButton(metaEnum.key(i));
+        connect(rb, &rb->toggled, this, [this, rb, value]() {
+            if (rb->isChecked()) {
+                updateMode((AccentMode)value);
+            }
+        });
+
+        if (i == 0) {
+            rb->setChecked(true);
+        }
+
+        vbox->addWidget(rb);
+    }
+
     groupBox->setLayout(vbox);
 
     vlayout->addWidget(groupBox);

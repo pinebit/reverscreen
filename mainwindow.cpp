@@ -118,6 +118,28 @@ void MainWindow::slotRemoveColor(QColor color)
     updateImage(pixmap.toImage());
 }
 
+void MainWindow::slotAccentChanged()
+{
+
+}
+
+void MainWindow::slotAccentApplied()
+{
+
+}
+
+void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
+{
+    if (dockWidget->isVisible()) {
+        if (_colorsDock == dockWidget) {
+            _accentDock->setVisible(false);
+        }
+        else {
+            _colorsDock->setVisible(false);
+        }
+    }
+}
+
 bool MainWindow::saveImage(const QString &fileName)
 {
     QImageWriter writer(fileName);
@@ -189,9 +211,9 @@ void MainWindow::centerWindow()
 
 void MainWindow::delay(int millisecondsToWait)
 {
-    QTime dieTime = QTime::currentTime().addMSecs( millisecondsToWait );
+    QTime dieTime = QTime::currentTime().addMSecs(millisecondsToWait);
     while( QTime::currentTime() < dieTime ) {
-        QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
     }
 }
 
@@ -204,10 +226,6 @@ void MainWindow::updateImage(const QImage& image)
 
     connect(_regionSelector, &_regionSelector->signalSelectionStarted, this, &this->slotSelectionStarted);
 
-    ColorsWidget* colorPicker = new ColorsWidget(_colorsDock);
-    connect(this, &this->signalColorPicked, colorPicker, &colorPicker->slotColorChanged);
-    _colorsDock->setWidget(colorPicker);
-
     setCursor(Qt::ArrowCursor);
 
     if (image.format() != QImage::Format_RGBA8888) {
@@ -219,6 +237,20 @@ void MainWindow::updateImage(const QImage& image)
 
     enableDisableUi();
     show();
+}
+
+void MainWindow::enableDisableUi()
+{
+    bool hasImage = !_currentImage.isNull();
+    bool skipFirst = true;
+
+    foreach (QAction* action, _toolbar->actions()) {
+        if (skipFirst) {
+            skipFirst = false;
+            continue;
+        }
+        action->setEnabled(hasImage);
+    }
 }
 
 void MainWindow::setupUi()
@@ -281,19 +313,15 @@ void MainWindow::setupUi()
 
     // docked widgets
     _colorsDock = new QDockWidget(tr("Colors"), this);
-    _colorsDock->setAllowedAreas(Qt::LeftDockWidgetArea);
-    _colorsDock->setFeatures(QDockWidget::DockWidgetClosable);
-    _colorsDock->setVisible(false);
-    addDockWidget(Qt::RightDockWidgetArea, _colorsDock);
-    _colorsDock->toggleViewAction()->setIcon(_awesome->icon(fa::eyedropper));
+    _colorsWidget = new ColorsWidget(_colorsDock);
+    connect(this, &this->signalColorPicked, _colorsWidget, &_colorsWidget->slotColorChanged);
+    setupDockWidget(_colorsDock, _awesome->icon(fa::eyedropper), _colorsWidget);
 
     _accentDock = new QDockWidget(tr("Accent"), this);
-    _accentDock->setAllowedAreas(Qt::RightDockWidgetArea);
-    _accentDock->setFeatures(QDockWidget::DockWidgetClosable);
-    _accentDock->setVisible(false);
-    addDockWidget(Qt::RightDockWidgetArea, _accentDock);
-    _accentDock->setWidget(new AccentWidget(this));
-    _accentDock->toggleViewAction()->setIcon(_awesome->icon(fa::lightbulbo));
+    _accentWidget = new AccentWidget(_accentDock);
+    connect(_accentWidget, &_accentWidget->signalAccentChanged, this, &this->slotAccentChanged);
+    connect(_accentWidget, &_accentWidget->signalAccentApplied, this, &this->slotAccentApplied);
+    setupDockWidget(_accentDock, _awesome->icon(fa::lightbulbo), _accentWidget);
 
     // combo actions
     QMenu *newMenu = new QMenu(tr("Screenshot"));
@@ -315,16 +343,15 @@ void MainWindow::setupUi()
     centerWindow();
 }
 
-void MainWindow::enableDisableUi()
+void MainWindow::setupDockWidget(QDockWidget *dockWidget, QIcon icon, QWidget *contentWidget)
 {
-    bool hasImage = !_currentImage.isNull();
-    bool skipFirst = true;
+    dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    dockWidget->setFeatures(QDockWidget::DockWidgetClosable);
+    dockWidget->setVisible(false);
+    dockWidget->setWidget(contentWidget);
+    dockWidget->toggleViewAction()->setIcon(icon);
 
-    foreach (QAction* action, _toolbar->actions()) {
-        if (skipFirst) {
-            skipFirst = false;
-            continue;
-        }
-        action->setEnabled(hasImage);
-    }
+    addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+
+    connect(dockWidget, &dockWidget->visibilityChanged, this, [this, dockWidget]() { handleDockWidgetVisibityChange(dockWidget); });
 }

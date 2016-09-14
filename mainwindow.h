@@ -10,6 +10,8 @@
 
 class QtAwesome;
 class RegionSelector;
+class AccentWidget;
+class ColorsWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -30,6 +32,9 @@ private slots:
     void slotSelectionStarted();
     void slotRemoveColor(QColor color);
 
+    void slotAccentChanged();
+    void slotAccentApplied();
+
 signals:
     void signalColorPicked(QColor color);
 
@@ -40,14 +45,19 @@ private:
     void centerWindow();
     void delay(int millisecondsToWait);
     void updateImage(const QImage& image);
-    void setupUi();
     void enableDisableUi();
+    void handleDockWidgetVisibityChange(QDockWidget* dockWidget);
+    void setupUi();
+    void setupDockWidget(QDockWidget* dockWidget, QIcon icon, QWidget* contentWidget);
 
     QImage _currentImage;
 
     // UI
     QtAwesome* _awesome;
     RegionSelector* _regionSelector;
+    AccentWidget* _accentWidget;
+    ColorsWidget* _colorsWidget;
+
     QScrollArea* _scrollArea;
 
     QToolBar* _toolbar;
@@ -60,7 +70,6 @@ private:
     QAction* _actionCrop;
 
     QDockWidget* _colorsDock;
-    QDockWidget* _cropDock;
     QDockWidget* _accentDock;
 };
 

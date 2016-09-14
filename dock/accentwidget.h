@@ -17,6 +17,8 @@ public:
         Hatching
     };
 
+    Q_ENUM(AccentMode)
+
     explicit AccentWidget(QWidget *parent);
 
     AccentMode accentMode() const {
