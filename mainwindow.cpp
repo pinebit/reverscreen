@@ -25,7 +25,14 @@
 #include <fullscreenselectiondialog.h>
 #include <fineselectionstrategy.h>
 #include <snapselectionstrategy.h>
+#include <accent/selectionaccentpainter.h>
+#include <accent/rectangleaccentpainter.h>
+#include <accent/cinemaaccentpainter.h>
+#include <accent/hatchingaccentpainter.h>
 
+
+static const QColor RegionColor = Qt::red;
+static const QColor ShaderColor = QColor::fromRgba(0x50a0a0a0);
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -42,7 +49,7 @@ void MainWindow::slotActionScreenshot()
     QScreen *screen = QGuiApplication::primaryScreen();
     _currentImage = screen->grabWindow(QApplication::desktop()->winId()).toImage();
 
-    FullscreenSelectionDialog dialog(this, _currentImage);
+    FullscreenSelectionDialog dialog(this, _currentImage, createDefaultAccentPainter());
     if (dialog.exec() == QDialog::Accepted) {
         updateImage(_currentImage.copy(dialog.selectedRegion()));
         _statusbar->showMessage(tr("A screen region is captured."));
@@ -120,7 +127,26 @@ void MainWindow::slotRemoveColor(QColor color)
 
 void MainWindow::slotAccentChanged()
 {
+    QColor color = _accentWidget->accentColor();
+    AccentPainter* accent = NULL;
 
+    switch (_accentWidget->accentMode()) {
+    case AccentWidget::Rectangle:
+        accent = new RectangleAccentPainter(color, 3);
+        break;
+    case AccentWidget::Cinema:
+        accent = new CinemaAccentPainter(color);
+        break;
+    case AccentWidget::Hatching:
+        accent = new HatchingAccentPainter(color);
+        break;
+    default:
+        qFatal("Unknown AccentMode");
+    }
+
+    _regionSelector->setAccentPainter(accent);
+
+    update();
 }
 
 void MainWindow::slotAccentApplied()
@@ -136,8 +162,19 @@ void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
         }
         else {
             _colorsDock->setVisible(false);
+            slotAccentChanged();
         }
     }
+    else {
+        if (dockWidget == _accentDock) {
+            _regionSelector->setAccentPainter(createDefaultAccentPainter());
+        }
+    }
+}
+
+AccentPainter *MainWindow::createDefaultAccentPainter()
+{
+    return new SelectionAccentPainter(RegionColor, ShaderColor);
 }
 
 bool MainWindow::saveImage(const QString &fileName)
@@ -222,6 +259,8 @@ void MainWindow::updateImage(const QImage& image)
     QSharedPointer<SelectionStrategy> strategy(new FineSelectionStrategy());
     _regionSelector = new RegionSelector(_scrollArea, image);
     _regionSelector->setSelectionStrategy(strategy, QCursor(Qt::CrossCursor));
+    _regionSelector->setAccentPainter(createDefaultAccentPainter());
+
     _scrollArea->setWidget(_regionSelector);
 
     connect(_regionSelector, &_regionSelector->signalSelectionStarted, this, &this->slotSelectionStarted);
@@ -355,3 +394,4 @@ void MainWindow::setupDockWidget(QDockWidget *dockWidget, QIcon icon, QWidget *c
 
     connect(dockWidget, &dockWidget->visibilityChanged, this, [this, dockWidget]() { handleDockWidgetVisibityChange(dockWidget); });
 }
+

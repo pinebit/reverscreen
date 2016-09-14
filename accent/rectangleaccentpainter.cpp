@@ -3,15 +3,21 @@
 #include <QPainter>
 
 
-void RectangleAccentPainter::paint(QPainter *painter, QRect scope)
+RectangleAccentPainter::RectangleAccentPainter(QColor color, int width)
+    : _color(color)
+    , _width(width)
+{
+}
+
+void RectangleAccentPainter::paint(QPainter *painter, QRect scope, QRect region)
 {
     Q_UNUSED(scope);
     Q_ASSERT(painter != NULL);
 
     QPen pen(_color);
     pen.setStyle(Qt::SolidLine);
-    pen.setWidth(4);
+    pen.setWidth(_width);
 
     painter->setPen(pen);
-    painter->drawRect(_region);
+    painter->drawRect(region);
 }

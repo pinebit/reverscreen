@@ -2,9 +2,16 @@
 
 #include <accent/accentpainter.h>
 
+#include <QColor>
+
 
 class CinemaAccentPainter : public AccentPainter
 {
 public:
-    void paint(QPainter *painter, QRect scope);
+    CinemaAccentPainter(QColor shadeColor);
+
+    void paint(QPainter *painter, QRect scope, QRect region);
+
+private:
+    QColor _shadeColor;
 };

@@ -12,6 +12,8 @@
 #include <selectionstrategy.h>
 
 
+class AccentPainter;
+
 // UI control enabling region selection on a given image
 class RegionSelector : public QWidget
 {
@@ -21,6 +23,8 @@ public:
     explicit RegionSelector(QWidget *parent, const QImage& image);
 
     void setSelectionStrategy(QSharedPointer<SelectionStrategy> strategy, QCursor cursor);
+    void setAccentPainter(AccentPainter* accentPainter);
+
     QRect selectedRegion() const;
 
 signals:
@@ -47,4 +51,5 @@ private:
     QSharedPointer<SelectionStrategy> _strategy;
     QPoint _startPoint;
     QPoint _endPoint;
+    AccentPainter* _accentPainter;
 };

@@ -12,6 +12,7 @@ class QtAwesome;
 class RegionSelector;
 class AccentWidget;
 class ColorsWidget;
+class AccentPainter;
 
 class MainWindow : public QMainWindow
 {
@@ -47,6 +48,7 @@ private:
     void updateImage(const QImage& image);
     void enableDisableUi();
     void handleDockWidgetVisibityChange(QDockWidget* dockWidget);
+    AccentPainter* createDefaultAccentPainter();
     void setupUi();
     void setupDockWidget(QDockWidget* dockWidget, QIcon icon, QWidget* contentWidget);
 

@@ -4,6 +4,8 @@
 
 // app
 #include <regionselector.h>
+#include <accent/accentpainter.h>
+
 
 static const QColor RegionColor = Qt::red;
 static const QColor ShaderColor = QColor::fromRgba(0x50a0a0a0);
@@ -13,6 +15,7 @@ static const int CheckerSize = 8;
 RegionSelector::RegionSelector(QWidget *parent, const QImage& image)
     : QWidget(parent)
     , _image(image)
+    , _accentPainter(NULL)
 {
     setAutoFillBackground(false);
     resize(image.size());
@@ -26,6 +29,17 @@ void RegionSelector::setSelectionStrategy(QSharedPointer<SelectionStrategy> stra
     update();
 }
 
+void RegionSelector::setAccentPainter(AccentPainter *accentPainter)
+{
+    if (_accentPainter) {
+        delete _accentPainter;
+    }
+
+    _accentPainter = accentPainter;
+
+    update();
+}
+
 QRect RegionSelector::selectedRegion() const
 {
     return QRect(_startPoint, _endPoint).normalized();
@@ -36,22 +50,13 @@ void RegionSelector::paintEvent(QPaintEvent *event)
     Q_UNUSED(event);
 
     QPainter painter(this);
-    painter.setRenderHint(QPainter::TextAntialiasing);
-
-    painter.fillRect(0, 0, _image.width(), _image.height(), Qt::white);
-    bool odd = false;
-    for (int y = 0; y < _image.height(); y += CheckerSize) {
-        for (int x = (odd ? CheckerSize : 0); x < _image.width(); x += CheckerSize * 2) {
-            painter.fillRect(x, y, CheckerSize, CheckerSize, Qt::gray);
-        }
-        odd = !odd;
-    }
 
     painter.drawImage(0, 0, _image);
 
-    if (_startPoint != _endPoint) {
-        drawRegionRect(painter);
-        drawRegionShaders(painter);
+    if (_startPoint != _endPoint && _accentPainter != NULL) {
+        QRect scope(0, 0, _image.width(), _image.height());
+        QRect region(_startPoint, _endPoint);
+        _accentPainter->paint(&painter, scope, region.normalized());
     }
 }
 

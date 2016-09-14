@@ -13,7 +13,7 @@
 AccentWidget::AccentWidget(QWidget *parent)
     : QWidget(parent)
     , _accentMode(Rectangle)
-    , _accentColor(Qt::black)
+    , _accentColor(Qt::blue)
 {
     QVBoxLayout* vlayout = new QVBoxLayout(this);
 
@@ -77,10 +77,6 @@ void AccentWidget::slotSelectColorDialog()
 
 void AccentWidget::updateColor(QColor color)
 {
-    if (_accentColor == color) {
-        return;
-    }
-
     _accentColor = color;
     _colorAction->updateColor(_accentColor);
 
@@ -89,10 +85,6 @@ void AccentWidget::updateColor(QColor color)
 
 void AccentWidget::updateMode(AccentMode accentMode)
 {
-    if (_accentMode == accentMode) {
-        return;
-    }
-
     _accentMode = accentMode;
 
     emit signalAccentChanged();

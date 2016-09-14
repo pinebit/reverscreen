@@ -4,12 +4,17 @@
 #include <QBrush>
 
 
-void HatchingAccentPainter::paint(QPainter *painter, QRect scope)
+HatchingAccentPainter::HatchingAccentPainter(QColor color)
+    : _color(color)
+{
+}
+
+void HatchingAccentPainter::paint(QPainter *painter, QRect scope, QRect region)
 {
     Q_UNUSED(scope);
     Q_ASSERT(painter != NULL);
 
     QBrush brush(_color, Qt::BDiagPattern);
 
-    painter->fillRect(_region, brush);
+    painter->fillRect(region, brush);
 }

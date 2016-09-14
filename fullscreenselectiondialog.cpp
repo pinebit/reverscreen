@@ -8,8 +8,9 @@
 #include <CV/cvmodel.h>
 
 
-FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QImage &image)
+FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QImage &image, AccentPainter* accentPainter)
     : QDialog(parent)
+    , _accentPainter(accentPainter)
 {
     setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool | Qt::SubWindow);
     setWindowState(Qt::WindowFullScreen);
@@ -19,6 +20,8 @@ FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QIma
     QSharedPointer<SelectionStrategy> strategy(new FineSelectionStrategy());
     _regionSelector = new RegionSelector(this, image);
     _regionSelector->setSelectionStrategy(strategy, QCursor(Qt::WaitCursor));
+    _regionSelector->setAccentPainter(accentPainter);
+
     connect(_regionSelector, &_regionSelector->signalSelectionFinished, this, this->slotSelectionFinished);
     connect(_regionSelector, &_regionSelector->signalSelectionCancelled, this, this->reject);
 
