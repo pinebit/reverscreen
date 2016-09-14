@@ -18,8 +18,8 @@ SOURCES += main.cpp\
     fullscreenselectiondialog.cpp \
     fadeanimation.cpp \
     dock/colorswidget.cpp \
-    dock/cropwidget.cpp \
-    widgetfactory.cpp
+    widgetfactory.cpp \
+    dock/accentwidget.cpp
 
 HEADERS  += mainwindow.h \
     cv/cvmodelbuilder.h \
@@ -32,8 +32,8 @@ HEADERS  += mainwindow.h \
     fullscreenselectiondialog.h \
     fadeanimation.h \
     dock/colorswidget.h \
-    dock/cropwidget.h \
-    widgetfactory.h
+    widgetfactory.h \
+    dock/accentwidget.h
 
 RESOURCES += \
     reverscreen.qrc

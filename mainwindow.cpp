@@ -15,13 +15,14 @@
 #include <QSharedPointer>
 #include <QListWidget>
 #include <QBitmap>
+#include <QMenu>
 
 #include <QtAwesome.h>
 
 #include <mainwindow.h>
 #include <regionselector.h>
 #include <dock/colorswidget.h>
-#include <dock/cropwidget.h>
+#include <dock/accentwidget.h>
 #include <fullscreenselectiondialog.h>
 #include <fineselectionstrategy.h>
 #include <snapselectionstrategy.h>
@@ -31,9 +32,10 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setupUi();
+    enableDisableUi();
 }
 
-void MainWindow::slotActionNew()
+void MainWindow::slotActionScreenshot()
 {
     hide();
     delay(300);
@@ -48,6 +50,18 @@ void MainWindow::slotActionNew()
     }
 
     show();
+}
+
+void MainWindow::slotActionPaste()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    QImage image = clipboard->image();
+    if (image.isNull()) {
+        _statusbar->showMessage(tr("Clipboard has no image."));
+    }
+    else {
+        updateImage(image);
+    }
 }
 
 void MainWindow::slotActionCopy()
@@ -205,6 +219,7 @@ void MainWindow::updateImage(const QImage& image)
         _currentImage = image;
     }
 
+    enableDisableUi();
     show();
 }
 
@@ -246,68 +261,77 @@ void MainWindow::setupUi()
     _statusbar->showMessage(tr("Ready."));
 
     // actions
-    _actionNew = new QAction(_awesome->icon(fa::cameraretro), tr("New"), this);
-    // _actionOpen = new QAction(_awesome->icon(fa::filepictureo), tr("Open"), this);
+    _actionPaste = new QAction(_awesome->icon(fa::paste), tr("Paste from clipboard"), this);
+    _actionPaste->setShortcut(QKeySequence("Ctrl+V"));
+    _actionOpen = new QAction(_awesome->icon(fa::filepictureo), tr("Open image file..."), this);
+    _actionOpen->setShortcut(QKeySequence("Ctrl+O"));
     _actionCopy = new QAction(_awesome->icon(fa::copy), tr("Copy"), this);
-    _actionSave = new QAction(_awesome->icon(fa::save), tr("Save"), this);
+    _actionCopy->setShortcut(QKeySequence("Ctrl+C"));
+    _actionSave = new QAction(_awesome->icon(fa::save), tr("Save..."), this);
+    _actionSave->setShortcut(QKeySequence("Ctrl+S"));
+    _actionCrop = new QAction(_awesome->icon(fa::crop), tr("Crop"), this);
+    _actionCrop->setShortcut(QKeySequence("Ctrl+X"));
 
-    connect(_actionNew, &_actionNew->triggered, this, &slotActionNew);
-    // connect(_actionOpen, &_actionOpen->triggered, this, &slotActionOpen);
+    connect(_actionPaste, &_actionPaste->triggered, this, &slotActionPaste);
+    connect(_actionOpen, &_actionOpen->triggered, this, &slotActionOpen);
     connect(_actionCopy, &_actionCopy->triggered, this, &slotActionCopy);
     connect(_actionSave, &_actionSave->triggered, this, &slotActionSave);
-
-    _toolbar->insertAction(0, _actionNew);
-    // _toolbar->insertAction(0, _actionOpen);
-    _toolbar->insertAction(0, _actionCopy);
-    _toolbar->insertAction(0, _actionSave);
+    connect(_actionCrop, &_actionCrop->triggered, this, &slotActionCrop);
 
     // central widget
     _scrollArea = new QScrollArea(this);
     _scrollArea->setBackgroundRole(QPalette::BrightText);
     _scrollArea->setAlignment(Qt::AlignCenter);
-
-    /*
-    QListWidget* lw = new QListWidget(this);
-    lw->setIconSize(QSize(64, 64));
-    lw->setViewMode(QListWidget::IconMode);
-    lw->setSelectionMode(QListView::ExtendedSelection);
-    lw->setMovement(QListView::Static);
-    new QListWidgetItem(awesome->icon(fa::aligncenter), tr("aligncenter"), lw);
-    new QListWidgetItem(awesome->icon(fa::alignjustify), tr("alignjustify"), lw);
-    new QListWidgetItem(awesome->icon(fa::alignleft), tr("alignleft"), lw);
-    new QListWidgetItem(awesome->icon(fa::alignright), tr("alignright"), lw);
-    */
+    _scrollArea->setFrameStyle(QFrame::NoFrame);
 
     setCentralWidget(_scrollArea);
 
     // docked widgets
-    _cropDock = new QDockWidget(tr("Crop"), this);
-    _cropDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    _cropDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
-    _cropDock->setVisible(false);
-    addDockWidget(Qt::RightDockWidgetArea, _cropDock);
-    _cropDock->setWidget(new CropWidget(_cropDock));
-    _cropDock->toggleViewAction()->setIcon(_awesome->icon(fa::crop));
-
     _colorsDock = new QDockWidget(tr("Colors"), this);
-    _colorsDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    _colorsDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
+    _colorsDock->setAllowedAreas(Qt::LeftDockWidgetArea);
+    _colorsDock->setFeatures(QDockWidget::DockWidgetClosable);
     _colorsDock->setVisible(false);
     addDockWidget(Qt::RightDockWidgetArea, _colorsDock);
     _colorsDock->toggleViewAction()->setIcon(_awesome->icon(fa::eyedropper));
 
-    _highlightDock = new QDockWidget(tr("Highlight"), this);
-    _highlightDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    _highlightDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
-    _highlightDock->setVisible(false);
-    addDockWidget(Qt::RightDockWidgetArea, _highlightDock);
-    _highlightDock->toggleViewAction()->setIcon(_awesome->icon(fa::lightbulbo));
+    _accentDock = new QDockWidget(tr("Accent"), this);
+    _accentDock->setAllowedAreas(Qt::RightDockWidgetArea);
+    _accentDock->setFeatures(QDockWidget::DockWidgetClosable);
+    _accentDock->setVisible(false);
+    addDockWidget(Qt::RightDockWidgetArea, _accentDock);
+    _accentDock->setWidget(new AccentWidget(this));
+    _accentDock->toggleViewAction()->setIcon(_awesome->icon(fa::lightbulbo));
 
+    // combo actions
+    QMenu *newMenu = new QMenu(tr("Screenshot"));
+    newMenu->menuAction()->setIcon(_awesome->icon(fa::cameraretro));
+    newMenu->menuAction()->setShortcut(QKeySequence("Ctrl+N"));
+    connect(newMenu->menuAction(), &newMenu->menuAction()->triggered, this, &slotActionScreenshot);
+    newMenu->addAction(_actionPaste);
+    newMenu->addAction(_actionOpen);
+
+    // toolbar
+    _toolbar->addAction(newMenu->menuAction());
+    _toolbar->addAction(_actionCopy);
+    _toolbar->addAction(_actionSave);
     _toolbar->insertSeparator(0);
-    _toolbar->addAction(_cropDock->toggleViewAction());
+    _toolbar->addAction(_actionCrop);
     _toolbar->addAction(_colorsDock->toggleViewAction());
-    _toolbar->addAction(_highlightDock->toggleViewAction());
-
+    _toolbar->addAction(_accentDock->toggleViewAction());
 
     centerWindow();
+}
+
+void MainWindow::enableDisableUi()
+{
+    bool hasImage = !_currentImage.isNull();
+    bool skipFirst = true;
+
+    foreach (QAction* action, _toolbar->actions()) {
+        if (skipFirst) {
+            skipFirst = false;
+            continue;
+        }
+        action->setEnabled(hasImage);
+    }
 }

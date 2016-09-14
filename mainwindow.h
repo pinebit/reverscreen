@@ -19,10 +19,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
 
 private slots:
-    void slotActionNew();
+    void slotActionScreenshot();
+    void slotActionPaste();
+    void slotActionOpen();
+
     void slotActionCopy();
     void slotActionSave();
-    void slotActionOpen();
+
     void slotActionCrop();
     void slotSelectionStarted();
     void slotRemoveColor(QColor color);
@@ -38,6 +41,7 @@ private:
     void delay(int millisecondsToWait);
     void updateImage(const QImage& image);
     void setupUi();
+    void enableDisableUi();
 
     QImage _currentImage;
 
@@ -49,13 +53,14 @@ private:
     QToolBar* _toolbar;
     QStatusBar* _statusbar;
 
-    QAction* _actionNew;
+    QAction* _actionPaste;
     QAction* _actionOpen;
     QAction* _actionCopy;
     QAction* _actionSave;
+    QAction* _actionCrop;
 
     QDockWidget* _colorsDock;
     QDockWidget* _cropDock;
-    QDockWidget* _highlightDock;
+    QDockWidget* _accentDock;
 };
 
