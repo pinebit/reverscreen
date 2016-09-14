@@ -7,6 +7,8 @@
 #include <QListWidget>
 
 
+class ColorActionWidget;
+
 class ColorsWidget : public QWidget
 {
     Q_OBJECT
@@ -23,8 +25,7 @@ private:
     void copyColor(QColor color);
 
     QColor _color;
-    QLabel* _colorLabel;
-    QLabel* _hexLabel;
     QListWidget* _colorList;
+    ColorActionWidget* _colorAction;
 };
 

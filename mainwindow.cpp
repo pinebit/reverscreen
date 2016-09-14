@@ -17,8 +17,7 @@
 #include <QBitmap>
 #include <QMenu>
 
-#include <QtAwesome.h>
-
+#include <awesomeservice.h>
 #include <mainwindow.h>
 #include <regionselector.h>
 #include <dock/colorswidget.h>
@@ -225,13 +224,8 @@ void MainWindow::updateImage(const QImage& image)
 void MainWindow::setupUi()
 {
     // awesome font
-    _awesome = new QtAwesome(this);
-    _awesome->initFontAwesome();
-    _awesome->setDefaultOption("scale-factor", 0.7);
-    _awesome->setDefaultOption("color", QColor(100,50,70));
-    _awesome->setDefaultOption("color-disabled", QColor(70,70,70,60));
-    _awesome->setDefaultOption("color-active", QColor(180,60,80));
-    _awesome->setDefaultOption("color-selected", QColor(200,70,90));
+    AwesomeService::create(this);
+    _awesome = AwesomeService::awesome();
 
     // geometry & title
     setWindowTitle(tr("REVERSCREEN"));

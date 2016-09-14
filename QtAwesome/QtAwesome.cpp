@@ -27,6 +27,7 @@ public:
         Q_UNUSED(options);
 
         painter->save();
+        painter->setRenderHint(QPainter::HighQualityAntialiasing);
 
         QObject* qanim = qvariant_cast<QObject*>(options.value("anim"));
         QtAwesomeAnimation* anim = qobject_cast<QtAwesomeAnimation*>(qanim);

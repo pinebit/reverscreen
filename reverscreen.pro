@@ -19,7 +19,9 @@ SOURCES += main.cpp\
     fadeanimation.cpp \
     dock/colorswidget.cpp \
     widgetfactory.cpp \
-    dock/accentwidget.cpp
+    dock/accentwidget.cpp \
+    controls/coloractionwidget.cpp \
+    awesomeservice.cpp
 
 HEADERS  += mainwindow.h \
     cv/cvmodelbuilder.h \
@@ -33,7 +35,9 @@ HEADERS  += mainwindow.h \
     fadeanimation.h \
     dock/colorswidget.h \
     widgetfactory.h \
-    dock/accentwidget.h
+    dock/accentwidget.h \
+    controls/coloractionwidget.h \
+    awesomeservice.h
 
 RESOURCES += \
     reverscreen.qrc
