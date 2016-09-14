@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QColor>
+#include <QListWidget>
 
 
 class ColorsWidget : public QWidget
@@ -13,24 +14,17 @@ class ColorsWidget : public QWidget
 public:
     explicit ColorsWidget(QWidget *parent);
 
-signals:
-    void signalRemoveColor(QColor color);
-
 public slots:
     void slotColorChanged(QColor color);
-
-private slots:
-    void slotCopyButton();
-    void slotRemoveColorButton();
 
 private:
     QWidget* createHSeparator() const;
     QLabel* createInfoLabel(const QString& text) const;
+    void copyColor(QColor color);
 
     QColor _color;
     QLabel* _colorLabel;
     QLabel* _hexLabel;
-    QPushButton* _copyButton;
-    QPushButton* _removeButton;
+    QListWidget* _colorList;
 };
 

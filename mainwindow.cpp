@@ -207,7 +207,6 @@ void MainWindow::updateImage(const QImage& image)
 
     ColorsWidget* colorPicker = new ColorsWidget(_colorsDock);
     connect(this, &this->signalColorPicked, colorPicker, &colorPicker->slotColorChanged);
-    connect(colorPicker, &colorPicker->signalRemoveColor, this, &this->slotRemoveColor);
     _colorsDock->setWidget(colorPicker);
 
     setCursor(Qt::ArrowCursor);
