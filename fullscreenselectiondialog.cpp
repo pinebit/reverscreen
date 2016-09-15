@@ -1,14 +1,13 @@
 #include <QLabel>
 
 #include <fullscreenselectiondialog.h>
-#include <regionselector.h>
-#include <fineselectionstrategy.h>
-#include <snapselectionstrategy.h>
+#include <rsview.h>
+#include <assistant/cvsnapassistant.h>
 #include <CV/cvmodelbuilder.h>
 #include <CV/cvmodel.h>
 
 
-FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QImage &image, AccentPainter* accentPainter)
+FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QImage &image, QSharedPointer<AccentPainter> accentPainter)
     : QDialog(parent)
     , _accentPainter(accentPainter)
 {
@@ -17,13 +16,14 @@ FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QIma
     setFocusPolicy(Qt::StrongFocus);
     setFocus();
 
-    QSharedPointer<SelectionStrategy> strategy(new FineSelectionStrategy());
-    _regionSelector = new RegionSelector(this, image);
-    _regionSelector->setSelectionStrategy(strategy, QCursor(Qt::WaitCursor));
-    _regionSelector->setAccentPainter(accentPainter);
+    setCursor(Qt::WaitCursor);
 
-    connect(_regionSelector, &_regionSelector->signalSelectionFinished, this, this->slotSelectionFinished);
-    connect(_regionSelector, &_regionSelector->signalSelectionCancelled, this, this->reject);
+    _rsview = new RsView(this);
+    _rsview->setImage(image);
+    _rsview->setAccentPainter(accentPainter);
+
+    connect(_rsview, &_rsview->signalSelectionFinished, this, this->slotSelectionFinished);
+    connect(_rsview, &_rsview->signalSelectionCancelled, this, this->reject);
 
     _builder = new CvModelBuilder(this);
     connect(_builder, &_builder->signalBuildCompleted, this, &this->slotBuildCompleted);
@@ -34,14 +34,14 @@ FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QIma
 
 void FullscreenSelectionDialog::slotBuildCompleted(QSharedPointer<CvModel> model)
 {
-    QSharedPointer<SelectionStrategy> strategy(new SnapSelectionStrategy(model));
-    _regionSelector->setSelectionStrategy(strategy, QCursor(Qt::CrossCursor));
+    QSharedPointer<SnapAssistant> assistant(new CvSnapAssistant(model));
+    _rsview->setSnapAssistant(assistant);
 
-    setCursor(Qt::ArrowCursor);
+    setCursor(Qt::CrossCursor);
 }
 
 void FullscreenSelectionDialog::slotSelectionFinished()
 {
-    _selectedRegion = _regionSelector->selectedRegion();
+    _selectedRegion = _rsview->selectedRegion();
     accept();
 }

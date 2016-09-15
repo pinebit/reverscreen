@@ -9,10 +9,12 @@
 #include <QDockWidget>
 
 class QtAwesome;
-class RegionSelector;
+class RsView;
 class AccentWidget;
 class ColorsWidget;
 class AccentPainter;
+class CvModelBuilder;
+class CvModel;
 
 class MainWindow : public QMainWindow
 {
@@ -25,39 +27,36 @@ private slots:
     void slotActionScreenshot();
     void slotActionPaste();
     void slotActionOpen();
-
     void slotActionCopy();
     void slotActionSave();
-
     void slotActionCrop();
+
     void slotSelectionStarted();
-    void slotRemoveColor(QColor color);
+    void slotMouseMove(const QPoint& pos);
 
     void slotAccentChanged();
     void slotAccentApplied();
 
-signals:
-    void signalColorPicked(QColor color);
+    void slotBuildCompleted(QSharedPointer<CvModel> model);
 
 private:
     bool saveImage(const QString &fileName);
     bool openImage(const QString &fileName);
     void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
-    void centerWindow();
     void delay(int millisecondsToWait);
     void updateImage(const QImage& image);
     void enableDisableUi();
     void handleDockWidgetVisibityChange(QDockWidget* dockWidget);
-    AccentPainter* createDefaultAccentPainter();
-    AccentPainter* createAccentPainter();
+    QSharedPointer<AccentPainter> createDefaultAccentPainter();
+    QSharedPointer<AccentPainter> createAccentPainter();
     void setupUi();
     void setupDockWidget(QDockWidget* dockWidget, QIcon icon, QWidget* contentWidget);
 
     QImage _currentImage;
+    CvModelBuilder* _modelBuilder;
 
-    // UI
     QtAwesome* _awesome;
-    RegionSelector* _regionSelector;
+    RsView* _rsview;
     AccentWidget* _accentWidget;
     ColorsWidget* _colorsWidget;
 

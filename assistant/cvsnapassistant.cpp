@@ -1,4 +1,4 @@
-#include <snapselectionstrategy.h>
+#include <assistant/cvsnapassistant.h>
 
 #include <CV/cvmodel.h>
 
@@ -6,7 +6,6 @@
 
 #include <limits>
 
-#include <QRect>
 
 using namespace cv;
 using namespace std;
@@ -22,37 +21,12 @@ inline Point convertPoint(const QPoint& point) {
     return Point(point.x(), point.y());
 }
 
-
-SnapSelectionStrategy::SnapSelectionStrategy(QSharedPointer<CvModel> model)
+CvSnapAssistant::CvSnapAssistant(QSharedPointer<CvModel> model)
     : _model(model)
 {
 }
 
-QRect SnapSelectionStrategy::hint(const QPoint &point)
-{
-    Point cv_point = convertPoint(point);
-
-    int min_area = numeric_limits<int>::max();
-    Rect min_rect;
-
-    for (auto const& box: _model->boundingBoxes()) {
-        if (box.contains(cv_point)) {
-            int area = box.area();
-            if (area < MIN_AREA) {
-                continue;
-            }
-
-            if (area < min_area) {
-                min_area = area;
-                min_rect = box;
-            }
-        }
-    }
-
-    return convertRect(min_rect);
-}
-
-QPoint SnapSelectionStrategy::begin(const QPoint &point)
+QPoint CvSnapAssistant::begin(const QPoint &point)
 {
     int min_dx = numeric_limits<int>::max();
     int min_dy = numeric_limits<int>::max();
@@ -86,7 +60,7 @@ QPoint SnapSelectionStrategy::begin(const QPoint &point)
     return QPoint(sx, sy);
 }
 
-QPoint SnapSelectionStrategy::end(const QRect &rect)
+QPoint CvSnapAssistant::end(const QRect &rect)
 {
     int min_dx = numeric_limits<int>::max();
     int min_dy = numeric_limits<int>::max();
@@ -128,9 +102,4 @@ QPoint SnapSelectionStrategy::end(const QRect &rect)
     }
 
     return result;
-}
-
-QRect SnapSelectionStrategy::adjust(const QRect &rect)
-{
-    return rect;
 }

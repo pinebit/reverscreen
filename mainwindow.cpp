@@ -7,7 +7,6 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QStyle>
-#include <QDesktopWidget>
 #include <QTime>
 #include <QGuiApplication>
 #include <QApplication>
@@ -16,19 +15,21 @@
 #include <QListWidget>
 #include <QBitmap>
 #include <QMenu>
+#include <QDesktopWidget>
 
 #include <awesomeservice.h>
 #include <mainwindow.h>
-#include <regionselector.h>
+#include <rsview.h>
 #include <dock/colorswidget.h>
 #include <dock/accentwidget.h>
 #include <fullscreenselectiondialog.h>
-#include <fineselectionstrategy.h>
-#include <snapselectionstrategy.h>
+#include <assistant/cvsnapassistant.h>
 #include <accent/selectionaccentpainter.h>
 #include <accent/rectangleaccentpainter.h>
 #include <accent/cinemaaccentpainter.h>
 #include <accent/hatchingaccentpainter.h>
+#include <widgetutils.h>
+#include <cv/cvmodelbuilder.h>
 
 
 static const QColor RegionColor = Qt::red;
@@ -36,7 +37,10 @@ static const QColor ShaderColor = QColor::fromRgba(0x50a0a0a0);
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
+    , _modelBuilder(new CvModelBuilder(this))
 {
+    connect(_modelBuilder, &_modelBuilder->signalBuildCompleted, this, &this->slotBuildCompleted);
+
     setupUi();
     enableDisableUi();
 }
@@ -96,14 +100,14 @@ void MainWindow::slotActionOpen()
 
 void MainWindow::slotActionCrop()
 {
-    if (_regionSelector->selectedRegion().isEmpty() ||
-        _regionSelector->selectedRegion().size() == QSize(1,1)) {
+    if (_rsview->selectedRegion().isEmpty() ||
+        _rsview->selectedRegion().size() == QSize(1,1)) {
         QMessageBox::warning(this, tr("No region selected"), tr("Please use mouse to select a region to crop."));
         return;
     }
 
-    QSize size = _regionSelector->selectedRegion().size();
-    updateImage(_currentImage.copy(_regionSelector->selectedRegion()));
+    QSize size = _rsview->selectedRegion().size();
+    updateImage(_currentImage.copy(_rsview->selectedRegion()));
 
     _statusbar->showMessage(tr("Image cropped. New size: %1x%2").arg(size.width()).arg(size.height()));
 }
@@ -111,23 +115,21 @@ void MainWindow::slotActionCrop()
 void MainWindow::slotSelectionStarted()
 {
     if (_colorsDock->isVisible()) {
-        QRect region = _regionSelector->selectedRegion();
-        QColor color = _currentImage.pixelColor(region.left(), region.top());
-        emit signalColorPicked(color);
+        _colorsWidget->setSelectedColor();
     }
 }
 
-void MainWindow::slotRemoveColor(QColor color)
+void MainWindow::slotMouseMove(const QPoint &pos)
 {
-    QPixmap pixmap = QPixmap::fromImage(_currentImage);
-    QBitmap mask = pixmap.createMaskFromColor(color.rgb());
-    pixmap.setMask(mask);
-    updateImage(pixmap.toImage());
+    if (_colorsDock->isVisible()) {
+        QColor color = _currentImage.pixelColor(pos);
+        _colorsWidget->setCurrentColor(color);
+    }
 }
 
 void MainWindow::slotAccentChanged()
 {
-    _regionSelector->setAccentPainter(createAccentPainter());
+    _rsview->setAccentPainter(createAccentPainter());
 
     update();
 }
@@ -137,16 +139,26 @@ void MainWindow::slotAccentApplied()
     QPixmap pm = QPixmap::fromImage(_currentImage);
     QPainter painter(&pm);
 
-    AccentPainter* accent = createAccentPainter();
+    QSharedPointer<AccentPainter> accent = createAccentPainter();
 
     QRect scope(0, 0, pm.width(), pm.height());
-    accent->paint(&painter, scope, _regionSelector->selectedRegion());
-
-    delete accent;
+    accent->paint(&painter, scope, _rsview->selectedRegion());
 
     updateImage(pm.toImage());
 
     _statusbar->showMessage(tr("Selected accent applied."));
+}
+
+void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
+{
+    QSharedPointer<SnapAssistant> assistant(new CvSnapAssistant(model));
+    _rsview->setSnapAssistant(assistant);
+    _rsview->setCursor(Qt::CrossCursor);
+
+    setCursor(Qt::ArrowCursor);
+
+    enableDisableUi();
+    show();
 }
 
 void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
@@ -162,17 +174,17 @@ void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
     }
     else {
         if (dockWidget == _accentDock) {
-            _regionSelector->setAccentPainter(createDefaultAccentPainter());
+            _rsview->setAccentPainter(createDefaultAccentPainter());
         }
     }
 }
 
-AccentPainter *MainWindow::createDefaultAccentPainter()
+QSharedPointer<AccentPainter> MainWindow::createDefaultAccentPainter()
 {
-    return new SelectionAccentPainter(RegionColor, ShaderColor);
+    return QSharedPointer<AccentPainter>(new SelectionAccentPainter(RegionColor, ShaderColor));
 }
 
-AccentPainter *MainWindow::createAccentPainter()
+QSharedPointer<AccentPainter> MainWindow::createAccentPainter()
 {
     QColor color = _accentWidget->accentColor();
     AccentPainter* accent = NULL;
@@ -191,7 +203,7 @@ AccentPainter *MainWindow::createAccentPainter()
         qFatal("Unknown AccentMode");
     }
 
-    return accent;
+    return QSharedPointer<AccentPainter>(accent);
 }
 
 bool MainWindow::saveImage(const QString &fileName)
@@ -251,18 +263,6 @@ void MainWindow::initializeImageFileDialog(QFileDialog &dialog, QFileDialog::Acc
     }
 }
 
-void MainWindow::centerWindow()
-{
-    setGeometry(
-        QStyle::alignedRect(
-            Qt::LayoutDirectionAuto,
-            Qt::AlignCenter,
-            size(),
-            qApp->desktop()->availableGeometry()
-        )
-    );
-}
-
 void MainWindow::delay(int millisecondsToWait)
 {
     QTime dieTime = QTime::currentTime().addMSecs(millisecondsToWait);
@@ -273,16 +273,7 @@ void MainWindow::delay(int millisecondsToWait)
 
 void MainWindow::updateImage(const QImage& image)
 {
-    QSharedPointer<SelectionStrategy> strategy(new FineSelectionStrategy());
-    _regionSelector = new RegionSelector(_scrollArea, image);
-    _regionSelector->setSelectionStrategy(strategy, QCursor(Qt::CrossCursor));
-    _regionSelector->setAccentPainter(createDefaultAccentPainter());
-
-    _scrollArea->setWidget(_regionSelector);
-
-    connect(_regionSelector, &_regionSelector->signalSelectionStarted, this, &this->slotSelectionStarted);
-
-    setCursor(Qt::ArrowCursor);
+    setCursor(Qt::WaitCursor);
 
     if (image.format() != QImage::Format_RGBA8888) {
        _currentImage = image.convertToFormat(QImage::Format_RGBA8888);
@@ -291,8 +282,8 @@ void MainWindow::updateImage(const QImage& image)
         _currentImage = image;
     }
 
-    enableDisableUi();
-    show();
+    _rsview->setImage(_currentImage);
+    _modelBuilder->buildAsync(_currentImage, CvModelBuilderOptions());
 }
 
 void MainWindow::enableDisableUi()
@@ -365,12 +356,18 @@ void MainWindow::setupUi()
     _scrollArea->setAlignment(Qt::AlignCenter);
     _scrollArea->setFrameStyle(QFrame::NoFrame);
 
+    _rsview = new RsView(_scrollArea);
+    _rsview->setAccentPainter(createDefaultAccentPainter());
+    connect(_rsview, &_rsview->signalSelectionStarted, this, &this->slotSelectionStarted);
+    connect(_rsview, &_rsview->signalMouseMove, this, &this->slotMouseMove);
+
+    _scrollArea->setWidget(_rsview);
+
     setCentralWidget(_scrollArea);
 
     // docked widgets
     _colorsDock = new QDockWidget(tr("Colors"), this);
     _colorsWidget = new ColorsWidget(_colorsDock);
-    connect(this, &this->signalColorPicked, _colorsWidget, &_colorsWidget->slotColorChanged);
     setupDockWidget(_colorsDock, _awesome->icon(fa::eyedropper), _colorsWidget);
 
     _accentDock = new QDockWidget(tr("Accent"), this);
@@ -396,7 +393,7 @@ void MainWindow::setupUi()
     _toolbar->addAction(_colorsDock->toggleViewAction());
     _toolbar->addAction(_accentDock->toggleViewAction());
 
-    centerWindow();
+    WidgetUtils::centerWindow(this);
 }
 
 void MainWindow::setupDockWidget(QDockWidget *dockWidget, QIcon icon, QWidget *contentWidget)

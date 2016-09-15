@@ -1,6 +1,6 @@
 #include <dock/colorswidget.h>
 #include <controls/coloractionwidget.h>
-#include <widgetfactory.h>
+#include <widgetutils.h>
 
 #include <QGuiApplication>
 #include <QVBoxLayout>
@@ -14,31 +14,34 @@ ColorsWidget::ColorsWidget(QWidget *parent)
     QVBoxLayout* vlayout = new QVBoxLayout(this);
 
     vlayout->addSpacing(8);
-    vlayout->addWidget(WidgetFactory::createInfoLabel(tr("Current color:")));
+    vlayout->addWidget(WidgetUtils::createInfoLabel(tr("Current color:")));
     vlayout->addSpacing(8);
 
     _colorAction = new ColorActionWidget(Qt::black);
     vlayout->addWidget(_colorAction);
 
     vlayout->addSpacing(8);
-    vlayout->addWidget(WidgetFactory::createHSeparator());
+    vlayout->addWidget(WidgetUtils::createHSeparator());
 
     vlayout->addSpacing(8);
-    vlayout->addWidget(WidgetFactory::createInfoLabel(tr("Selected colors:")));
+    vlayout->addWidget(WidgetUtils::createInfoLabel(tr("Selected colors:")));
 
     _colorList = new QListWidget(this);
     vlayout->addWidget(_colorList);
 
-    slotColorChanged(Qt::black);
+    setCurrentColor(Qt::black);
 }
 
-void ColorsWidget::slotColorChanged(QColor color)
+void ColorsWidget::setCurrentColor(QColor color)
 {
     _color = color;
     _colorAction->updateColor(_color);
+}
 
+void ColorsWidget::setSelectedColor()
+{
     QAction* copyAction = new QAction(tr("Copy"));
-    connect(copyAction, &copyAction->triggered, this, [=]() { this->copyColor(color); });
+    connect(copyAction, &copyAction->triggered, this, [=]() { this->copyColor(_color); });
 
     QListWidgetItem *item = new QListWidgetItem(_colorList);
     _colorList->addItem(item);

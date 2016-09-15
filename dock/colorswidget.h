@@ -14,10 +14,10 @@ class ColorsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ColorsWidget(QWidget *parent);
+    ColorsWidget(QWidget *parent);
 
-public slots:
-    void slotColorChanged(QColor color);
+    void setCurrentColor(QColor color);
+    void setSelectedColor();
 
 private:
     QWidget* createHSeparator() const;

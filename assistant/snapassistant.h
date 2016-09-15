@@ -5,13 +5,13 @@
 
 
 // Interface for selection strategy
-class SelectionStrategy
+class SnapAssistant
 {
 public:
-    virtual ~SelectionStrategy() {}
+    virtual ~SnapAssistant() {}
 
-    virtual QRect hint(const QPoint& point) = 0;
+    // snaps a selection start point
     virtual QPoint begin(const QPoint& point) = 0;
+    // snaps a selection rectange
     virtual QPoint end(const QRect& rect) = 0;
-    virtual QRect adjust(const QRect& rect) = 0;
 };

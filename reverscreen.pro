@@ -12,33 +12,27 @@ SOURCES += main.cpp\
     cv/cvmodelbuilder.cpp \
     cv/cvmodel.cpp \
     cv/cvmodelbuilderoptions.cpp \
-    regionselector.cpp \
-    fineselectionstrategy.cpp \
-    snapselectionstrategy.cpp \
     fullscreenselectiondialog.cpp \
     fadeanimation.cpp \
     dock/colorswidget.cpp \
-    widgetfactory.cpp \
     dock/accentwidget.cpp \
     controls/coloractionwidget.cpp \
     awesomeservice.cpp \
     accent/rectangleaccentpainter.cpp \
     accent/cinemaaccentpainter.cpp \
     accent/hatchingaccentpainter.cpp \
-    accent/selectionaccentpainter.cpp
+    accent/selectionaccentpainter.cpp \
+    assistant/cvsnapassistant.cpp \
+    widgetutils.cpp \
+    rsview.cpp
 
 HEADERS  += mainwindow.h \
     cv/cvmodelbuilder.h \
     cv/cvmodel.h \
     cv/cvmodelbuilderoptions.h \
-    regionselector.h \
-    selectionstrategy.h \
-    fineselectionstrategy.h \
-    snapselectionstrategy.h \
     fullscreenselectiondialog.h \
     fadeanimation.h \
     dock/colorswidget.h \
-    widgetfactory.h \
     dock/accentwidget.h \
     controls/coloractionwidget.h \
     awesomeservice.h \
@@ -46,7 +40,11 @@ HEADERS  += mainwindow.h \
     accent/rectangleaccentpainter.h \
     accent/cinemaaccentpainter.h \
     accent/hatchingaccentpainter.h \
-    accent/selectionaccentpainter.h
+    accent/selectionaccentpainter.h \
+    assistant/snapassistant.h \
+    assistant/cvsnapassistant.h \
+    widgetutils.h \
+    rsview.h
 
 RESOURCES += \
     reverscreen.qrc

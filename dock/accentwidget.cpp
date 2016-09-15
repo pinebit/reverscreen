@@ -1,6 +1,6 @@
 #include <dock/accentwidget.h>
 #include <controls/coloractionwidget.h>
-#include <widgetfactory.h>
+#include <widgetutils.h>
 
 #include <QVBoxLayout>
 #include <QGroupBox>
@@ -18,7 +18,7 @@ AccentWidget::AccentWidget(QWidget *parent)
     QVBoxLayout* vlayout = new QVBoxLayout(this);
 
     vlayout->addSpacing(8);
-    vlayout->addWidget(WidgetFactory::createInfoLabel(tr("Select an accent region, choose parameters\nand click Apply button.")));
+    vlayout->addWidget(WidgetUtils::createInfoLabel(tr("Select an accent region, choose parameters\nand click Apply button.")));
     vlayout->addSpacing(8);
 
     // accent mode
@@ -60,7 +60,7 @@ AccentWidget::AccentWidget(QWidget *parent)
     QPushButton* applyButton = new QPushButton(tr("Apply"));
     connect(applyButton, &applyButton->clicked, this, &this->signalAccentApplied);
 
-    vlayout->addWidget(WidgetFactory::createInfoLabel(tr("Note: pressing Apply will merge the accent.\nYou cannot modify a merged accent.")));
+    vlayout->addWidget(WidgetUtils::createInfoLabel(tr("Note: pressing Apply will merge the accent.\nYou cannot modify a merged accent.")));
     vlayout->addSpacing(8);
     vlayout->addWidget(applyButton);
 

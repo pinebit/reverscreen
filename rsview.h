@@ -5,29 +5,27 @@
 #include <QImage>
 #include <QSharedPointer>
 #include <QPaintEvent>
-#include <QCursor>
-#include <QColor>
-
-// app
-#include <selectionstrategy.h>
 
 
+class SnapAssistant;
 class AccentPainter;
 
 // UI control enabling region selection on a given image
-class RegionSelector : public QWidget
+class RsView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit RegionSelector(QWidget *parent, const QImage& image);
+    RsView(QWidget *parent);
 
-    void setSelectionStrategy(QSharedPointer<SelectionStrategy> strategy, QCursor cursor);
-    void setAccentPainter(AccentPainter* accentPainter);
+    void setImage(QImage image);
+    void setSnapAssistant(QSharedPointer<SnapAssistant> snapAssistant);
+    void setAccentPainter(QSharedPointer<AccentPainter> accentPainter);
 
     QRect selectedRegion() const;
 
 signals:
+    void signalMouseMove(const QPoint& point);
     void signalSelectionStarted();
     void signalSelectionFinished();
     void signalSelectionCancelled();
@@ -39,17 +37,11 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void wheelEvent(QWheelEvent* event);
-    void mouseDoubleClickEvent(QMouseEvent *event);
-
-private:
-    void drawRegionRect(QPainter& painter);
-    void drawRegionShaders(QPainter& painter);
-    void drawHintRect(QPainter& painter);
 
 private:
     QImage _image;
-    QSharedPointer<SelectionStrategy> _strategy;
     QPoint _startPoint;
     QPoint _endPoint;
-    AccentPainter* _accentPainter;
+    QSharedPointer<SnapAssistant> _snapAssistant;
+    QSharedPointer<AccentPainter> _accentPainter;
 };
