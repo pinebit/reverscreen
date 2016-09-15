@@ -12,6 +12,8 @@ public:
     static QWidget* createHSeparator();
     static QLabel* createInfoLabel(const QString& text);
     static void centerWindow(QWidget* widget);
+    static void fadeIn(QWidget* widget);
+    static void fadeOut(QWidget* widget);
 
 private:
     WidgetUtils() {}

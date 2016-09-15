@@ -13,7 +13,6 @@ SOURCES += main.cpp\
     cv/cvmodel.cpp \
     cv/cvmodelbuilderoptions.cpp \
     fullscreenselectiondialog.cpp \
-    fadeanimation.cpp \
     dock/colorswidget.cpp \
     dock/accentwidget.cpp \
     controls/coloractionwidget.cpp \
@@ -31,7 +30,6 @@ HEADERS  += mainwindow.h \
     cv/cvmodel.h \
     cv/cvmodelbuilderoptions.h \
     fullscreenselectiondialog.h \
-    fadeanimation.h \
     dock/colorswidget.h \
     dock/accentwidget.h \
     controls/coloractionwidget.h \
