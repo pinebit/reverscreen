@@ -12,6 +12,10 @@ class ColorActionWidget : public QWidget
 public:
     explicit ColorActionWidget(QColor initialColor, QAction* action = 0, QWidget *parent = 0);
 
+    QColor color() const {
+        return _color;
+    }
+
     void updateColor(QColor newColor);
 
 private:

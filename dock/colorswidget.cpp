@@ -40,14 +40,14 @@ void ColorsWidget::setCurrentColor(QColor color)
 
 void ColorsWidget::setSelectedColor()
 {
-    QAction* copyAction = new QAction(tr("Copy"));
-    connect(copyAction, &copyAction->triggered, this, [=]() { this->copyColor(_color); });
-
     QListWidgetItem *item = new QListWidgetItem(_colorList);
     _colorList->addItem(item);
 
+    QAction* copyAction = new QAction(tr("Copy"));
     ColorActionWidget* copyColorAction = new ColorActionWidget(_color, copyAction);
+    connect(copyAction, &copyAction->triggered, this, [=]() { this->copyColor(copyColorAction->color()); });
     item->setSizeHint(copyColorAction->minimumSizeHint());
+
     _colorList->setItemWidget(item, copyColorAction);
 }
 
