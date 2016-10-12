@@ -1,6 +1,4 @@
-#include <CV/cvmodel.h>
-
-#include <opencv2/imgproc/imgproc.hpp>
+#include "cv/cvmodel.h"
 
 using namespace std;
 using namespace cv;

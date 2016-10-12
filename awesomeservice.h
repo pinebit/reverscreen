@@ -3,7 +3,6 @@
 #include <QObject>
 #include <QtAwesome.h>
 
-
 class QtAwesome;
 
 class AwesomeService : public QObject

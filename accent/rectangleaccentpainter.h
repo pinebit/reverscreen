@@ -1,6 +1,6 @@
 #pragma once
 
-#include <accent/accentpainter.h>
+#include "accent/accentpainter.h"
 
 #include <QColor>
 

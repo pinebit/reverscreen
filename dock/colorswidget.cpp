@@ -1,6 +1,6 @@
-#include <dock/colorswidget.h>
-#include <controls/coloractionwidget.h>
-#include <widgetutils.h>
+#include "dock/colorswidget.h"
+#include "controls/coloractionwidget.h"
+#include "widgetutils.h"
 
 #include <QGuiApplication>
 #include <QVBoxLayout>
@@ -43,9 +43,9 @@ void ColorsWidget::setSelectedColor()
     QListWidgetItem *item = new QListWidgetItem(_colorList);
     _colorList->addItem(item);
 
-    QAction* copyAction = new QAction(tr("Copy"));
+    QAction* copyAction = new QAction(tr("Copy"), this);
     ColorActionWidget* copyColorAction = new ColorActionWidget(_color, copyAction);
-    connect(copyAction, &copyAction->triggered, this, [=]() { this->copyColor(copyColorAction->color()); });
+    connect(copyAction, &QAction::triggered, this, [=]() { this->copyColor(copyColorAction->color()); });
     item->setSizeHint(copyColorAction->minimumSizeHint());
 
     _colorList->setItemWidget(item, copyColorAction);

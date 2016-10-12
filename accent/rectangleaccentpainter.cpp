@@ -1,4 +1,4 @@
-#include <accent/rectangleaccentpainter.h>
+#include "accent/rectangleaccentpainter.h"
 
 #include <QPainter>
 

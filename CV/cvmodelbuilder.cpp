@@ -1,6 +1,6 @@
 #include <QtConcurrent>
 
-#include <CV/cvmodelbuilder.h>
+#include "cv/cvmodelbuilder.h"
 
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -14,7 +14,7 @@ CvModelBuilder::CvModelBuilder(QObject *parent)
 
 void CvModelBuilder::buildAsync(const QImage &image, const CvModelBuilderOptions &options)
 {
-    QtConcurrent::run(this, &build, image, options);
+    QtConcurrent::run(this, &CvModelBuilder::build, image, options);
 }
 
 void CvModelBuilder::build(const QImage &image, const CvModelBuilderOptions &options)

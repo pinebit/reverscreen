@@ -1,11 +1,7 @@
-#include <assistant/cvsnapassistant.h>
-
-#include <CV/cvmodel.h>
-
+#include "assistant/cvsnapassistant.h"
+#include "cv/cvmodel.h"
 #include <opencv2/imgproc/imgproc.hpp>
-
 #include <limits>
-
 
 using namespace cv;
 using namespace std;

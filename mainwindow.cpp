@@ -17,20 +17,19 @@
 #include <QMenu>
 #include <QDesktopWidget>
 
-#include <awesomeservice.h>
-#include <mainwindow.h>
-#include <rsview.h>
-#include <dock/colorswidget.h>
-#include <dock/accentwidget.h>
-#include <fullscreenselectiondialog.h>
-#include <assistant/cvsnapassistant.h>
-#include <accent/selectionaccentpainter.h>
-#include <accent/rectangleaccentpainter.h>
-#include <accent/cinemaaccentpainter.h>
-#include <accent/hatchingaccentpainter.h>
-#include <widgetutils.h>
-#include <cv/cvmodelbuilder.h>
-
+#include "awesomeservice.h"
+#include "mainwindow.h"
+#include "rsview.h"
+#include "dock/colorswidget.h"
+#include "dock/accentwidget.h"
+#include "fullscreenselectiondialog.h"
+#include "assistant/cvsnapassistant.h"
+#include "accent/selectionaccentpainter.h"
+#include "accent/rectangleaccentpainter.h"
+#include "accent/cinemaaccentpainter.h"
+#include "accent/hatchingaccentpainter.h"
+#include "widgetutils.h"
+#include "cv/cvmodelbuilder.h"
 
 static const QColor RegionColor = Qt::red;
 static const QColor ShaderColor = QColor::fromRgba(0x50a0a0a0);
@@ -39,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , _modelBuilder(new CvModelBuilder(this))
 {
-    connect(_modelBuilder, &_modelBuilder->signalBuildCompleted, this, &this->slotBuildCompleted);
+    connect(_modelBuilder, &CvModelBuilder::signalBuildCompleted, this, &MainWindow::slotBuildCompleted);
 
     setupUi();
     enableDisableUi();
@@ -122,7 +121,9 @@ void MainWindow::slotSelectionStarted()
 void MainWindow::slotMouseMove(const QPoint &pos)
 {
     if (_colorsDock->isVisible()) {
-        QColor color = _currentImage.pixelColor(pos);
+        QColor color(_currentImage.pixel(pos));
+ //  Qt 5.7
+ //       QColor color = _currentImage.pixelColor(pos);
         _colorsWidget->setCurrentColor(color);
     }
 }
@@ -344,11 +345,11 @@ void MainWindow::setupUi()
     _actionCrop = new QAction(_awesome->icon(fa::crop), tr("Crop"), this);
     _actionCrop->setShortcut(QKeySequence("Ctrl+X"));
 
-    connect(_actionPaste, &_actionPaste->triggered, this, &slotActionPaste);
-    connect(_actionOpen, &_actionOpen->triggered, this, &slotActionOpen);
-    connect(_actionCopy, &_actionCopy->triggered, this, &slotActionCopy);
-    connect(_actionSave, &_actionSave->triggered, this, &slotActionSave);
-    connect(_actionCrop, &_actionCrop->triggered, this, &slotActionCrop);
+    connect(_actionPaste, &QAction::triggered, this, &MainWindow::slotActionPaste);
+    connect(_actionOpen, &QAction::triggered, this, &MainWindow::slotActionOpen);
+    connect(_actionCopy, &QAction::triggered, this, &MainWindow::slotActionCopy);
+    connect(_actionSave, &QAction::triggered, this, &MainWindow::slotActionSave);
+    connect(_actionCrop, &QAction::triggered, this, &MainWindow::slotActionCrop);
 
     // central widget
     _scrollArea = new QScrollArea(this);
@@ -358,8 +359,8 @@ void MainWindow::setupUi()
 
     _rsview = new RsView(_scrollArea);
     _rsview->setAccentPainter(createDefaultAccentPainter());
-    connect(_rsview, &_rsview->signalSelectionStarted, this, &this->slotSelectionStarted);
-    connect(_rsview, &_rsview->signalMouseMove, this, &this->slotMouseMove);
+    connect(_rsview, &RsView::signalSelectionStarted, this, &MainWindow::slotSelectionStarted);
+    connect(_rsview, &RsView::signalMouseMove, this, &MainWindow::slotMouseMove);
 
     _scrollArea->setWidget(_rsview);
 
@@ -372,15 +373,15 @@ void MainWindow::setupUi()
 
     _accentDock = new QDockWidget(tr("Accent"), this);
     _accentWidget = new AccentWidget(_accentDock);
-    connect(_accentWidget, &_accentWidget->signalAccentChanged, this, &this->slotAccentChanged);
-    connect(_accentWidget, &_accentWidget->signalAccentApplied, this, &this->slotAccentApplied);
+    connect(_accentWidget, &AccentWidget::signalAccentChanged, this, &MainWindow::slotAccentChanged);
+    connect(_accentWidget, &AccentWidget::signalAccentApplied, this, &MainWindow::slotAccentApplied);
     setupDockWidget(_accentDock, _awesome->icon(fa::lightbulbo), _accentWidget);
 
     // combo actions
     QMenu *newMenu = new QMenu(tr("Screenshot"));
     newMenu->menuAction()->setIcon(_awesome->icon(fa::cameraretro));
     newMenu->menuAction()->setShortcut(QKeySequence("Ctrl+N"));
-    connect(newMenu->menuAction(), &newMenu->menuAction()->triggered, this, &slotActionScreenshot);
+    connect(newMenu->menuAction(), &QAction::triggered, this, &MainWindow::slotActionScreenshot);
     newMenu->addAction(_actionPaste);
     newMenu->addAction(_actionOpen);
 
@@ -405,7 +406,6 @@ void MainWindow::setupDockWidget(QDockWidget *dockWidget, QIcon icon, QWidget *c
     dockWidget->toggleViewAction()->setIcon(icon);
 
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
-
-    connect(dockWidget, &dockWidget->visibilityChanged, this, [this, dockWidget]() { handleDockWidgetVisibityChange(dockWidget); });
+    connect(dockWidget, &QDockWidget::visibilityChanged, this, [this, dockWidget]() { handleDockWidgetVisibityChange(dockWidget); });
 }
 
