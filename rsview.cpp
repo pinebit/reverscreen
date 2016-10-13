@@ -3,9 +3,9 @@
 #include <QDebug>
 
 // app
-#include <rsview.h>
-#include <accent/accentpainter.h>
-#include <assistant/snapassistant.h>
+#include "rsview.h"
+#include "accent/accentpainter.h"
+#include "assistant/snapassistant.h"
 
 
 static const QColor RegionColor = Qt::red;

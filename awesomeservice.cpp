@@ -1,6 +1,5 @@
-#include <awesomeservice.h>
+#include "awesomeservice.h"
 #include <QtAwesome.h>
-
 
 AwesomeService* AwesomeService::s_instance = NULL;
 

@@ -68,5 +68,5 @@ void WidgetUtils::fadeOut(QWidget *widget)
     animation->setEasingCurve(QEasingCurve::OutBack);
     animation->start(QPropertyAnimation::DeleteWhenStopped);
 
-    animation->connect(animation, &animation->finished, widget, widget->hide);
+    animation->connect(animation, &QPropertyAnimation::finished, widget, &QWidget::hide);
 }

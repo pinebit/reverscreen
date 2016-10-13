@@ -1,4 +1,4 @@
-#include <CV/cvmodelbuilderoptions.h>
+#include "cv/cvmodelbuilderoptions.h"
 
 CvModelBuilderOptions::CvModelBuilderOptions()
 {

@@ -2,10 +2,7 @@
 
 // std
 #include <vector>
-
-// opencv
-#include <opencv2/core.hpp>
-
+#include <opencv/cv.h>
 
 // Represents an immutable computer vision model
 class CvModel

@@ -1,11 +1,10 @@
 #include <QLabel>
 
-#include <fullscreenselectiondialog.h>
-#include <rsview.h>
-#include <assistant/cvsnapassistant.h>
-#include <CV/cvmodelbuilder.h>
-#include <CV/cvmodel.h>
-
+#include "fullscreenselectiondialog.h"
+#include "rsview.h"
+#include "assistant/cvsnapassistant.h"
+#include "cv/cvmodelbuilder.h"
+#include "cv/cvmodel.h"
 
 FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QImage &image, QSharedPointer<AccentPainter> accentPainter)
     : QDialog(parent)
@@ -22,11 +21,11 @@ FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QIma
     _rsview->setImage(image);
     _rsview->setAccentPainter(accentPainter);
 
-    connect(_rsview, &_rsview->signalSelectionFinished, this, this->slotSelectionFinished);
-    connect(_rsview, &_rsview->signalSelectionCancelled, this, this->reject);
+    connect(_rsview, &RsView::signalSelectionFinished, this, &FullscreenSelectionDialog::slotSelectionFinished);
+    connect(_rsview, &RsView::signalSelectionCancelled, this, &FullscreenSelectionDialog::reject);
 
     _builder = new CvModelBuilder(this);
-    connect(_builder, &_builder->signalBuildCompleted, this, &this->slotBuildCompleted);
+    connect(_builder, &CvModelBuilder::signalBuildCompleted, this, &FullscreenSelectionDialog::slotBuildCompleted);
 
     CvModelBuilderOptions options;
     _builder->buildAsync(image, options);

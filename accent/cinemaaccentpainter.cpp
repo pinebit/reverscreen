@@ -1,7 +1,6 @@
-#include <accent/cinemaaccentpainter.h>
+#include "accent/cinemaaccentpainter.h"
 
 #include <QPainter>
-
 
 CinemaAccentPainter::CinemaAccentPainter(QColor shadeColor)
     : _shadeColor(shadeColor)

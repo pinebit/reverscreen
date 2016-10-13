@@ -1,8 +1,8 @@
 #pragma once
 
-#include <accent/accentpainter.h>
-#include <accent/cinemaaccentpainter.h>
-#include <accent/rectangleaccentpainter.h>
+#include "accent/accentpainter.h"
+#include "accent/cinemaaccentpainter.h"
+#include "accent/rectangleaccentpainter.h"
 
 #include <QColor>
 

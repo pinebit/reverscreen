@@ -6,8 +6,8 @@
 #include <QSharedPointer>
 
 // app
-#include <CV/cvmodel.h>
-#include <CV/cvmodelbuilderoptions.h>
+#include "cv/cvmodel.h"
+#include "cv/cvmodelbuilderoptions.h"
 
 Q_DECLARE_METATYPE(QSharedPointer<CvModel>)
 

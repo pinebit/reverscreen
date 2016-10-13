@@ -1,4 +1,4 @@
-#include <accent/hatchingaccentpainter.h>
+#include "accent/hatchingaccentpainter.h"
 
 #include <QPainter>
 #include <QBrush>

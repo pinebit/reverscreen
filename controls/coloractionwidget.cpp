@@ -1,4 +1,4 @@
-#include <controls/coloractionwidget.h>
+#include "controls/coloractionwidget.h"
 
 #include <QPixmap>
 #include <QHBoxLayout>

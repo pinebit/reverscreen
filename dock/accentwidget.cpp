@@ -1,6 +1,6 @@
-#include <dock/accentwidget.h>
-#include <controls/coloractionwidget.h>
-#include <widgetutils.h>
+#include "dock/accentwidget.h"
+#include "controls/coloractionwidget.h"
+#include "widgetutils.h"
 
 #include <QVBoxLayout>
 #include <QGroupBox>
@@ -30,7 +30,7 @@ AccentWidget::AccentWidget(QWidget *parent)
         int value = metaEnum.value(i);
 
         QRadioButton *rb = new QRadioButton(metaEnum.key(i));
-        connect(rb, &rb->toggled, this, [this, rb, value]() {
+        connect(rb, &QRadioButton::toggled, this, [this, rb, value]() {
             if (rb->isChecked()) {
                 updateMode((AccentMode)value);
             }
@@ -49,8 +49,8 @@ AccentWidget::AccentWidget(QWidget *parent)
     vlayout->addSpacing(8);
 
     // color selection
-    QAction* changeAction = new QAction(tr("Change..."));
-    connect(changeAction, &changeAction->triggered, this, [this]() { this->slotSelectColorDialog(); });
+    QAction* changeAction = new QAction(tr("Change..."), this);
+    connect(changeAction, &QAction::triggered, this, [this]() { this->slotSelectColorDialog(); });
     _colorAction = new ColorActionWidget(_accentColor, changeAction);
 
     vlayout->addWidget(_colorAction);
@@ -58,7 +58,7 @@ AccentWidget::AccentWidget(QWidget *parent)
 
     // apply button
     QPushButton* applyButton = new QPushButton(tr("Apply"));
-    connect(applyButton, &applyButton->clicked, this, &this->signalAccentApplied);
+    connect(applyButton, &QPushButton::clicked, this, &AccentWidget::signalAccentApplied);
 
     vlayout->addWidget(WidgetUtils::createInfoLabel(tr("Note: pressing Apply will merge the accent.\nYou cannot modify a merged accent.")));
     vlayout->addSpacing(8);

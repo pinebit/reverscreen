@@ -1,6 +1,6 @@
 #pragma once
 
-#include <assistant/snapassistant.h>
+#include "assistant/snapassistant.h"
 
 #include <QSharedPointer>
 

@@ -2,7 +2,6 @@
 
 #include <QRect>
 
-
 class QPainter;
 
 // Base class for all accent painters
