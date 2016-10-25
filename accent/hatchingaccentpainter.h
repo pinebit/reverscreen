@@ -4,13 +4,13 @@
 
 #include <QColor>
 
-
 class HatchingAccentPainter : public AccentPainter
 {
 public:
-    HatchingAccentPainter(QColor color);
+    HatchingAccentPainter(const QColor& color);
 
-    void paint(QPainter *painter, QRect scope, QRect region);
+    void paint(QPainter* painter, const RegionContext* context);
+    void paint(QPainter *painter, const QRect& scope, const QRect& region);
 
 private:
     QColor _color;

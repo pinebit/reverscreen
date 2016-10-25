@@ -8,6 +8,7 @@ class RsView;
 class CvModelBuilder;
 class CvModel;
 class AccentPainter;
+class RegionContext;
 
 class FullscreenSelectionDialog : public QDialog
 {
@@ -16,9 +17,7 @@ class FullscreenSelectionDialog : public QDialog
 public:
     FullscreenSelectionDialog(QWidget* parent, const QImage& image, QSharedPointer<AccentPainter> accentPainter);
 
-    QRect selectedRegion() const {
-        return _selectedRegion;
-    }
+    QSharedPointer<RegionContext>& getRegionContext();
 
 private slots:
     void slotBuildCompleted(QSharedPointer<CvModel> model);
@@ -27,7 +26,6 @@ private slots:
 private:
     RsView* _rsview;
     CvModelBuilder* _builder;
-    QRect           _selectedRegion;
     QSharedPointer<AccentPainter> _accentPainter;
 };
 

@@ -2,15 +2,17 @@
 
 #include <QPainter>
 
-
-RectangleAccentPainter::RectangleAccentPainter(QColor color, int width)
+RectangleAccentPainter::RectangleAccentPainter(const QColor& color, int width)
     : _color(color)
-    , _width(width)
-{
+    , _width(width) {
 }
 
-void RectangleAccentPainter::paint(QPainter *painter, QRect scope, QRect region)
-{
+void RectangleAccentPainter::paint(QPainter* painter, const RegionContext* context) {
+    Q_ASSERT(context != NULL);
+    this->paint(painter, context->scopeRegion(), context->selectedRegion());
+}
+
+void RectangleAccentPainter::paint(QPainter *painter, const QRect& scope, const QRect& region) {
     Q_UNUSED(scope);
     Q_ASSERT(painter != NULL);
 
