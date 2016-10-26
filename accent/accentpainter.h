@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QRect>
+#include "context/regioncontext.h"
 
 class QPainter;
 
@@ -11,5 +12,6 @@ public:
     AccentPainter() {}
     virtual ~AccentPainter() {}
 
-    virtual void paint(QPainter* painter, QRect scope, QRect region) = 0;
+    virtual void paint(QPainter* painter, const RegionContext* context) = 0;
+    virtual void paint(QPainter *painter, const QRect& scope, const QRect& region) = 0;
 };

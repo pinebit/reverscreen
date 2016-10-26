@@ -22,6 +22,7 @@ SOURCES += main.cpp\
     accent/hatchingaccentpainter.cpp \
     accent/selectionaccentpainter.cpp \
     assistant/cvsnapassistant.cpp \
+    context/regioncontext.cpp \
     widgetutils.cpp \
     rsview.cpp
 
@@ -41,9 +42,10 @@ HEADERS  += mainwindow.h \
     accent/selectionaccentpainter.h \
     assistant/snapassistant.h \
     assistant/cvsnapassistant.h \
+    context/regioncontext.h \
     widgetutils.h \
     rsview.h
-
+    
 RESOURCES += \
     reverscreen.qrc
 

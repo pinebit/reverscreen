@@ -17,7 +17,7 @@ FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QIma
 
     setCursor(Qt::WaitCursor);
 
-    _rsview = new RsView(this);
+    _rsview = new RsView(this, true);
     _rsview->setImage(image);
     _rsview->setAccentPainter(accentPainter);
 
@@ -31,16 +31,17 @@ FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QIma
     _builder->buildAsync(image, options);
 }
 
-void FullscreenSelectionDialog::slotBuildCompleted(QSharedPointer<CvModel> model)
-{
+QSharedPointer<RegionContext>& FullscreenSelectionDialog::getRegionContext(){
+    return _rsview->getRegionContext();
+}
+
+void FullscreenSelectionDialog::slotBuildCompleted(QSharedPointer<CvModel> model){
     QSharedPointer<SnapAssistant> assistant(new CvSnapAssistant(model));
     _rsview->setSnapAssistant(assistant);
 
     setCursor(Qt::CrossCursor);
 }
 
-void FullscreenSelectionDialog::slotSelectionFinished()
-{
-    _selectedRegion = _rsview->selectedRegion();
+void FullscreenSelectionDialog::slotSelectionFinished() {
     accept();
 }

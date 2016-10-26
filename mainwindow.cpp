@@ -16,6 +16,7 @@
 #include <QBitmap>
 #include <QMenu>
 #include <QDesktopWidget>
+#include <QDebug>
 
 #include "awesomeservice.h"
 #include "mainwindow.h"
@@ -54,7 +55,8 @@ void MainWindow::slotActionScreenshot()
 
     FullscreenSelectionDialog dialog(this, _currentImage, createDefaultAccentPainter());
     if (dialog.exec() == QDialog::Accepted) {
-        updateImage(_currentImage.copy(dialog.selectedRegion()));
+        updateImage(dialog.getRegionContext());
+
         _statusbar->showMessage(tr("A screen region is captured."));
     }
 
@@ -99,14 +101,15 @@ void MainWindow::slotActionOpen()
 
 void MainWindow::slotActionCrop()
 {
-    if (_rsview->selectedRegion().isEmpty() ||
-        _rsview->selectedRegion().size() == QSize(1,1)) {
+    QRect cropRegion = _rsview->highlightedRegion();
+    if (cropRegion.isEmpty() ||
+        cropRegion.size() == QSize(1,1)) {
         QMessageBox::warning(this, tr("No region selected"), tr("Please use mouse to select a region to crop."));
         return;
     }
 
-    QSize size = _rsview->selectedRegion().size();
-    updateImage(_currentImage.copy(_rsview->selectedRegion()));
+    QSize size = cropRegion.size();
+    updateImage(_currentImage.copy(cropRegion));
 
     _statusbar->showMessage(tr("Image cropped. New size: %1x%2").arg(size.width()).arg(size.height()));
 }
@@ -122,8 +125,6 @@ void MainWindow::slotMouseMove(const QPoint &pos)
 {
     if (_colorsDock->isVisible()) {
         QColor color(_currentImage.pixel(pos));
- //  Qt 5.7
- //       QColor color = _currentImage.pixelColor(pos);
         _colorsWidget->setCurrentColor(color);
     }
 }
@@ -131,7 +132,6 @@ void MainWindow::slotMouseMove(const QPoint &pos)
 void MainWindow::slotAccentChanged()
 {
     _rsview->setAccentPainter(createAccentPainter());
-
     update();
 }
 
@@ -141,9 +141,7 @@ void MainWindow::slotAccentApplied()
     QPainter painter(&pm);
 
     QSharedPointer<AccentPainter> accent = createAccentPainter();
-
-    QRect scope(0, 0, pm.width(), pm.height());
-    accent->paint(&painter, scope, _rsview->selectedRegion());
+    accent->paint(&painter, pm.rect(), _rsview->highlightedRegion());
 
     updateImage(pm.toImage());
 
@@ -210,7 +208,6 @@ QSharedPointer<AccentPainter> MainWindow::createAccentPainter()
 bool MainWindow::saveImage(const QString &fileName)
 {
     QImageWriter writer(fileName);
-
     if (!writer.write(_currentImage)) {
         QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
                                  tr("Cannot save %1: %2")
@@ -227,7 +224,6 @@ bool MainWindow::saveImage(const QString &fileName)
 bool MainWindow::openImage(const QString &fileName)
 {
     QImageReader reader(fileName);
-
     QImage image = reader.read();
     if (image.isNull()) {
         return false;
@@ -237,7 +233,6 @@ bool MainWindow::openImage(const QString &fileName)
     _statusbar->showMessage(message);
 
     updateImage(image);
-
     return true;
 }
 
@@ -278,12 +273,40 @@ void MainWindow::updateImage(const QImage& image)
 
     if (image.format() != QImage::Format_RGBA8888) {
        _currentImage = image.convertToFormat(QImage::Format_RGBA8888);
-    }
-    else {
+    } else {
         _currentImage = image;
     }
 
     _rsview->setImage(_currentImage);
+    _modelBuilder->buildAsync(_currentImage, CvModelBuilderOptions());
+}
+
+void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext)
+{
+    setCursor(Qt::WaitCursor);
+
+    QRect selectedRegion = regionContext->selectedRegion();
+    QRect highlightedRegion = regionContext->highlightedRegion();
+    if (selectedRegion.isEmpty() && highlightedRegion.isEmpty()) {
+        return;
+    }
+
+    QImage image = _currentImage.copy(selectedRegion);
+    if (image.format() != QImage::Format_RGBA8888) {
+       _currentImage = image.convertToFormat(QImage::Format_RGBA8888);
+    } else {
+        _currentImage = image;
+    }
+    _rsview->setImage(_currentImage);
+
+    // Moves the highlightedRegion
+    highlightedRegion.translate(-selectedRegion.topLeft());
+
+    QSharedPointer<RegionContext>& viewRegionContext = _rsview->getRegionContext();
+    viewRegionContext->setSelectedRegion(image.rect());
+    viewRegionContext->setHighlightedRegion(highlightedRegion);
+    update();
+
     _modelBuilder->buildAsync(_currentImage, CvModelBuilderOptions());
 }
 
@@ -357,7 +380,7 @@ void MainWindow::setupUi()
     _scrollArea->setAlignment(Qt::AlignCenter);
     _scrollArea->setFrameStyle(QFrame::NoFrame);
 
-    _rsview = new RsView(_scrollArea);
+    _rsview = new RsView(_scrollArea, false);
     _rsview->setAccentPainter(createDefaultAccentPainter());
     connect(_rsview, &RsView::signalSelectionStarted, this, &MainWindow::slotSelectionStarted);
     connect(_rsview, &RsView::signalMouseMove, this, &MainWindow::slotMouseMove);
@@ -408,4 +431,3 @@ void MainWindow::setupDockWidget(QDockWidget *dockWidget, QIcon icon, QWidget *c
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
     connect(dockWidget, &QDockWidget::visibilityChanged, this, [this, dockWidget]() { handleDockWidgetVisibityChange(dockWidget); });
 }
-

@@ -1,36 +1,36 @@
 #include "accent/cinemaaccentpainter.h"
 
 #include <QPainter>
+#include <QtGlobal>
 
-CinemaAccentPainter::CinemaAccentPainter(QColor shadeColor)
+CinemaAccentPainter::CinemaAccentPainter(const QColor& shadeColor, int alpha)
     : _shadeColor(shadeColor)
-{
+    , _alpha(alpha) {
 }
 
-void CinemaAccentPainter::paint(QPainter *painter, QRect scope, QRect region)
-{
+void CinemaAccentPainter::paint(QPainter *painter, const RegionContext* context) {
+    Q_ASSERT(context != NULL);
+    this->paint(painter, context->scopeRegion(), context->selectedRegion());
+}
+
+void CinemaAccentPainter::paint(QPainter *painter, const QRect& scope, const QRect& region){
     Q_ASSERT(painter != NULL);
 
     QColor color(_shadeColor);
-    color.setAlpha(100);
+    color.setAlpha(_alpha);
 
     QBrush brush(color);
 
-    int min_x = region.left();
-    int min_y = region.top();
-    int max_x = region.right();
-    int max_y = region.bottom();
-
     // top shader
-    painter->fillRect(scope.left(), scope.top(), scope.width(), min_y, brush);
-
-    // bottom shader
-    painter->fillRect(scope.left(), max_y + 1, scope.width(), scope.height() - max_y, brush);
-
+    QRect topRect(scope.topLeft(), QPoint(scope.right(), region.top() - 1));
+    painter->fillRect(topRect, brush);
     // left shader
-    painter->fillRect(scope.left(), min_y, min_x, max_y - min_y + 1, brush);
-
+    QRect leftRect(QPoint(scope.left(), region.top()), region.bottomLeft());
+    painter->fillRect(leftRect, brush);
     // right shader
-    painter->fillRect(max_x + 1, min_y, scope.width() - max_x, max_y - min_y + 1, brush);
+    QRect rightRect(region.topRight(), QPoint(scope.right(), region.bottom()));
+    painter->fillRect(rightRect, brush);
+    // bottom shader
+    QRect bottomRect(QPoint(scope.left(), region.bottom() + 1),scope.bottomRight());
+    painter->fillRect(bottomRect, brush);
 }
-
