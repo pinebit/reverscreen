@@ -74,6 +74,8 @@ LIBS += -L/usr/local/lib
 LIBS += -lopencv_core -lopencv_imgproc -lz
 }
 
+QMAKE_CXXFLAGS += -Wno-deprecated-declarations
+
 include(QtAwesome/QtAwesome.pri)
 
 SUBDIRS += \
