@@ -5,8 +5,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = REVERSCREEN
 TEMPLATE = app
 
-CONFIG += c++11
-
 SOURCES += main.cpp\
         mainwindow.cpp \
     cv/cvmodelbuilder.cpp \
@@ -49,12 +47,12 @@ HEADERS  += mainwindow.h \
 RESOURCES += \
     reverscreen.qrc
 
+win32 {
 CONFIG(release, debug|release)
 {
 INCLUDEPATH += C:/Opencv/mingw_release/include
 LIBS += -L"C:/Opencv/mingw_release/x86/mingw/lib"
 }
-
 CONFIG(debug, debug|release)
 {
 INCLUDEPATH += C:/Opencv/mingw_debug/include
@@ -67,7 +65,14 @@ LIBS += \
 
 QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 
-win32:RC_ICONS += images/reverscreen.ico
+RC_ICONS += images/reverscreen.ico
+}
+
+unix {
+INCLUDEPATH += /usr/local/include
+LIBS += -L/usr/local/lib
+LIBS += -lopencv_core -lopencv_imgproc -lz
+}
 
 include(QtAwesome/QtAwesome.pri)
 
