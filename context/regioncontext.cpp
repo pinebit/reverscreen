@@ -12,9 +12,13 @@ bool RegionContext::isNull() const {
     return _snapAssistant.isNull();
 }
 
-void RegionContext::clear() {
+void RegionContext::clearAll() {
     _snapAssistant.clear();
     _scopeRegion = _selectedRegion = _highlightedRegion = QRect();
+}
+
+void RegionContext::clearRegion() {
+    _selectedRegion = _highlightedRegion = QRect();
 }
 
 void RegionContext::setSnapAssistant(const QSharedPointer<SnapAssistant>& snapAssistant) {
@@ -76,11 +80,33 @@ void RegionContext::updateHighlightedRegion(int dx, int dy){
     bottomRight += QPoint(dx, dy);
 
     QRect region(topLeft, bottomRight);
-    updateHighlightedRegion(region);
+//    updateHighlightedRegion(region);
+
+    if (_scopeRegion.intersects(region)) {
+        int top = (_scopeRegion.top() < region.top())
+                ? region.top() : _scopeRegion.top();
+        _highlightedRegion.setTop(top);
+
+        int left = (_scopeRegion.left() < region.left())
+                ? region.left() : _scopeRegion.left();
+        _highlightedRegion.setLeft(left);
+
+        int bottom = (_scopeRegion.bottom() > region.bottom())
+                ? region.bottom() : _scopeRegion.bottom();
+        _highlightedRegion.setBottom(bottom);
+
+        int right = (_scopeRegion.right() > region.right())
+                ? region.right() : _scopeRegion.right();
+        _highlightedRegion.setRight(right);
+    } else {
+        if (_scopeRegion.contains(region, false)) {
+            _highlightedRegion = region;
+        }
+    }
 }
 
 void RegionContext::updateHighlightedRegion(const QRect& region){
-    if (_scopeRegion.contains(region, false)) {
+    if (_scopeRegion.contains(region, true)) {
         QRect intersectedRegion = (_scopeRegion.intersects(region))
                 ? _scopeRegion.intersected(region)
                 : region;

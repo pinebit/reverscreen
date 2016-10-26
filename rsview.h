@@ -29,6 +29,7 @@ public:
     QRect selectedRegion() const;
     QRect highlightedRegion() const;
 
+    bool usedHighlightedRegion() const;
     bool modeScreenshot() const;
 
 signals:
@@ -43,7 +44,6 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
-    void wheelEvent(QWheelEvent* event);
 
 private:
     QImage _image;
@@ -51,6 +51,7 @@ private:
     bool _modeScreenshot;
     bool _keyControlPress;
     bool _keyShiftPress;
+
     QSharedPointer<AccentPainter> _accentPainter;
     QSharedPointer<RegionContext> _regionContext;
 };

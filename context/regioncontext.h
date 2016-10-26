@@ -12,7 +12,8 @@ public:
     RegionContext();
 
     bool isNull() const;
-    void clear();
+    void clearAll();
+    void clearRegion();
 
     void setSnapAssistant(const QSharedPointer<SnapAssistant>& snapAssistant);
 
