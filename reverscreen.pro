@@ -71,14 +71,7 @@ RC_ICONS += images/reverscreen.ico
 unix {
 INCLUDEPATH += /usr/local/include
 LIBS += -L/usr/local/lib
-LIBS += -lopencv_core \
-	-lopencv_imgproc \
-	-lopencv_features2d \
-	-lopencv_contrib \
-	-lopencv_photo \
-	-lopencv_highgui \
-	-ljpeg \
-    -lz
+LIBS += -lopencv_core -lopencv_imgproc -lz
 }
 
 include(QtAwesome/QtAwesome.pri)
