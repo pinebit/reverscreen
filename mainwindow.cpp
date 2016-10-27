@@ -419,7 +419,7 @@ void MainWindow::setupUi()
     _toolbar->insertSeparator(0);
     _toolbar->addAction(_actionCrop);
     _toolbar->addAction(_colorsDock->toggleViewAction());
-    _toolbar->addAction(_accentDock->toggleViewAction());
+    // _toolbar->addAction(_accentDock->toggleViewAction());
 
     WidgetUtils::centerWindow(this);
 }
