@@ -51,6 +51,11 @@ void ColorsWidget::setSelectedColor()
     _colorList->setItemWidget(item, copyColorAction);
 }
 
+void ColorsWidget::clearColors()
+{
+    _colorList->clear();
+}
+
 void ColorsWidget::copyColor(QColor color)
 {
     QClipboard *clipboard = QGuiApplication::clipboard();

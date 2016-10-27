@@ -78,10 +78,14 @@ void RsView::paintEvent(QPaintEvent *event){
         }
 
         if (_regionContext->highlightedRegion().isValid()) {
-            QString text = QString("%1x%2").arg(_regionContext->highlightedRegion().width()).arg(_regionContext->highlightedRegion().height());
-            QPen redPen(Qt::red);
-            painter.setPen(redPen);
-            painter.drawText(_regionContext->highlightedRegion().bottomRight() + QPoint(16, 0), text);
+            int rw = _regionContext->highlightedRegion().width();
+            int rh = _regionContext->highlightedRegion().height();
+            if (rw > 1 || rh > 1) {
+                QString text = QString("%1x%2").arg(rw).arg(rh);
+                QPen redPen(Qt::red);
+                painter.setPen(redPen);
+                painter.drawText(_regionContext->highlightedRegion().bottomRight() + QPoint(16, 0), text);
+            }
         }
     }
 }

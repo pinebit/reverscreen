@@ -18,6 +18,7 @@ public:
 
     void setCurrentColor(QColor color);
     void setSelectedColor();
+    void clearColors();
 
 private:
     QWidget* createHSeparator() const;

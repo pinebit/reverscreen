@@ -295,7 +295,7 @@ void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext,
 
     QImage image = _currentImage.copy(cropRegion);
     if (image.format() != QImage::Format_RGBA8888) {
-       _currentImage = image.convertToFormat(QImage::Format_RGBA8888);
+        _currentImage = image.convertToFormat(QImage::Format_RGBA8888);
     } else {
         _currentImage = image;
     }
@@ -310,6 +310,8 @@ void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext,
         viewRegionContext->setHighlightedRegion(highlightedRegion);
         update();
     }
+
+    _colorsWidget->clearColors();
     _modelBuilder->buildAsync(_currentImage, CvModelBuilderOptions());
 }
 
