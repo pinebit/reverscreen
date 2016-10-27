@@ -11,8 +11,8 @@
 RsView::RsView(QWidget *parent, bool modeScreenshot)
     : QWidget(parent)
     , _modeScreenshot(modeScreenshot)
-    , _keyControlPress(false)
-    , _keyShiftPress(false)
+    , _keyControlPressed(false)
+    , _keyShiftPressed(false)
     , _regionContext(new RegionContext()){
     setAutoFillBackground(false);
     setMouseTracking(true);
@@ -71,10 +71,17 @@ void RsView::paintEvent(QPaintEvent *event){
     painter.drawImage(0, 0, _image);
 
     if (_accentPainter != NULL) {
-        if (_modeScreenshot && !_keyControlPress){
+        if (_modeScreenshot && !_keyControlPressed){
             _accentPainter->paint(&painter, _regionContext.data());
         } else {
             _accentPainter->paint(&painter, _regionContext->scopeRegion(), _regionContext->highlightedRegion());
+        }
+
+        if (_regionContext->highlightedRegion().isValid()) {
+            QString text = QString("%1x%2").arg(_regionContext->highlightedRegion().width()).arg(_regionContext->highlightedRegion().height());
+            QPen redPen(Qt::red);
+            painter.setPen(redPen);
+            painter.drawText(_regionContext->highlightedRegion().bottomRight() + QPoint(16, 0), text);
         }
     }
 }
@@ -126,7 +133,7 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
             return true;
         }
         case Qt::Key_A: {
-            if (_keyControlPress) {
+            if (_keyControlPressed) {
                 QRect region = _image.rect();
                 region.setWidth(region.width()-1);
                 region.setHeight(region.height()-1);
@@ -137,9 +144,9 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
             return true;
         }
         case Qt::Key_Up:{
-            if (_keyControlPress) {
+            if (_keyControlPressed) {
                 _regionContext->updateHighlightedRegion(0, -1);
-            } else if (_keyShiftPress) {
+            } else if (_keyShiftPressed) {
                 _regionContext->changeHighlightedRegion(0, -1);
             } else{
                 _regionContext->translateHighlightedRegion(0, -1);
@@ -148,9 +155,9 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
             return true;
         }
         case Qt::Key_Left:{
-            if (_keyControlPress) {
+            if (_keyControlPressed) {
                 _regionContext->updateHighlightedRegion(-1, 0);
-            } else if (_keyShiftPress) {
+            } else if (_keyShiftPressed) {
                 _regionContext->changeHighlightedRegion(-1, 0);
             } else{
                 _regionContext->translateHighlightedRegion(-1, 0);
@@ -159,9 +166,9 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
             return true;
         }
         case Qt::Key_Right:{
-            if (_keyControlPress) {
+            if (_keyControlPressed) {
                 _regionContext->updateHighlightedRegion(1, 0);
-            } else if (_keyShiftPress) {
+            } else if (_keyShiftPressed) {
                 _regionContext->changeHighlightedRegion(1, 0);
             } else{
                 _regionContext->translateHighlightedRegion(1, 0);
@@ -170,9 +177,9 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
             return true;
         }
         case Qt::Key_Down:{
-            if (_keyControlPress) {
+            if (_keyControlPressed) {
                 _regionContext->updateHighlightedRegion(0, 1);
-            } else if (_keyShiftPress) {
+            } else if (_keyShiftPressed) {
                 _regionContext->changeHighlightedRegion(0, 1);
             } else{
                 _regionContext->translateHighlightedRegion(0, 1);
@@ -181,12 +188,12 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
             return true;
         }
         case Qt::Key_Shift: {
-            _keyShiftPress = true;
+            _keyShiftPressed = true;
             update();
             return true;
         }
         case Qt::Key_Control: {
-            _keyControlPress = true;
+            _keyControlPressed = true;
             update();
             return true;
         }
@@ -198,12 +205,12 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         switch (keyEvent->key()){
         case Qt::Key_Shift: {
-            _keyShiftPress = false;
+            _keyShiftPressed = false;
             update();
             return true;
         }
         case Qt::Key_Control: {
-            _keyControlPress = false;
+            _keyControlPressed = false;
             update();
             return true;
         }
@@ -232,5 +239,5 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
 }
 
 bool RsView::usedHighlightedRegion() const {
-    return _keyControlPress;
+    return _keyControlPressed;
 }
