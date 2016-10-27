@@ -301,14 +301,15 @@ void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext,
     }
     _rsview->setImage(_currentImage);
 
-    // Moves the highlightedRegion
-    highlightedRegion.translate(-selectedRegion.topLeft());
+    if (!bHighlightedRegion) {
+        // Moves the highlightedRegion
+        highlightedRegion.translate(-selectedRegion.topLeft());
 
-    QSharedPointer<RegionContext>& viewRegionContext = _rsview->getRegionContext();
-    viewRegionContext->setSelectedRegion(image.rect());
-    viewRegionContext->setHighlightedRegion(highlightedRegion);
-    update();
-
+        QSharedPointer<RegionContext>& viewRegionContext = _rsview->getRegionContext();
+        viewRegionContext->setSelectedRegion(image.rect());
+        viewRegionContext->setHighlightedRegion(highlightedRegion);
+        update();
+    }
     _modelBuilder->buildAsync(_currentImage, CvModelBuilderOptions());
 }
 

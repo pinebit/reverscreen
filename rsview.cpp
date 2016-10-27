@@ -93,7 +93,11 @@ void RsView::mousePressEvent(QMouseEvent *event) {
 void RsView::mouseReleaseEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
         event->accept();
-        emit signalSelectionFinished();
+        if (!_regionContext->hasSelectedRegion()){
+            emit signalSelectionCancelled();
+        } else {
+            emit signalSelectionFinished();
+        }
     }
 }
 
@@ -127,9 +131,7 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
         }
         case Qt::Key_A: {
             if (_keyControlPress) {
-                QRect region = _image.rect();
-                region.setWidth(region.width()-1);
-                region.setHeight(region.height()-1);
+                QRect region = _image.rect().adjusted(1,1,-1,-1);
                 _regionContext->setSelectedRegion(region);
                 _regionContext->setHighlightedRegion(region);
                 update();
