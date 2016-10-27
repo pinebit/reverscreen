@@ -40,13 +40,17 @@ private slots:
 
     void slotBuildCompleted(QSharedPointer<CvModel> model);
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+
+
 private:
     bool saveImage(const QString &fileName);
     bool openImage(const QString &fileName);
     void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
     void delay(int millisecondsToWait);
     void updateImage(const QImage& image);
-    void updateImage(const QSharedPointer<RegionContext>& regionContext);
+    void updateImage(const QSharedPointer<RegionContext>& regionContext, bool bHighlightedRegion);
 
     void enableDisableUi();
     void handleDockWidgetVisibityChange(QDockWidget* dockWidget);

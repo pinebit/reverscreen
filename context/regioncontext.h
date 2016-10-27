@@ -12,7 +12,8 @@ public:
     RegionContext();
 
     bool isNull() const;
-    void clear();
+    void clearAll();
+    void clearRegion();
 
     void setSnapAssistant(const QSharedPointer<SnapAssistant>& snapAssistant);
 
@@ -21,15 +22,20 @@ public:
 
     void setSelectedRegion(const QRect& selectedRegion);
     QRect selectedRegion() const;
+    bool hasSelectedRegion() const;
 
     void setHighlightedRegion(const QRect& highlightedRegion);
     QRect highlightedRegion() const;
+    bool hasHighlightedRegion() const;
+
     void translateHighlightedRegion(int dx, int dy);
     void changeHighlightedRegion(int dx, int dy);
     void updateHighlightedRegion(int dx, int dy);
 
     void updateStartPoint(const QPoint& point);
     void updateEndPoint(const QPoint& point);
+
+    static bool hasRegion(const QRect&);
 
 protected:
     void updateHighlightedRegion(const QRect& region);

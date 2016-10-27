@@ -55,7 +55,7 @@ void MainWindow::slotActionScreenshot()
 
     FullscreenSelectionDialog dialog(this, _currentImage, createDefaultAccentPainter());
     if (dialog.exec() == QDialog::Accepted) {
-        updateImage(dialog.getRegionContext());
+        updateImage(dialog.getRegionContext(), dialog.usedHighlightedRegion());
 
         _statusbar->showMessage(tr("A screen region is captured."));
     }
@@ -281,7 +281,7 @@ void MainWindow::updateImage(const QImage& image)
     _modelBuilder->buildAsync(_currentImage, CvModelBuilderOptions());
 }
 
-void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext)
+void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext, bool bHighlightedRegion)
 {
     setCursor(Qt::WaitCursor);
 
@@ -291,22 +291,27 @@ void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext)
         return;
     }
 
-    QImage image = _currentImage.copy(selectedRegion);
+    QRect cropRegion = (bHighlightedRegion) ? highlightedRegion : selectedRegion;
+
+    QImage image = _currentImage.copy(cropRegion);
     if (image.format() != QImage::Format_RGBA8888) {
-       _currentImage = image.convertToFormat(QImage::Format_RGBA8888);
+        _currentImage = image.convertToFormat(QImage::Format_RGBA8888);
     } else {
         _currentImage = image;
     }
     _rsview->setImage(_currentImage);
 
-    // Moves the highlightedRegion
-    highlightedRegion.translate(-selectedRegion.topLeft());
+    if (!bHighlightedRegion) {
+        // Moves the highlightedRegion
+        highlightedRegion.translate(-selectedRegion.topLeft());
 
-    QSharedPointer<RegionContext>& viewRegionContext = _rsview->getRegionContext();
-    viewRegionContext->setSelectedRegion(image.rect());
-    viewRegionContext->setHighlightedRegion(highlightedRegion);
-    update();
+        QSharedPointer<RegionContext>& viewRegionContext = _rsview->getRegionContext();
+        viewRegionContext->setSelectedRegion(image.rect());
+        viewRegionContext->setHighlightedRegion(highlightedRegion);
+        update();
+    }
 
+    _colorsWidget->clearColors();
     _modelBuilder->buildAsync(_currentImage, CvModelBuilderOptions());
 }
 
@@ -380,6 +385,8 @@ void MainWindow::setupUi()
     _scrollArea->setAlignment(Qt::AlignCenter);
     _scrollArea->setFrameStyle(QFrame::NoFrame);
 
+    _scrollArea->viewport()->installEventFilter(this);
+
     _rsview = new RsView(_scrollArea, false);
     _rsview->setAccentPainter(createDefaultAccentPainter());
     connect(_rsview, &RsView::signalSelectionStarted, this, &MainWindow::slotSelectionStarted);
@@ -415,7 +422,7 @@ void MainWindow::setupUi()
     _toolbar->insertSeparator(0);
     _toolbar->addAction(_actionCrop);
     _toolbar->addAction(_colorsDock->toggleViewAction());
-    _toolbar->addAction(_accentDock->toggleViewAction());
+    // _toolbar->addAction(_accentDock->toggleViewAction());
 
     WidgetUtils::centerWindow(this);
 }
@@ -430,4 +437,16 @@ void MainWindow::setupDockWidget(QDockWidget *dockWidget, QIcon icon, QWidget *c
 
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
     connect(dockWidget, &QDockWidget::visibilityChanged, this, [this, dockWidget]() { handleDockWidgetVisibityChange(dockWidget); });
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == _scrollArea->viewport()){
+        if (event->type() == QEvent::Wheel) {
+            QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
+            wheelEvent->ignore();
+            return true;
+        }
+    }
+    return QMainWindow::eventFilter(obj, event);
 }
