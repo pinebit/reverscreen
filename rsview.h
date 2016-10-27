@@ -49,8 +49,8 @@ private:
     QImage _image;
 
     bool _modeScreenshot;
-    bool _keyControlPress;
-    bool _keyShiftPress;
+    bool _keyControlPressed;
+    bool _keyShiftPressed;
 
     QSharedPointer<AccentPainter> _accentPainter;
     QSharedPointer<RegionContext> _regionContext;
