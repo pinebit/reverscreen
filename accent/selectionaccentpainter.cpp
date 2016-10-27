@@ -20,10 +20,12 @@ void SelectionAccentPainter::paint(QPainter *painter, const RegionContext* conte
     }
 
     const QRect& selectedRegion = context->selectedRegion();
+
     _cinemaScopePainter.paint(painter, context->scopeRegion(), selectedRegion);
 
     const QRect& highlightedRegion = context->highlightedRegion();
-    if (selectedRegion.contains(highlightedRegion, false)) {
+    if (selectedRegion.contains(highlightedRegion, false)
+     || selectedRegion.intersects(highlightedRegion) ) {
 
         QRect intersectedRegion = (selectedRegion.intersects(highlightedRegion))
                 ? selectedRegion.intersected(highlightedRegion)

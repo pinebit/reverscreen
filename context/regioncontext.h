@@ -6,11 +6,19 @@
 
 class SnapAssistant;
 
+struct RegionType {
+    enum Value {
+        selectedRegion = 1,
+        highlightedRegion = 2,
+        allRegion = 3
+    };
+};
+
 class RegionContext {
-
 public:
-    RegionContext();
+    RegionContext(bool fullWidgetMode);
 
+    bool fullWidgetMode() const;
     bool isNull() const;
     void clearAll();
     void clearRegion();
@@ -37,11 +45,15 @@ public:
 
     static bool hasRegion(const QRect&);
 
+    void setRegionType(RegionType::Value);
+    RegionType::Value getRegionType() const;
+
 protected:
     void updateHighlightedRegion(const QRect& region);
 
-
 protected:
+    bool _fullWidgetMode;
+    RegionType::Value  _regionType;
     QRect _scopeRegion;
     QRect _selectedRegion;
     QRect _highlightedRegion;

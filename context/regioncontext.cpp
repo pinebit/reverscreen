@@ -7,7 +7,13 @@
 const int RegionContext::_minimumWidth = 3;
 const int RegionContext::_minimumHeight = 3;
 
-RegionContext::RegionContext(){
+RegionContext::RegionContext(bool fullWidgetMode)
+    : _fullWidgetMode(fullWidgetMode)
+    , _regionType(RegionType::allRegion){
+}
+
+bool RegionContext::fullWidgetMode() const {
+    return _fullWidgetMode;
 }
 
 bool RegionContext::isNull() const {
@@ -158,4 +164,12 @@ void RegionContext::updateEndPoint(const QPoint& point){
 
 bool RegionContext::hasRegion(const QRect& region) {
     return (region.width() >= _minimumWidth && region.height() >= _minimumHeight);
+}
+
+void RegionContext::setRegionType(RegionType::Value regionType){
+    _regionType = regionType;
+}
+
+RegionType::Value RegionContext::getRegionType() const{
+    return _regionType;
 }

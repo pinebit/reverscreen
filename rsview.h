@@ -30,7 +30,6 @@ public:
     QRect highlightedRegion() const;
 
     bool usedHighlightedRegion() const;
-    bool modeScreenshot() const;
 
 signals:
     void signalMouseMove(const QPoint& point);
@@ -48,7 +47,6 @@ protected:
 private:
     QImage _image;
 
-    bool _modeScreenshot;
     bool _keyControlPressed;
     bool _keyShiftPressed;
 

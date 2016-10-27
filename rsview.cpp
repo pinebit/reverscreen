@@ -8,12 +8,11 @@
 #include "accent/accentpainter.h"
 #include "assistant/snapassistant.h"
 
-RsView::RsView(QWidget *parent, bool modeScreenshot)
+RsView::RsView(QWidget *parent, bool fullWidgetMode)
     : QWidget(parent)
-    , _modeScreenshot(modeScreenshot)
     , _keyControlPressed(false)
     , _keyShiftPressed(false)
-    , _regionContext(new RegionContext()){
+    , _regionContext(new RegionContext(fullWidgetMode)){
     setAutoFillBackground(false);
     setMouseTracking(true);
 
@@ -56,10 +55,6 @@ QRect RsView::highlightedRegion() const {
     return _regionContext->highlightedRegion();
 }
 
-bool RsView::modeScreenshot() const{
-    return _modeScreenshot;
-}
-
 void RsView::paintEvent(QPaintEvent *event){
     Q_UNUSED(event);
 
@@ -71,20 +66,22 @@ void RsView::paintEvent(QPaintEvent *event){
     painter.drawImage(0, 0, _image);
 
     if (_accentPainter != NULL) {
-        if (_modeScreenshot && !_keyControlPressed){
+        if (!_keyControlPressed){ // _regionContext->fullWidgetMode() &&
             _accentPainter->paint(&painter, _regionContext.data());
         } else {
             _accentPainter->paint(&painter, _regionContext->scopeRegion(), _regionContext->highlightedRegion());
         }
 
-        if (_regionContext->highlightedRegion().isValid()) {
-            int rw = _regionContext->highlightedRegion().width();
-            int rh = _regionContext->highlightedRegion().height();
+        // move to SelectionAccentPainter
+        if (_regionContext->hasSelectedRegion()) {
+            const QRect& selectedRegion = _regionContext->selectedRegion();
+            int rw = selectedRegion.width();
+            int rh = selectedRegion.height();
             if (rw > 1 || rh > 1) {
                 QString text = QString("%1x%2").arg(rw).arg(rh);
                 QPen redPen(Qt::red);
                 painter.setPen(redPen);
-                painter.drawText(_regionContext->highlightedRegion().bottomRight() + QPoint(16, 0), text);
+                painter.drawText(selectedRegion.bottomRight() + QPoint(16, 0), text);
             }
         }
     }
@@ -141,7 +138,7 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
             return true;
         }
         case Qt::Key_A: {
-            if (_keyControlPressed) {
+            if (keyEvent->modifiers() & Qt::ControlModifier) {
                 QRect region = _image.rect().adjusted(1,1,-1,-1);
                 _regionContext->setSelectedRegion(region);
                 _regionContext->setHighlightedRegion(region);
@@ -150,9 +147,9 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
             return true;
         }
         case Qt::Key_Up:{
-            if (_keyControlPressed) {
+            if (keyEvent->modifiers() & Qt::ControlModifier) {
                 _regionContext->updateHighlightedRegion(0, -1);
-            } else if (_keyShiftPressed) {
+            } else if (keyEvent->modifiers() & Qt::ShiftModifier) {
                 _regionContext->changeHighlightedRegion(0, -1);
             } else{
                 _regionContext->translateHighlightedRegion(0, -1);
@@ -161,9 +158,9 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
             return true;
         }
         case Qt::Key_Left:{
-            if (_keyControlPressed) {
+            if (keyEvent->modifiers() & Qt::ControlModifier) {
                 _regionContext->updateHighlightedRegion(-1, 0);
-            } else if (_keyShiftPressed) {
+            } else if (keyEvent->modifiers() & Qt::ShiftModifier) {
                 _regionContext->changeHighlightedRegion(-1, 0);
             } else{
                 _regionContext->translateHighlightedRegion(-1, 0);
@@ -172,9 +169,9 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
             return true;
         }
         case Qt::Key_Right:{
-            if (_keyControlPressed) {
+            if (keyEvent->modifiers() & Qt::ControlModifier) {
                 _regionContext->updateHighlightedRegion(1, 0);
-            } else if (_keyShiftPressed) {
+            } else if (keyEvent->modifiers() & Qt::ShiftModifier) {
                 _regionContext->changeHighlightedRegion(1, 0);
             } else{
                 _regionContext->translateHighlightedRegion(1, 0);
@@ -183,9 +180,9 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
             return true;
         }
         case Qt::Key_Down:{
-            if (_keyControlPressed) {
+            if (keyEvent->modifiers() & Qt::ControlModifier) {
                 _regionContext->updateHighlightedRegion(0, 1);
-            } else if (_keyShiftPressed) {
+            } else if (keyEvent->modifiers() & Qt::ShiftModifier) {
                 _regionContext->changeHighlightedRegion(0, 1);
             } else{
                 _regionContext->translateHighlightedRegion(0, 1);
