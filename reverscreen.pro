@@ -70,7 +70,7 @@ unix {
 INCLUDEPATH += /usr/local/include
 LIBS += -L/usr/local/lib
 LIBS += -lopencv_core -lopencv_imgproc -lz
-ICON = images/reverscreen.ico
+ICON = images/reverscreen-64.hqx
 }
 
 QMAKE_CXXFLAGS += -Wno-deprecated-declarations
