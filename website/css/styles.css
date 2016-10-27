@@ -1,11 +1,12 @@
 body {
     background-color: #F3F3F3;
     color: #333;
-    max-width: 1300px;
+    max-width: 1200px;
     margin: 50px auto;
 }
 
-header {
+header,
+section {
     text-align: center;
     font-family: Arial, Helvetica, sans-serif
 }
@@ -19,18 +20,32 @@ h2 {
 }
 
 h1>span {
-    color: orangered;
+    background-color: orange;
+    display: inline-block;
     letter-spacing: 0;
     margin-right: 8px;
     padding: 0 4px;
-    border: 1px solid orangered;
-    display: inline-block;
 }
 
 section {
     text-align: center;
-    margin: 250px auto;
-    color: gray;
+    margin: 50px auto;
+    color: darkgray;
+}
+
+section button {
+    padding: 8px 16px;
+    margin: auto 8px;
+    background-color: lightblue;
+    border-radius: 3px;
+    border: solid 1px gray;
+    color: #333;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+section img {
+    border: solid 1px lightblue;
 }
 
 h3 {
