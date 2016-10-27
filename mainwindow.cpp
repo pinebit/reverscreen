@@ -257,6 +257,8 @@ void MainWindow::initializeImageFileDialog(QFileDialog &dialog, QFileDialog::Acc
     if (acceptMode == QFileDialog::AcceptSave) {
         dialog.setDefaultSuffix("png");
     }
+
+    dialog.setAcceptMode(acceptMode);
 }
 
 void MainWindow::delay(int millisecondsToWait)
