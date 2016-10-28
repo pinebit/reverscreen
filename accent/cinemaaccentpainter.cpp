@@ -21,6 +21,12 @@ void CinemaAccentPainter::paint(QPainter *painter, const QRect& scope, const QRe
 
     QBrush brush(color);
 
+    if (region.isNull()){
+        // full shader
+        painter->fillRect(scope, brush);
+        return;
+    }
+
     // top shader
     QRect topRect(scope.topLeft(), QPoint(scope.right(), region.top() - 1));
     painter->fillRect(topRect, brush);
