@@ -16,24 +16,29 @@ void SelectionAccentPainter::paint(QPainter *painter, const RegionContext* conte
     Q_ASSERT(context != NULL);
 
     const QRect& selectedRegion = context->selectedRegion();
-    const QRect& highlightedRegion = context->highlightedRegion();
-
     paint(painter, context->scopeRegion(), selectedRegion);
 
+    const QRect& highlightedRegion = context->highlightedRegion();
     if (selectedRegion.contains(highlightedRegion, false) || selectedRegion.intersects(highlightedRegion) ) {
         QRect intersectedRegion = (selectedRegion.intersects(highlightedRegion))
                 ? selectedRegion.intersected(highlightedRegion)
                 : highlightedRegion;
 
-        _rectangleHighlightedPainter.paint(painter, selectedRegion, intersectedRegion);
+        QRect innerRegion = intersectedRegion.adjusted(0,0,-1,-1);
+        _rectangleHighlightedPainter.paint(painter, selectedRegion, innerRegion);
     }
 }
 
 void SelectionAccentPainter::paint(QPainter *painter, const QRect& scope, const QRect& region) {
     Q_ASSERT(painter != NULL);
 
-    _cinemaScopePainter.paint(painter, scope, region);
-    _rectangleSelectedPainter.paint(painter, scope, region);
+    if (region == QRect()) {
+        return;
+    }
+
+    QRect outerRegion = region.adjusted(0,0,-1,-1);
+    _cinemaScopePainter.paint(painter, scope, outerRegion);
+    _rectangleSelectedPainter.paint(painter, scope, outerRegion);
 
     drawSizeBanner(painter, region, Qt::red);
 }
@@ -44,7 +49,8 @@ void SelectionAccentPainter::drawSizeBanner(QPainter *painter, const QRect &rect
     int rh = rect.height();
     if (rw > 1 || rh > 1) {
         QString text = QString("%1x%2").arg(rw).arg(rh);
-        QRect bannerRect(rect.bottomRight() - QPoint(80, 0), rect.bottomRight() + QPoint(0, 20));
+        QRect bannerRect(rect.bottomRight() - QPoint(80, 0),
+                         rect.bottomRight() + QPoint(0, 20));
 
         baseColor.setAlpha(50);
         QBrush bannerBrush(baseColor);

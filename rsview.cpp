@@ -123,7 +123,7 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
         }
         case Qt::Key_A: {
             if (keyEvent->modifiers() & Qt::ControlModifier) {
-                QRect region = _image.rect().adjusted(1,1,-1,-1);
+                QRect region = _image.rect();
                 _regionContext->setSelectedRegion(region);
                 _regionContext->setHighlightedRegion(region);
                 update();
