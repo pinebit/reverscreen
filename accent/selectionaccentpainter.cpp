@@ -32,10 +32,6 @@ void SelectionAccentPainter::paint(QPainter *painter, const RegionContext* conte
 void SelectionAccentPainter::paint(QPainter *painter, const QRect& scope, const QRect& region) {
     Q_ASSERT(painter != NULL);
 
-    if (region == QRect()) {
-        return;
-    }
-
     QRect outerRegion = region.adjusted(0,0,-1,-1);
     _cinemaScopePainter.paint(painter, scope, outerRegion);
     _rectangleSelectedPainter.paint(painter, scope, outerRegion);

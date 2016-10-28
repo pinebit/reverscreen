@@ -21,7 +21,7 @@ void CinemaAccentPainter::paint(QPainter *painter, const QRect& scope, const QRe
 
     QBrush brush(color);
 
-    if (region.isNull()){
+    if (!RegionContext::isValidRegion(region)){
         // full shader
         painter->fillRect(scope, brush);
         return;
