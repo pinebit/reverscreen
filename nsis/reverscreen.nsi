@@ -10,7 +10,7 @@
 !define VERSION "1.00.00.00"
 !define COPYRIGHT "REVERSCREEN © 2016"
 !define DESCRIPTION "Computer Vision Snipping Tool"
-!define INSTALLER_NAME "C:\GitHub\reverscreen\setup.exe"
+!define INSTALLER_NAME "C:\GitHub\reverscreen\website\release\ReverscreenSetup.exe"
 !define MAIN_APP_EXE "REVERSCREEN.exe"
 !define INSTALL_TYPE "SetShellVarContext current"
 !define REG_ROOT "HKCU"

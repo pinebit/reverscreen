@@ -1,6 +1,6 @@
 body {
     background-color: #F3F3F3;
-    color: #333;
+    color: #222;
     max-width: 1200px;
     margin: 50px auto;
 }
@@ -16,7 +16,7 @@ h1 {
 }
 
 h2 {
-    color: #777;
+    color: #555;
 }
 
 h1>span {
@@ -30,22 +30,26 @@ h1>span {
 section {
     text-align: center;
     margin: 50px auto;
-    color: darkgray;
+    color: #333;
 }
 
-section button {
+.button {
     padding: 8px 16px;
     margin: auto 8px;
     background-color: lightblue;
     border-radius: 3px;
     border: solid 1px gray;
-    color: #333;
+    color: #222;
     font-weight: bold;
     font-size: 1em;
 }
 
 section img {
     border: solid 1px lightblue;
+}
+
+section p {
+    font-size: 0.8em;
 }
 
 h3 {
