@@ -18,6 +18,8 @@ public:
     void paint(QPainter *painter, const QRect& scope, const QRect& region);
 
 private:
+    void drawSizeBanner(QPainter *painter, const QRect& rect, QColor baseColor);
+
     CinemaAccentPainter _cinemaScopePainter;
     CinemaAccentPainter _cinemaSelectedPainter;
     RectangleAccentPainter _rectangleSelectedPainter;

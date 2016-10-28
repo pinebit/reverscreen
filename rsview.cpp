@@ -71,19 +71,6 @@ void RsView::paintEvent(QPaintEvent *event){
         } else {
             _accentPainter->paint(&painter, _regionContext->scopeRegion(), _regionContext->highlightedRegion());
         }
-
-        // move to SelectionAccentPainter
-        if (_regionContext->hasSelectedRegion()) {
-            const QRect& selectedRegion = _regionContext->selectedRegion();
-            int rw = selectedRegion.width();
-            int rh = selectedRegion.height();
-            if (rw > 1 || rh > 1) {
-                QString text = QString("%1x%2").arg(rw).arg(rh);
-                QPen redPen(Qt::red);
-                painter.setPen(redPen);
-                painter.drawText(selectedRegion.bottomRight() + QPoint(16, 0), text);
-            }
-        }
     }
 }
 
@@ -128,13 +115,9 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         switch (keyEvent->key()){
         case Qt::Key_Escape: {
-            if (_modeScreenshot) {
-                event->accept();
-                emit signalSelectionCancelled();
-            } else {
-                _regionContext->clearRegion();
-                update();
-            }
+            _regionContext->clearRegion();
+            emit signalSelectionCancelled();
+            update();
             return true;
         }
         case Qt::Key_A: {
