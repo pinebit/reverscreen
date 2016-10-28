@@ -1,14 +1,14 @@
 #include "accent/selectionaccentpainter.h"
 
 #include <QPainter>
+#include <QPen>
 #include <QDebug>
 
 SelectionAccentPainter::SelectionAccentPainter(const QColor& rectColor, const QColor& shadeColor)
     : _cinemaScopePainter(shadeColor, 100)
-    , _cinemaSelectedPainter(Qt::red, 50)
-    , _rectangleSelectedPainter(Qt::red)
-    , _rectangleHighlightedPainter(Qt::yellow){
-    Q_UNUSED(rectColor);
+    , _rectangleSelectedPainter(QPen(rectColor, 1, Qt::SolidLine))
+    , _rectangleHighlightedPainter(QPen(rectColor, 1, Qt::DashLine))
+{
 }
 
 void SelectionAccentPainter::paint(QPainter *painter, const RegionContext* context) {
@@ -33,7 +33,6 @@ void SelectionAccentPainter::paint(QPainter *painter, const RegionContext* conte
                 ? selectedRegion.intersected(highlightedRegion)
                 : highlightedRegion;
 
-        _cinemaSelectedPainter.paint(painter, selectedRegion, intersectedRegion);
         _rectangleHighlightedPainter.paint(painter, selectedRegion, intersectedRegion);
     } else {
         _rectangleSelectedPainter.paint(painter, context->scopeRegion(), selectedRegion);

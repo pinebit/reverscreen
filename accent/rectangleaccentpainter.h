@@ -2,17 +2,16 @@
 
 #include "accent/accentpainter.h"
 
-#include <QColor>
+#include <QPen>
 
 class RectangleAccentPainter : public AccentPainter
 {
 public:
-    RectangleAccentPainter(const QColor& color, int width = 1);
+    RectangleAccentPainter(const QPen& pen);
 
     void paint(QPainter* painter, const RegionContext* context);
     void paint(QPainter* painter, const QRect& scope, const QRect& region);
 
 private:
-    QColor _color;
-    int _width;
+    QPen _pen;
 };

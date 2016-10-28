@@ -21,7 +21,6 @@ private:
     void drawSizeBanner(QPainter *painter, const QRect& rect, QColor baseColor);
 
     CinemaAccentPainter _cinemaScopePainter;
-    CinemaAccentPainter _cinemaSelectedPainter;
     RectangleAccentPainter _rectangleSelectedPainter;
     RectangleAccentPainter _rectangleHighlightedPainter;
 };

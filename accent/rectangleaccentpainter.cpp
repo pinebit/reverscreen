@@ -2,9 +2,9 @@
 
 #include <QPainter>
 
-RectangleAccentPainter::RectangleAccentPainter(const QColor& color, int width)
-    : _color(color)
-    , _width(width) {
+RectangleAccentPainter::RectangleAccentPainter(const QPen& pen)
+    : _pen(pen)
+{
 }
 
 void RectangleAccentPainter::paint(QPainter* painter, const RegionContext* context) {
@@ -16,10 +16,6 @@ void RectangleAccentPainter::paint(QPainter *painter, const QRect& scope, const 
     Q_UNUSED(scope);
     Q_ASSERT(painter != NULL);
 
-    QPen pen(_color);
-    pen.setStyle(Qt::SolidLine);
-    pen.setWidth(_width);
-
-    painter->setPen(pen);
+    painter->setPen(_pen);
     painter->drawRect(region);
 }

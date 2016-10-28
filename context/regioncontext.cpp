@@ -50,8 +50,8 @@ QRect RegionContext::selectedRegion() const {
 }
 
 bool RegionContext::hasSelectedRegion() const {
-    return (_selectedRegion.width() >= _minimumWidth
-         && _selectedRegion.height() >= _minimumHeight);
+    return (selectedRegion().width() >= _minimumWidth
+         && selectedRegion().height() >= _minimumHeight);
 }
 
 void RegionContext::setHighlightedRegion(const QRect& highlightedRegion){
@@ -59,18 +59,19 @@ void RegionContext::setHighlightedRegion(const QRect& highlightedRegion){
 }
 
 QRect RegionContext::highlightedRegion() const {
+    QRect normalizedSelectedRegion(selectedRegion());
     QRect region(_highlightedRegion.normalized());
-    if (_selectedRegion.contains(region, false)) {
-        return ((_selectedRegion.intersects(region))
-                ? _selectedRegion.intersected(region)
+    if (normalizedSelectedRegion.contains(region, false)) {
+        return ((normalizedSelectedRegion.intersects(region))
+                ? normalizedSelectedRegion.intersected(region)
                 : region);
     }
     return region;
 }
 
 bool RegionContext::hasHighlightedRegion() const {
-    return (_highlightedRegion.width() >= _minimumWidth
-         && _highlightedRegion.height() >= _minimumHeight);
+    return (highlightedRegion().width() >= _minimumWidth
+         && highlightedRegion().height() >= _minimumHeight);
 }
 
 void RegionContext::translateHighlightedRegion(int dx, int dy){

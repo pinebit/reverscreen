@@ -190,7 +190,7 @@ QSharedPointer<AccentPainter> MainWindow::createAccentPainter()
 
     switch (_accentWidget->accentMode()) {
     case AccentWidget::Rectangle:
-        accent = new RectangleAccentPainter(color, 3);
+        accent = new RectangleAccentPainter(QPen(color, 3));
         break;
     case AccentWidget::Cinema:
         accent = new CinemaAccentPainter(color);
