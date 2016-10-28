@@ -20,29 +20,23 @@ void SelectionAccentPainter::paint(QPainter *painter, const RegionContext* conte
     }
 
     const QRect& selectedRegion = context->selectedRegion();
-
-    _cinemaScopePainter.paint(painter, context->scopeRegion(), selectedRegion);
-    drawSizeBanner(painter, selectedRegion, Qt::red);
+    paint(painter, context->scopeRegion(), selectedRegion);
 
     const QRect& highlightedRegion = context->highlightedRegion();
 
-    if (selectedRegion.contains(highlightedRegion, false)
-     || selectedRegion.intersects(highlightedRegion) ) {
-
+    if (selectedRegion.contains(highlightedRegion, false) || selectedRegion.intersects(highlightedRegion) ) {
         QRect intersectedRegion = (selectedRegion.intersects(highlightedRegion))
                 ? selectedRegion.intersected(highlightedRegion)
                 : highlightedRegion;
 
         _rectangleHighlightedPainter.paint(painter, selectedRegion, intersectedRegion);
-    } else {
-        _rectangleSelectedPainter.paint(painter, context->scopeRegion(), selectedRegion);
     }
 }
 
 void SelectionAccentPainter::paint(QPainter *painter, const QRect& scope, const QRect& region) {
     Q_ASSERT(painter != NULL);
 
-    if (!RegionContext::hasRegion(region)){
+    if (!RegionContext::isValidRegion(region)){
         return;
     }
 

@@ -101,9 +101,8 @@ void MainWindow::slotActionOpen()
 
 void MainWindow::slotActionCrop()
 {
-    QRect cropRegion = _rsview->highlightedRegion();
-    if (cropRegion.isEmpty() ||
-        cropRegion.size() == QSize(1,1)) {
+    QRect cropRegion = _rsview->selectedRegion();
+    if (!RegionContext::isValidRegion(cropRegion)) {
         QMessageBox::warning(this, tr("No region selected"), tr("Please use mouse to select a region to crop."));
         return;
     }
@@ -111,7 +110,7 @@ void MainWindow::slotActionCrop()
     QSize size = cropRegion.size();
     updateImage(_currentImage.copy(cropRegion));
 
-    _statusbar->showMessage(tr("Image cropped. New size: %1x%2").arg(size.width()).arg(size.height()));
+    _statusbar->showMessage(tr("Cropped image size: %1x%2").arg(size.width()).arg(size.height()));
 }
 
 void MainWindow::slotSelectionStarted()
@@ -141,7 +140,7 @@ void MainWindow::slotAccentApplied()
     QPainter painter(&pm);
 
     QSharedPointer<AccentPainter> accent = createAccentPainter();
-    accent->paint(&painter, pm.rect(), _rsview->highlightedRegion());
+    accent->paint(&painter, pm.rect(), _rsview->selectedRegion());
 
     updateImage(pm.toImage());
 
@@ -308,8 +307,8 @@ void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext,
         highlightedRegion.translate(-selectedRegion.topLeft());
 
         QSharedPointer<RegionContext>& viewRegionContext = _rsview->getRegionContext();
-        viewRegionContext->setSelectedRegion(image.rect());
-        viewRegionContext->setHighlightedRegion(highlightedRegion);
+        viewRegionContext->setSelectedRegion(highlightedRegion);
+        viewRegionContext->setHighlightedRegion(QRect());
         update();
     }
 

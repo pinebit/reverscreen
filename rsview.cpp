@@ -8,11 +8,12 @@
 #include "accent/accentpainter.h"
 #include "assistant/snapassistant.h"
 
-RsView::RsView(QWidget *parent, bool fullWidgetMode)
+RsView::RsView(QWidget *parent, bool modeScreenshot)
     : QWidget(parent)
     , _keyControlPressed(false)
     , _keyShiftPressed(false)
-    , _regionContext(new RegionContext(fullWidgetMode)){
+    , _modeScreenshot(modeScreenshot)
+    , _regionContext(new RegionContext(modeScreenshot)){
     setAutoFillBackground(false);
     setMouseTracking(true);
 
@@ -51,10 +52,6 @@ QRect RsView::selectedRegion() const {
     return _regionContext->selectedRegion();
 }
 
-QRect RsView::highlightedRegion() const {
-    return _regionContext->highlightedRegion();
-}
-
 void RsView::paintEvent(QPaintEvent *event){
     Q_UNUSED(event);
 
@@ -88,6 +85,12 @@ void RsView::mousePressEvent(QMouseEvent *event) {
 void RsView::mouseReleaseEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
         event->accept();
+
+        bool preferHighlightSelection = _keyControlPressed && !_modeScreenshot;
+        if (preferHighlightSelection && _regionContext->hasHighlightedRegion()) {
+            _regionContext->setSelectedRegion(_regionContext->highlightedRegion());
+        }
+
         if (!_regionContext->hasSelectedRegion()){
             emit signalSelectionCancelled();
         } else {

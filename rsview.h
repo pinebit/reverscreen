@@ -27,7 +27,6 @@ public:
     QSharedPointer<RegionContext>& getRegionContext();
     
     QRect selectedRegion() const;
-    QRect highlightedRegion() const;
 
     bool usedHighlightedRegion() const;
 
@@ -49,6 +48,7 @@ private:
 
     bool _keyControlPressed;
     bool _keyShiftPressed;
+    bool _modeScreenshot;
 
     QSharedPointer<AccentPainter> _accentPainter;
     QSharedPointer<RegionContext> _regionContext;

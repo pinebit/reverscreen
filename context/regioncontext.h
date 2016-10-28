@@ -43,7 +43,7 @@ public:
     void updateStartPoint(const QPoint& point);
     void updateEndPoint(const QPoint& point);
 
-    static bool hasRegion(const QRect&);
+    static bool isValidRegion(const QRect&);
 
     void setRegionType(RegionType::Value);
     RegionType::Value getRegionType() const;

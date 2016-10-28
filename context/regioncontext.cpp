@@ -163,7 +163,7 @@ void RegionContext::updateEndPoint(const QPoint& point){
     _highlightedRegion.setBottomRight(snapEndPoint);
 }
 
-bool RegionContext::hasRegion(const QRect& region) {
+bool RegionContext::isValidRegion(const QRect& region) {
     return (region.width() >= _minimumWidth && region.height() >= _minimumHeight);
 }
 
