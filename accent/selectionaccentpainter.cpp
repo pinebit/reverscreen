@@ -16,6 +16,12 @@ void SelectionAccentPainter::paint(QPainter *painter, const RegionContext* conte
     Q_ASSERT(context != NULL);
 
     const QRect& selectedRegion = context->selectedRegion();
+    if (!context->fullWidgetMode()) {
+        if (!RegionContext::isValidRegion(selectedRegion)){
+            return;
+        }
+    }
+
     paint(painter, context->scopeRegion(), selectedRegion);
 
     const QRect& highlightedRegion = context->highlightedRegion();
