@@ -71,10 +71,11 @@ void RsView::paintEvent(QPaintEvent *event){
         const QRect& selectedRegion = _regionContext->selectedRegion();
         const QRect& highlightedRegion = _regionContext->highlightedRegion();
 
-        if (!RegionContext::isValidRegion(selectedRegion)) {
-            return;
+        if (!_regionContext->fullWidgetMode()) {
+            if (!RegionContext::isValidRegion(selectedRegion)){
+                return;
+            }
         }
-
         if (!_keyControlPressed) {
             _accentPainter->paint(&painter, _regionContext->scopeRegion(), selectedRegion);
 
