@@ -1,20 +1,78 @@
 <!doctype html>
-
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>REVERSCREEN</title>
-    <meta name="description" content="computer-vision powered snipping tool">
+    <meta name="description" content="Computer Vision Powered Snipping Tool">
     <meta name="author" content="Andrei Smirnov">
+    <meta name="keywords" content="Computer Vision, Snipping, Tool, Screenshot, Snap, Screen, Grabbing, Smart">
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/animate.css">
+</head>
+
+<body>
+
+    <div class="page-header">
+        <h1><b>REVERSCREEN</b> <small>COMPUTER-VISION SNIPPING TOOL</small></h1>
+    </div>
+
+    <div class="alert alert-info" role="alert">
+        <b>REVERSCREEN is a snipping tool that leverages smartest Computer-Vision algorithms to simplify <i>precise</i> objects capturing.</b>
+    </div>
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">QUICK START GUIDE</div>
+        <div class="panel-body text-center">
+            <h5>Select approximate area of interest (see solid red line)</h5>
+            <h5>A recognized object is highlighted with dashed red line</h5>
+            <img src="img/rs-step-1.PNG"><img>
+            <h5>Recognized object is automatically selected - just click Crop.</h5>
+            <img src="img/rs-step-2.PNG"><img>
+            <h5>Select another (sub)object, precisely - with Ctrl button.</h5>
+            <img src="img/rs-step-3.PNG"><img>
+            <h5>Optionally, use Colors mode to pick any colors from the image.</h5>
+            <img src="img/rs-step-4.PNG"><img>
+            <h5>Click Copy or Save buttons to export your snipping.</h5>
+        </div>
+    </div>
+
+    <div class="panel panel-success">
+        <div class="panel-heading">DOWNLOAD</div>
+        <div class="panel-body text-left">
+            <p>REVERSCREEN is currently in a proof-of-concept state. Everyone is allowed to use it for free without any obligations or restrictions, even for commercial use. Note that the build is not signed, so expect Windows 8/10 to warn you about untrusted
+                app.
+            </p>
+            <a href="release/ReverscreenSetup.zip" download="" class="btn btn-info">REVERSCREEN for Windows (setup, 14Mb)</a>
+            <hr>
+            <p>The following are builds for 64-bit MacOS and Ununtu, however for these platforms you should prefer building from <a href="https://bitbucket.org/pinebit/reverscreen">source code</a>.</p>
+            <a href="release/REVERSCREEN-macOS.zip" download="" class="btn btn-danger">Build for macOS Sierra (2Mb)</a>
+            <a href="release/REVERSCREEN-Ubuntu64.zip" download="" class="btn btn-danger">Build for Ubuntu (1Mb)</a>
+        </div>
+    </div>
+
+    <footer>
+        <hr/>
+        <div class="row">
+            <div class="col-sm-6">
+                Questions? <a href="mailto:pinebit@gmail.com">pinebit@gmail.com</a>
+            </div>
+            <div class="col-sm-6 text-right">
+                <a href="http://reverscreen.com">2016 &copy; reverscreen.com</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
     <!--[if lt IE 9]>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
-  <![endif]-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+    <![endif]-->
 
     <script>
         (function(i, s, o, g, r, a, m) {
@@ -32,37 +90,6 @@
         ga('create', 'UA-86493922-1', 'auto');
         ga('send', 'pageview');
     </script>
-
-</head>
-
-<body>
-
-    <header class="animated fadeIn">
-        <hr/>
-        <h1><span>R</span>EVER<span>S</span>CREEN</h1>
-        <h2>computer-vision powered snipping tool</h2>
-        <hr/>
-    </header>
-
-    <section>
-        <img src="img/reverscreen-demo.gif" alt="demo"></img>
-    </section>
-
-    <section>
-        <h2>Get REVERSCREEN for your desktop:</h2>
-        <a class="button" href="release/ReverscreenSetup.exe" download="">Windows (15Mb)</a>
-        <a class="button" href="release/REVERSCREEN-Ubuntu64.zip" download="">*Linux (0.3Mb)</a>
-        <a class="button" href="release/REVERSCREEN-macOS.zip" download="">**macOS Sierra (1.7Mb)</a>
-        <h3>...or build it from <a href="https://bitbucket.org/pinebit/reverscreen">source code</a>.</h3>
-        <p>* Linux version has been built for Ubuntu and requires OpenCV and Qt5.</p>
-        <p>** Mac version is tested on Sierra and requires Qt5 as well: <i>brew install qt5</i></p>
-    </section>
-
-    <footer class="animated fadeIn">
-        <hr/>
-        <a class="left" href="mailto:pinebit@gmail.com">pinebit@gmail.com</a>
-        <a class="right" href="http://reverscreen.com">2016 &copy; reverscreen.com</a>
-    </footer>
 
 </body>
 
