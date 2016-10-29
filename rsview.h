@@ -52,4 +52,5 @@ private:
 
     QSharedPointer<AccentPainter> _accentPainter;
     QSharedPointer<RegionContext> _regionContext;
+    QSharedPointer<AccentPainter> _highlightAccentPainter;
 };

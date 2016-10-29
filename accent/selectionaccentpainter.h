@@ -6,15 +6,11 @@
 
 #include <QColor>
 
-class CinemaAccentPainter;
-class RectangleAccentPainter;
-
 class SelectionAccentPainter : public AccentPainter
 {
 public:
     SelectionAccentPainter(const QColor& rectColor, const QColor& shadeColor);
 
-    void paint(QPainter* painter, const RegionContext* context);
     void paint(QPainter *painter, const QRect& scope, const QRect& region);
 
 private:
@@ -22,5 +18,4 @@ private:
 
     CinemaAccentPainter _cinemaScopePainter;
     RectangleAccentPainter _rectangleSelectedPainter;
-    RectangleAccentPainter _rectangleHighlightedPainter;
 };

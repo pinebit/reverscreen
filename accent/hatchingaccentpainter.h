@@ -9,7 +9,6 @@ class HatchingAccentPainter : public AccentPainter
 public:
     HatchingAccentPainter(const QColor& color);
 
-    void paint(QPainter* painter, const RegionContext* context);
     void paint(QPainter *painter, const QRect& scope, const QRect& region);
 
 private:

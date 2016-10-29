@@ -6,6 +6,7 @@
 // app
 #include "rsview.h"
 #include "accent/accentpainter.h"
+#include "accent/rectangleaccentpainter.h"
 #include "assistant/snapassistant.h"
 
 RsView::RsView(QWidget *parent, bool fullWidgetMode)
@@ -13,7 +14,9 @@ RsView::RsView(QWidget *parent, bool fullWidgetMode)
     , _keyControlPressed(false)
     , _keyShiftPressed(false)
     , _fullWidgetMode(fullWidgetMode)
-    , _regionContext(new RegionContext(fullWidgetMode)){
+    , _regionContext(new RegionContext(fullWidgetMode))
+    , _highlightAccentPainter(new RectangleAccentPainter(QPen(Qt::red, 1, Qt::DashLine)))
+{
     setAutoFillBackground(false);
     setMouseTracking(true);
 
@@ -60,13 +63,31 @@ void RsView::paintEvent(QPaintEvent *event){
     }
 
     QPainter painter(this);
+
+    painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
     painter.drawImage(0, 0, _image);
 
     if (_accentPainter != NULL) {
-        if (!_keyControlPressed){ // _regionContext->fullWidgetMode() &&
-            _accentPainter->paint(&painter, _regionContext.data());
-        } else {
-            _accentPainter->paint(&painter, _regionContext->scopeRegion(), _regionContext->highlightedRegion());
+        const QRect& selectedRegion = _regionContext->selectedRegion();
+        const QRect& highlightedRegion = _regionContext->highlightedRegion();
+
+        if (!RegionContext::isValidRegion(selectedRegion)) {
+            return;
+        }
+
+        if (!_keyControlPressed) {
+            _accentPainter->paint(&painter, _regionContext->scopeRegion(), selectedRegion);
+
+            if (selectedRegion.contains(highlightedRegion, false) || selectedRegion.intersects(highlightedRegion) ) {
+                QRect intersectedRegion = (selectedRegion.intersects(highlightedRegion))
+                        ? selectedRegion.intersected(highlightedRegion)
+                        : highlightedRegion;
+
+                _highlightAccentPainter->paint(&painter, selectedRegion, intersectedRegion);
+            }
+        }
+        else {
+            _accentPainter->paint(&painter, _regionContext->scopeRegion(), highlightedRegion);
         }
     }
 }

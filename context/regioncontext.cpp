@@ -4,8 +4,8 @@
 
 #include <QDebug>
 
-const int RegionContext::_minimumWidth = 3;
-const int RegionContext::_minimumHeight = 3;
+const int RegionContext::_minimumWidth = 4;
+const int RegionContext::_minimumHeight = 4;
 
 RegionContext::RegionContext(bool fullWidgetMode)
     : _fullWidgetMode(fullWidgetMode)
@@ -150,17 +150,11 @@ void RegionContext::updateHighlightedRegion(const QRect& region){
 void RegionContext::updateStartPoint(const QPoint& point){
     _selectedRegion.setTopLeft(point);
     _selectedRegion.setBottomRight(point);
-
-    QPoint snapBeginPoint = _snapAssistant->begin(point);
-    _highlightedRegion.setTopLeft(snapBeginPoint);
-    _highlightedRegion.setBottomRight(snapBeginPoint);
 }
 
 void RegionContext::updateEndPoint(const QPoint& point){
     _selectedRegion.setBottomRight(point);
-
-    QPoint snapEndPoint = _snapAssistant->end(QRect(_highlightedRegion.topLeft(), point));
-    _highlightedRegion.setBottomRight(snapEndPoint);
+    _highlightedRegion = _snapAssistant->snap(selectedRegion());
 }
 
 bool RegionContext::isNullRegion(const QRect& region) {

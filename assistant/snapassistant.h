@@ -10,8 +10,6 @@ class SnapAssistant
 public:
     virtual ~SnapAssistant() {}
 
-    // snaps a selection start point
-    virtual QPoint begin(const QPoint& point) = 0;
-    // snaps a selection rectange
-    virtual QPoint end(const QRect& rect) = 0;
+    // finds largest enclosing region
+    virtual QRect snap(const QRect& rect) = 0;
 };

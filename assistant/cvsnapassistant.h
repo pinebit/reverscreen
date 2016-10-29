@@ -12,8 +12,7 @@ class CvSnapAssistant : public SnapAssistant
 public:
     CvSnapAssistant(QSharedPointer<CvModel> model);
 
-    QPoint begin(const QPoint &point);
-    QPoint end(const QRect &rect);
+    QRect snap(const QRect& rect);
 
 private:
     QSharedPointer<CvModel> _model;
