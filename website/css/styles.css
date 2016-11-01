@@ -2,3 +2,7 @@ body {
     max-width: 1000px;
     margin: 50px auto;
 }
+
+.video {
+    width: 100%;
+}
