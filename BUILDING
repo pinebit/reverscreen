@@ -1,9 +1,19 @@
+# Supported platforms
+
+* LINUX (tested on Ubuntu)
+* MACOS (tested on Sierra)
+* WINDOWS (tested on Windows 10)
+
+# Dependencies
+
+The program is using OpenCV 2.4 and Qt 5.7.
+However, it is not using any new Qt features, so it should be fine to build it with any 5.x version.
 I used Qt Creator to configure and build the app on all the platforms. However, you can build it using just qmake.
 
-# MAC and LINUX
+# MACOS and LINUX
 You will need to install qt, libopencv and libopencv-dev dependencies in order to build the app.
 
-# Windows
+# WINDOWS
 On Windows, I used mingw32 to build BOTH OpenCV 2.4 and the app.
-The reason is that the standard Qt 5.7 distribution is built with mingw32 and for proper linking, all components shall be built wit the same compiler.
-Note: you will need to modify reverscreen.pro file point to your OpenCV build location.
+The reason is that the standard Qt 5.7 distribution is built with mingw32 and for proper linking, all components shall be built with the same compiler.
+Note: you will need to modify reverscreen.pro file to point to your OpenCV build location.
