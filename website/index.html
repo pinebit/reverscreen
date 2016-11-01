@@ -11,41 +11,55 @@
     <meta name="author" content="Andrei Smirnov">
     <meta name="keywords" content="Computer Vision, Snipping, Tool, Screenshot, Snap, Screen, Grabbing, Smart">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/animate.css">
 </head>
 
 <body>
 
-    <div class="jumbotron text-center">
+    <div class="jumbotron text-center animated zoomIn">
         <h1>REVERSCREEN</h1>
         <p>COMPUTER-VISION SNIPPING TOOL</p>
     </div>
 
-    <div class="alert alert-info" role="alert">
-        <b>REVERSCREEN is a snipping tool that leverages smartest Computer-Vision algorithms to simplify <i>precise</i> objects capturing.</b>
+    <div class="alert alert-info animated fadeIn" role="alert">
+        <b>REVERSCREEN is a snipping tool that leverages computer vision algorithms to simplify precise on-screen objects selection and cropping.</b>
     </div>
 
-    <div class="panel panel-warning">
-        <div class="panel-heading">QUICK START GUIDE</div>
+    <div class="panel panel-warning animated fadeIn">
+        <div class="panel-heading">USAGE DEMO</div>
         <div class="panel-body text-center">
             <img class="video" src="img/reverscreen-demo.gif"><img>
         </div>
     </div>
 
-    <div class="panel panel-success">
+    <div class="panel panel-warning animated fadeIn">
+        <div class="panel-heading">HOW TO USE</div>
+        <div class="panel-body">
+            <ul>
+                <li>Start the application and click the Screenshot button to start a new snipping.</li>
+                <li>In full-screen mode, you can select an arbitrary area using left mouse button.</li>
+                <li>If you see a highlighted object (dashed red line) found by computer vision, press the Ctrl button and the selection will be snapped to this rectangle. Release the mouse button to finish the selection.</li>
+                <li>You can also do the same in windowed mode. Here, you can also use the Ctrl button to control how the selection is done and what should be cropped.</li>
+                <li>Use the Colors pane as a standard color-picker tool. The colors here are represented in the CSS hexadecimal form.</li>
+                <li>The resulted cropped image can then be Copied to the clipboard or can be Saved to a file.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="panel panel-success animated fadeIn">
         <div class="panel-heading">DOWNLOAD</div>
         <div class="panel-body text-left">
-            <p>REVERSCREEN is currently in a proof-of-concept state. Everyone is allowed to use it for free without any obligations or restrictions, even for commercial use. Note that the build is not signed, so expect Windows to warn you about this app
-                is untrusted.</p>
+            <p>The product is licensed under MIT license.</p>
+            <p><i>Note: REVERSCREEN executable is not signed with a certificate, so expect Windows to warn you about this app is untrusted.</i></p>
             <a href="release/ReverscreenSetup.zip" download="" class="btn btn-info">REVERSCREEN for Windows (setup, 14Mb)</a>
             <hr>
             <p>The following are experimental builds for 64-bit MacOS and Ubuntu:</p>
             <a href="release/REVERSCREEN-macOS.zip" download="" class="btn btn-danger">Experimental build for macOS Sierra (2Mb)</a>
             <a href="release/REVERSCREEN-Ubuntu64.zip" download="" class="btn btn-danger">Experimental build for Ubuntu (1Mb)</a>
             <hr>
-            <p>You can also request access to the <a href="https://github.com/pinebit/reverscreen">source code</a>, so you can build the app for your specific platform.</p>
+            <p>You can also get the <a href="https://github.com/pinebit/reverscreen">source code</a>, and build the app for your platform.</p>
         </div>
     </div>
 
