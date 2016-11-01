@@ -13,7 +13,7 @@ simplify precise on-screen objects selection and cropping.
 
 The following video demonstrates the application in action:
 
-![](http://reverscreen.com/img/reverscreen-demo.gif)
+![reverscreen-demo-video](https://github.com/pinebit/reverscreen/blob/develop/website/img/reverscreen-demo.gif)
 
  
 
