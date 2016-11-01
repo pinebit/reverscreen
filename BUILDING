@@ -1,0 +1,9 @@
+I used Qt Creator to configure and build the app on all the platforms. However, you can build it using just qmake.
+
+# MAC and LINUX
+You will need to install qt, libopencv and libopencv-dev dependencies in order to build the app.
+
+# Windows
+On Windows, I used mingw32 to build BOTH OpenCV 2.4 and the app.
+The reason is that the standard Qt 5.7 distribution is built with mingw32 and for proper linking, all components shall be built wit the same compiler.
+Note: you will need to modify reverscreen.pro file point to your OpenCV build location.
