@@ -23,7 +23,7 @@
 #include "mainwindow.h"
 #include "rsview.h"
 #include "dock/colorswidget.h"
-#include "dock/accentwidget.h"
+#include "dock/markerwidget.h"
 #include "fullscreenselectiondialog.h"
 #include "assistant/cvsnapassistant.h"
 #include "accent/selectionaccentpainter.h"
@@ -189,13 +189,13 @@ QSharedPointer<AccentPainter> MainWindow::createAccentPainter()
     AccentPainter* accent = NULL;
 
     switch (_markerWidget->accentMode()) {
-    case AccentWidget::Rectangle:
+    case MarkerWidget::Rectangle:
         accent = new RectangleAccentPainter(QPen(color, 3));
         break;
-    case AccentWidget::Cinema:
+    case MarkerWidget::Cinema:
         accent = new CinemaAccentPainter(color);
         break;
-    case AccentWidget::Hatching:
+    case MarkerWidget::Hatching:
         accent = new HatchingAccentPainter(color);
         break;
     default:
@@ -407,9 +407,9 @@ void MainWindow::setupUi()
     setupDockWidget(_colorsDock, _awesome->icon(fa::eyedropper), _colorsWidget);
 
     _markerDock = new QDockWidget(tr("Marker"), this);
-    _markerWidget = new AccentWidget(_markerDock);
-    connect(_markerWidget, &AccentWidget::signalAccentChanged, this, &MainWindow::slotAccentChanged);
-    connect(_markerWidget, &AccentWidget::signalAccentApplied, this, &MainWindow::slotAccentApplied);
+    _markerWidget = new MarkerWidget(_markerDock);
+    connect(_markerWidget, &MarkerWidget::signalAccentChanged, this, &MainWindow::slotAccentChanged);
+    connect(_markerWidget, &MarkerWidget::signalAccentApplied, this, &MainWindow::slotAccentApplied);
     setupDockWidget(_markerDock, _awesome->icon(fa::lightbulbo), _markerWidget);
 
     // toolbar

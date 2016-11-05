@@ -1,4 +1,4 @@
-#include "dock/accentwidget.h"
+#include "dock/markerwidget.h"
 #include "controls/coloractionwidget.h"
 #include "widgetutils.h"
 
@@ -10,7 +10,7 @@
 #include <QMetaEnum>
 
 
-AccentWidget::AccentWidget(QWidget *parent)
+MarkerWidget::MarkerWidget(QWidget *parent)
     : QWidget(parent)
     , _accentMode(Rectangle)
     , _accentColor(Qt::blue)
@@ -58,7 +58,7 @@ AccentWidget::AccentWidget(QWidget *parent)
 
     // apply button
     QPushButton* applyButton = new QPushButton(tr("Apply"));
-    connect(applyButton, &QPushButton::clicked, this, &AccentWidget::signalAccentApplied);
+    connect(applyButton, &QPushButton::clicked, this, &MarkerWidget::signalAccentApplied);
 
     vlayout->addWidget(WidgetUtils::createInfoLabel(tr("Note: pressing Apply will merge the accent.\nYou cannot modify a merged accent.")));
     vlayout->addSpacing(8);
@@ -67,7 +67,7 @@ AccentWidget::AccentWidget(QWidget *parent)
     vlayout->addStretch();
 }
 
-void AccentWidget::slotSelectColorDialog()
+void MarkerWidget::slotSelectColorDialog()
 {
     QColorDialog dialog(_accentColor, this);
     if (dialog.exec() == QDialog::Accepted) {
@@ -75,7 +75,7 @@ void AccentWidget::slotSelectColorDialog()
     }
 }
 
-void AccentWidget::updateColor(QColor color)
+void MarkerWidget::updateColor(QColor color)
 {
     _accentColor = color;
     _colorAction->updateColor(_accentColor);
@@ -83,7 +83,7 @@ void AccentWidget::updateColor(QColor color)
     emit signalAccentChanged();
 }
 
-void AccentWidget::updateMode(AccentMode accentMode)
+void MarkerWidget::updateMode(AccentMode accentMode)
 {
     _accentMode = accentMode;
 

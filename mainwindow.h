@@ -10,7 +10,7 @@
 
 class QtAwesome;
 class RsView;
-class AccentWidget;
+class MarkerWidget;
 class ColorsWidget;
 class AccentPainter;
 class CvModelBuilder;
@@ -66,7 +66,7 @@ private:
 
     QtAwesome* _awesome;
     RsView* _rsview;
-    AccentWidget* _markerWidget;
+    MarkerWidget* _markerWidget;
     ColorsWidget* _colorsWidget;
 
     QScrollArea* _scrollArea;
