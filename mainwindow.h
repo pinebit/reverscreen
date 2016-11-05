@@ -33,6 +33,7 @@ private slots:
     void slotActionCrop();
 
     void slotSelectionStarted();
+    void slotSelectionCancelled();
     void slotMouseMove(const QPoint& pos);
 
     void slotAccentChanged();
