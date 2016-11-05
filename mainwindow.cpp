@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
     enableDisableUi();
 }
 
-void MainWindow::slotActionScreenshot()
+void MainWindow::slotActionCapture()
 {
     hide();
     delay(300);
@@ -363,10 +363,10 @@ void MainWindow::setupUi()
     _statusbar->showMessage(tr("Ready."));
 
     // actions
+    _actionCapture = new QAction(_awesome->icon(fa::cameraretro), tr("Capture"), this);
+    _actionCapture->setShortcut(QKeySequence("Ctrl+N"));
     _actionPaste = new QAction(_awesome->icon(fa::paste), tr("Paste from clipboard"), this);
     _actionPaste->setShortcut(QKeySequence("Ctrl+V"));
-    _actionOpen = new QAction(_awesome->icon(fa::filepictureo), tr("Open image file..."), this);
-    _actionOpen->setShortcut(QKeySequence("Ctrl+O"));
     _actionCopy = new QAction(_awesome->icon(fa::copy), tr("Copy"), this);
     _actionCopy->setShortcut(QKeySequence("Ctrl+C"));
     _actionSave = new QAction(_awesome->icon(fa::save), tr("Save..."), this);
@@ -374,8 +374,10 @@ void MainWindow::setupUi()
     _actionCrop = new QAction(_awesome->icon(fa::crop), tr("Crop"), this);
     _actionCrop->setShortcut(QKeySequence("Ctrl+X"));
 
+    addAction(_actionPaste);
+
+    connect(_actionCapture, &QAction::triggered, this, &MainWindow::slotActionCapture);
     connect(_actionPaste, &QAction::triggered, this, &MainWindow::slotActionPaste);
-    connect(_actionOpen, &QAction::triggered, this, &MainWindow::slotActionOpen);
     connect(_actionCopy, &QAction::triggered, this, &MainWindow::slotActionCopy);
     connect(_actionSave, &QAction::triggered, this, &MainWindow::slotActionSave);
     connect(_actionCrop, &QAction::triggered, this, &MainWindow::slotActionCrop);
@@ -408,16 +410,8 @@ void MainWindow::setupUi()
     connect(_accentWidget, &AccentWidget::signalAccentApplied, this, &MainWindow::slotAccentApplied);
     setupDockWidget(_accentDock, _awesome->icon(fa::lightbulbo), _accentWidget);
 
-    // combo actions
-    QMenu *newMenu = new QMenu(tr("Screenshot"));
-    newMenu->menuAction()->setIcon(_awesome->icon(fa::cameraretro));
-    newMenu->menuAction()->setShortcut(QKeySequence("Ctrl+N"));
-    connect(newMenu->menuAction(), &QAction::triggered, this, &MainWindow::slotActionScreenshot);
-    newMenu->addAction(_actionPaste);
-    newMenu->addAction(_actionOpen);
-
     // toolbar
-    _toolbar->addAction(newMenu->menuAction());
+    _toolbar->addAction(_actionCapture);
     _toolbar->addAction(_actionCopy);
     _toolbar->addAction(_actionSave);
     _toolbar->insertSeparator(0);

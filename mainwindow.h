@@ -25,7 +25,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
 
 private slots:
-    void slotActionScreenshot();
+    void slotActionCapture();
     void slotActionPaste();
     void slotActionOpen();
     void slotActionCopy();
@@ -72,8 +72,8 @@ private:
     QToolBar* _toolbar;
     QStatusBar* _statusbar;
 
+    QAction* _actionCapture;
     QAction* _actionPaste;
-    QAction* _actionOpen;
     QAction* _actionCopy;
     QAction* _actionSave;
     QAction* _actionCrop;
