@@ -5,7 +5,7 @@
 
 class ColorActionWidget;
 
-class AccentWidget : public QWidget
+class MarkerWidget : public QWidget
 {
     Q_OBJECT
 
@@ -18,7 +18,7 @@ public:
 
     Q_ENUM(AccentMode)
 
-    explicit AccentWidget(QWidget *parent);
+    explicit MarkerWidget(QWidget *parent);
 
     AccentMode accentMode() const {
         return _accentMode;

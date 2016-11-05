@@ -17,12 +17,13 @@
 #include <QMenu>
 #include <QDesktopWidget>
 #include <QDebug>
+#include <QMimeData>
 
 #include "awesomeservice.h"
 #include "mainwindow.h"
 #include "rsview.h"
 #include "dock/colorswidget.h"
-#include "dock/accentwidget.h"
+#include "dock/markerwidget.h"
 #include "fullscreenselectiondialog.h"
 #include "assistant/cvsnapassistant.h"
 #include "accent/selectionaccentpainter.h"
@@ -45,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
     enableDisableUi();
 }
 
-void MainWindow::slotActionScreenshot()
+void MainWindow::slotActionCapture()
 {
     hide();
     delay(300);
@@ -163,7 +164,7 @@ void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
 {
     if (dockWidget->isVisible()) {
         if (_colorsDock == dockWidget) {
-            _accentDock->setVisible(false);
+            _markerDock->setVisible(false);
         }
         else {
             _colorsDock->setVisible(false);
@@ -171,7 +172,7 @@ void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
         }
     }
     else {
-        if (dockWidget == _accentDock) {
+        if (dockWidget == _markerDock) {
             _rsview->setAccentPainter(createDefaultAccentPainter());
         }
     }
@@ -184,17 +185,17 @@ QSharedPointer<AccentPainter> MainWindow::createDefaultAccentPainter()
 
 QSharedPointer<AccentPainter> MainWindow::createAccentPainter()
 {
-    QColor color = _accentWidget->accentColor();
+    QColor color = _markerWidget->accentColor();
     AccentPainter* accent = NULL;
 
-    switch (_accentWidget->accentMode()) {
-    case AccentWidget::Rectangle:
+    switch (_markerWidget->accentMode()) {
+    case MarkerWidget::Rectangle:
         accent = new RectangleAccentPainter(QPen(color, 3));
         break;
-    case AccentWidget::Cinema:
+    case MarkerWidget::Cinema:
         accent = new CinemaAccentPainter(color);
         break;
-    case AccentWidget::Hatching:
+    case MarkerWidget::Hatching:
         accent = new HatchingAccentPainter(color);
         break;
     default:
@@ -338,7 +339,7 @@ void MainWindow::setupUi()
 
     // geometry & title
     setWindowTitle(tr("REVERSCREEN"));
-    setMinimumSize(QSize(400, 300));
+    setMinimumSize(QSize(600, 400));
 
     // font
     QFont font;
@@ -347,6 +348,7 @@ void MainWindow::setupUi()
     setFont(font);
 
     setUnifiedTitleAndToolBarOnMac(true);
+    setAcceptDrops(true);
 
     // toolbar
     _toolbar = new QToolBar(this);
@@ -360,13 +362,13 @@ void MainWindow::setupUi()
     _statusbar = new QStatusBar(this);
     _statusbar->setFont(font);
     setStatusBar(_statusbar);
-    _statusbar->showMessage(tr("Ready."));
+    _statusbar->showMessage(tr("Click Capture, paste from the clipboard or drag and drop an image here."));
 
     // actions
+    _actionCapture = new QAction(_awesome->icon(fa::cameraretro), tr("Capture"), this);
+    _actionCapture->setShortcut(QKeySequence("Ctrl+N"));
     _actionPaste = new QAction(_awesome->icon(fa::paste), tr("Paste from clipboard"), this);
     _actionPaste->setShortcut(QKeySequence("Ctrl+V"));
-    _actionOpen = new QAction(_awesome->icon(fa::filepictureo), tr("Open image file..."), this);
-    _actionOpen->setShortcut(QKeySequence("Ctrl+O"));
     _actionCopy = new QAction(_awesome->icon(fa::copy), tr("Copy"), this);
     _actionCopy->setShortcut(QKeySequence("Ctrl+C"));
     _actionSave = new QAction(_awesome->icon(fa::save), tr("Save..."), this);
@@ -374,8 +376,10 @@ void MainWindow::setupUi()
     _actionCrop = new QAction(_awesome->icon(fa::crop), tr("Crop"), this);
     _actionCrop->setShortcut(QKeySequence("Ctrl+X"));
 
+    addAction(_actionPaste);
+
+    connect(_actionCapture, &QAction::triggered, this, &MainWindow::slotActionCapture);
     connect(_actionPaste, &QAction::triggered, this, &MainWindow::slotActionPaste);
-    connect(_actionOpen, &QAction::triggered, this, &MainWindow::slotActionOpen);
     connect(_actionCopy, &QAction::triggered, this, &MainWindow::slotActionCopy);
     connect(_actionSave, &QAction::triggered, this, &MainWindow::slotActionSave);
     connect(_actionCrop, &QAction::triggered, this, &MainWindow::slotActionCrop);
@@ -402,28 +406,20 @@ void MainWindow::setupUi()
     _colorsWidget = new ColorsWidget(_colorsDock);
     setupDockWidget(_colorsDock, _awesome->icon(fa::eyedropper), _colorsWidget);
 
-    _accentDock = new QDockWidget(tr("Accent"), this);
-    _accentWidget = new AccentWidget(_accentDock);
-    connect(_accentWidget, &AccentWidget::signalAccentChanged, this, &MainWindow::slotAccentChanged);
-    connect(_accentWidget, &AccentWidget::signalAccentApplied, this, &MainWindow::slotAccentApplied);
-    setupDockWidget(_accentDock, _awesome->icon(fa::lightbulbo), _accentWidget);
-
-    // combo actions
-    QMenu *newMenu = new QMenu(tr("Screenshot"));
-    newMenu->menuAction()->setIcon(_awesome->icon(fa::cameraretro));
-    newMenu->menuAction()->setShortcut(QKeySequence("Ctrl+N"));
-    connect(newMenu->menuAction(), &QAction::triggered, this, &MainWindow::slotActionScreenshot);
-    newMenu->addAction(_actionPaste);
-    newMenu->addAction(_actionOpen);
+    _markerDock = new QDockWidget(tr("Marker"), this);
+    _markerWidget = new MarkerWidget(_markerDock);
+    connect(_markerWidget, &MarkerWidget::signalAccentChanged, this, &MainWindow::slotAccentChanged);
+    connect(_markerWidget, &MarkerWidget::signalAccentApplied, this, &MainWindow::slotAccentApplied);
+    setupDockWidget(_markerDock, _awesome->icon(fa::lightbulbo), _markerWidget);
 
     // toolbar
-    _toolbar->addAction(newMenu->menuAction());
+    _toolbar->addAction(_actionCapture);
     _toolbar->addAction(_actionCopy);
     _toolbar->addAction(_actionSave);
     _toolbar->insertSeparator(0);
     _toolbar->addAction(_actionCrop);
     _toolbar->addAction(_colorsDock->toggleViewAction());
-    // _toolbar->addAction(_accentDock->toggleViewAction());
+    _toolbar->addAction(_markerDock->toggleViewAction());
 
     WidgetUtils::centerWindow(this);
 }
@@ -450,4 +446,33 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         }
     }
     return QMainWindow::eventFilter(obj, event);
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasUrls() || event->mimeData()->hasImage()) {
+        event->acceptProposedAction();
+    }
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+    if (event->mimeData()->hasImage()) {
+        event->acceptProposedAction();
+        QImage image = qvariant_cast<QImage>(event->mimeData()->imageData());
+        updateImage(image);
+        _statusbar->showMessage(tr("New image has been received."));
+        return;
+    }
+
+    foreach (const QUrl& url, event->mimeData()->urls()) {
+        if (!url.isLocalFile()) {
+            continue;
+        }
+
+        if (openImage(url.toLocalFile())) {
+            event->acceptProposedAction();
+            return;
+        }
+    }
 }

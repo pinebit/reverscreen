@@ -12,7 +12,6 @@ SOURCES += main.cpp\
     cv/cvmodelbuilderoptions.cpp \
     fullscreenselectiondialog.cpp \
     dock/colorswidget.cpp \
-    dock/accentwidget.cpp \
     controls/coloractionwidget.cpp \
     awesomeservice.cpp \
     accent/rectangleaccentpainter.cpp \
@@ -22,7 +21,8 @@ SOURCES += main.cpp\
     assistant/cvsnapassistant.cpp \
     context/regioncontext.cpp \
     widgetutils.cpp \
-    rsview.cpp
+    rsview.cpp \
+    dock/markerwidget.cpp
 
 HEADERS  += mainwindow.h \
     cv/cvmodelbuilder.h \
@@ -30,7 +30,6 @@ HEADERS  += mainwindow.h \
     cv/cvmodelbuilderoptions.h \
     fullscreenselectiondialog.h \
     dock/colorswidget.h \
-    dock/accentwidget.h \
     controls/coloractionwidget.h \
     awesomeservice.h \
     accent/accentpainter.h \
@@ -42,7 +41,8 @@ HEADERS  += mainwindow.h \
     assistant/cvsnapassistant.h \
     context/regioncontext.h \
     widgetutils.h \
-    rsview.h
+    rsview.h \
+    dock/markerwidget.h
     
 RESOURCES += \
     reverscreen.qrc

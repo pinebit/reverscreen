@@ -10,7 +10,7 @@
 
 class QtAwesome;
 class RsView;
-class AccentWidget;
+class MarkerWidget;
 class ColorsWidget;
 class AccentPainter;
 class CvModelBuilder;
@@ -25,7 +25,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
 
 private slots:
-    void slotActionScreenshot();
+    void slotActionCapture();
     void slotActionPaste();
     void slotActionOpen();
     void slotActionCopy();
@@ -42,6 +42,8 @@ private slots:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
 
 
 private:
@@ -64,7 +66,7 @@ private:
 
     QtAwesome* _awesome;
     RsView* _rsview;
-    AccentWidget* _accentWidget;
+    MarkerWidget* _markerWidget;
     ColorsWidget* _colorsWidget;
 
     QScrollArea* _scrollArea;
@@ -72,13 +74,13 @@ private:
     QToolBar* _toolbar;
     QStatusBar* _statusbar;
 
+    QAction* _actionCapture;
     QAction* _actionPaste;
-    QAction* _actionOpen;
     QAction* _actionCopy;
     QAction* _actionSave;
     QAction* _actionCrop;
 
+    QDockWidget* _markerDock;
     QDockWidget* _colorsDock;
-    QDockWidget* _accentDock;
 };
 
