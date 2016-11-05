@@ -42,6 +42,8 @@ private slots:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
 
 
 private:
@@ -64,7 +66,7 @@ private:
 
     QtAwesome* _awesome;
     RsView* _rsview;
-    AccentWidget* _accentWidget;
+    AccentWidget* _markerWidget;
     ColorsWidget* _colorsWidget;
 
     QScrollArea* _scrollArea;
@@ -78,7 +80,7 @@ private:
     QAction* _actionSave;
     QAction* _actionCrop;
 
+    QDockWidget* _markerDock;
     QDockWidget* _colorsDock;
-    QDockWidget* _accentDock;
 };
 
