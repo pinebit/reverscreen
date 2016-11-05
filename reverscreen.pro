@@ -73,6 +73,10 @@ LIBS += -lopencv_core -lopencv_imgproc -lz
 ICON = icons/reverscreen.icns
 }
 
+osx {
+QMAKE_INFO_PLIST = Info.plist
+}
+
 QMAKE_CXXFLAGS += -Wno-deprecated-declarations
 
 include(QtAwesome/QtAwesome.pri)
