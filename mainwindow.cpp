@@ -18,6 +18,7 @@
 #include <QDesktopWidget>
 #include <QDebug>
 #include <QMimeData>
+#include <QSettings>
 
 #include "awesomeservice.h"
 #include "mainwindow.h"
@@ -44,6 +45,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     setupUi();
     enableDisableUi();
+
+    QSettings settings;
+    restoreGeometry(settings.value("geometry").toByteArray());
+    restoreState(settings.value("windowState").toByteArray());
 }
 
 void MainWindow::slotActionCapture()
@@ -475,4 +480,12 @@ void MainWindow::dropEvent(QDropEvent *event)
             return;
         }
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QSettings settings;
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("windowState", saveState());
+    QMainWindow::closeEvent(event);
 }
