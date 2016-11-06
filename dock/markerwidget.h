@@ -10,22 +10,10 @@ class MarkerWidget : public QWidget
     Q_OBJECT
 
 public:
-    enum AccentMode {
-        Rectangle,
-        Cinema,
-        Hatching
-    };
-
-    Q_ENUM(AccentMode)
-
     explicit MarkerWidget(QWidget *parent);
 
-    AccentMode accentMode() const {
-        return _accentMode;
-    }
-
-    QColor accentColor() const {
-        return _accentColor;
+    QColor markerColor() const {
+        return _markerColor;
     }
 
 signals:
@@ -37,9 +25,7 @@ private slots:
 
 private:
     void updateColor(QColor color);
-    void updateMode(AccentMode accentMode);
 
-    AccentMode _accentMode;
-    QColor  _accentColor;
+    QColor  _markerColor;
     ColorActionWidget* _colorAction;
 };

@@ -16,13 +16,13 @@ SOURCES += main.cpp\
     awesomeservice.cpp \
     accent/rectangleaccentpainter.cpp \
     accent/cinemaaccentpainter.cpp \
-    accent/hatchingaccentpainter.cpp \
     accent/selectionaccentpainter.cpp \
     assistant/cvsnapassistant.cpp \
     context/regioncontext.cpp \
     widgetutils.cpp \
     rsview.cpp \
-    dock/markerwidget.cpp
+    dock/markerwidget.cpp \
+    accent/markeraccentpainter.cpp
 
 HEADERS  += mainwindow.h \
     cv/cvmodelbuilder.h \
@@ -35,14 +35,14 @@ HEADERS  += mainwindow.h \
     accent/accentpainter.h \
     accent/rectangleaccentpainter.h \
     accent/cinemaaccentpainter.h \
-    accent/hatchingaccentpainter.h \
     accent/selectionaccentpainter.h \
     assistant/snapassistant.h \
     assistant/cvsnapassistant.h \
     context/regioncontext.h \
     widgetutils.h \
     rsview.h \
-    dock/markerwidget.h
+    dock/markerwidget.h \
+    accent/markeraccentpainter.h
     
 RESOURCES += \
     reverscreen.qrc

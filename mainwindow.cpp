@@ -30,7 +30,7 @@
 #include "accent/selectionaccentpainter.h"
 #include "accent/rectangleaccentpainter.h"
 #include "accent/cinemaaccentpainter.h"
-#include "accent/hatchingaccentpainter.h"
+#include "accent/markeraccentpainter.h"
 #include "widgetutils.h"
 #include "cv/cvmodelbuilder.h"
 
@@ -200,24 +200,8 @@ QSharedPointer<AccentPainter> MainWindow::createDefaultAccentPainter()
 
 QSharedPointer<AccentPainter> MainWindow::createAccentPainter()
 {
-    QColor color = _markerWidget->accentColor();
-    AccentPainter* accent = NULL;
-
-    switch (_markerWidget->accentMode()) {
-    case MarkerWidget::Rectangle:
-        accent = new RectangleAccentPainter(QPen(color, 3));
-        break;
-    case MarkerWidget::Cinema:
-        accent = new CinemaAccentPainter(color);
-        break;
-    case MarkerWidget::Hatching:
-        accent = new HatchingAccentPainter(color);
-        break;
-    default:
-        qFatal("Unknown AccentMode");
-    }
-
-    return QSharedPointer<AccentPainter>(accent);
+    QColor color = _markerWidget->markerColor();
+    return QSharedPointer<AccentPainter>(new MarkerAccentPainter(color));
 }
 
 bool MainWindow::saveImage(const QString &fileName)
