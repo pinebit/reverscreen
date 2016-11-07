@@ -36,8 +36,7 @@ private slots:
     void slotSelectionCancelled();
     void slotMouseMove(const QPoint& pos);
 
-    void slotAccentChanged();
-    void slotAccentApplied();
+    void slotResetMarker();
 
     void slotBuildCompleted(QSharedPointer<CvModel> model);
 
@@ -58,7 +57,7 @@ private:
     void enableDisableUi();
     void handleDockWidgetVisibityChange(QDockWidget* dockWidget);
     QSharedPointer<AccentPainter> createDefaultAccentPainter();
-    QSharedPointer<AccentPainter> createAccentPainter();
+    QSharedPointer<AccentPainter> createMarkerAccentPainter();
     void setupUi();
     void setupDockWidget(QDockWidget* dockWidget, QIcon icon, QWidget* contentWidget);
 

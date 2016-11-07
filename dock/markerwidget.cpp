@@ -4,52 +4,22 @@
 
 #include <QVBoxLayout>
 #include <QGroupBox>
-#include <QRadioButton>
 #include <QPushButton>
-#include <QColorDialog>
-#include <QMetaEnum>
 
 
 MarkerWidget::MarkerWidget(QWidget *parent)
     : QWidget(parent)
-    , _markerColor(QColor::fromRgb(255, 255, 0, 100))
 {
     QVBoxLayout* vlayout = new QVBoxLayout(this);
 
     vlayout->addSpacing(8);
-    vlayout->addWidget(WidgetUtils::createInfoLabel(tr("Highlight image using the marker,\nand click Apply button.")));
+    vlayout->addWidget(WidgetUtils::createInfoLabel(tr("Drag mouse over the area you want to marker.\nClick Reset button to clear marker.")));
     vlayout->addSpacing(8);
 
-    // color selection
-    QAction* changeAction = new QAction(tr("Change..."), this);
-    connect(changeAction, &QAction::triggered, this, [this]() { this->slotSelectColorDialog(); });
-    _colorAction = new ColorActionWidget(_markerColor, changeAction);
+    // reset button
+    QPushButton* resetButton = new QPushButton(tr("Reset"));
+    connect(resetButton, &QPushButton::clicked, this, &MarkerWidget::signalResetMarker);
 
-    vlayout->addWidget(_colorAction);
-    vlayout->addSpacing(8);
-
-    // apply button
-    QPushButton* applyButton = new QPushButton(tr("Apply"));
-    connect(applyButton, &QPushButton::clicked, this, &MarkerWidget::signalAccentApplied);
-
-    vlayout->addWidget(applyButton);
-
+    vlayout->addWidget(resetButton);
     vlayout->addStretch();
-}
-
-void MarkerWidget::slotSelectColorDialog()
-{
-    QColorDialog dialog(_markerColor, this);
-    if (dialog.exec() == QDialog::Accepted) {
-        updateColor(dialog.selectedColor());
-    }
-}
-
-void MarkerWidget::updateColor(QColor color)
-{
-    _markerColor = color;
-    _markerColor.setAlpha(100);
-    _colorAction->updateColor(_markerColor);
-
-    emit signalAccentChanged();
 }

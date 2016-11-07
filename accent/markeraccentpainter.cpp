@@ -6,6 +6,7 @@
 MarkerAccentPainter::MarkerAccentPainter(const QColor& color)
     : _color(color)
 {
+    _color.setAlpha(100);
 }
 
 void MarkerAccentPainter::paint(QPainter *painter, const QRect &scope, const QRect &region)

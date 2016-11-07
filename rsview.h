@@ -28,6 +28,10 @@ public:
     
     QRect selectedRegion() const;
 
+    QList<QPoint> dragTrack() const {
+        return _dragTrack;
+    }
+
     bool usedHighlightedRegion() const;
 
 signals:
@@ -53,4 +57,5 @@ private:
     QSharedPointer<AccentPainter> _accentPainter;
     QSharedPointer<RegionContext> _regionContext;
     QSharedPointer<AccentPainter> _highlightAccentPainter;
+    QList<QPoint> _dragTrack;
 };

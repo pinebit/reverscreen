@@ -24,6 +24,9 @@ public:
     void clearRegion();
 
     void setSnapAssistant(const QSharedPointer<SnapAssistant>& snapAssistant);
+    QSharedPointer<SnapAssistant> snapAssistant() const {
+        return _snapAssistant;
+    }
 
     void setScopeRegion(const QRect& scope);
     QRect scopeRegion() const;

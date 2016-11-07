@@ -64,9 +64,11 @@ void RsView::paintEvent(QPaintEvent *event){
 
     QPainter painter(this);
 
+    painter.setRenderHint(QPainter::Antialiasing);
     painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
     painter.drawImage(0, 0, _image);
 
+    /*
     if (_accentPainter != NULL) {
         const QRect& selectedRegion = _regionContext->selectedRegion();
         const QRect& highlightedRegion = _regionContext->highlightedRegion();
@@ -91,6 +93,24 @@ void RsView::paintEvent(QPaintEvent *event){
             _accentPainter->paint(&painter, _regionContext->scopeRegion(), highlightedRegion);
         }
     }
+    */
+
+    if (_regionContext != NULL && _regionContext->snapAssistant() != NULL) {
+        QPolygon marker = _regionContext->snapAssistant()->marker(_dragTrack);
+        if (!marker.isEmpty()) {
+            QRect br = marker.boundingRect() + QMargins(8, 8, 8, 8);
+
+            QColor yc(Qt::yellow);
+            yc.setAlpha(100);
+            QBrush yellow(yc);
+
+            QPainterPath pp;
+            pp.addPolygon(marker);
+            pp.closeSubpath();
+            // pp.addRoundedRect(br, 8, 8);
+            painter.fillPath(pp, yellow);
+        }
+    }
 }
 
 void RsView::mousePressEvent(QMouseEvent *event) {
@@ -98,6 +118,8 @@ void RsView::mousePressEvent(QMouseEvent *event) {
         _regionContext->updateStartPoint(event->pos());
         update();
         event->accept();
+        _dragTrack.clear();
+        _dragTrack << event->pos();
         emit signalSelectionStarted();
     }
 }
@@ -125,6 +147,7 @@ void RsView::mouseMoveEvent(QMouseEvent *event) {
     if (event->buttons() == Qt::LeftButton) {
         if (!_regionContext->isNull()) {
             _regionContext->updateEndPoint(event->pos());
+            _dragTrack << event->pos();
             update();
         }
     } else {

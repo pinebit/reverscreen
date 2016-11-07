@@ -144,23 +144,19 @@ void MainWindow::slotMouseMove(const QPoint &pos)
     _actionCrop->setEnabled(hasSelection);
 }
 
-void MainWindow::slotAccentChanged()
+void MainWindow::slotResetMarker()
 {
-    _rsview->setAccentPainter(createAccentPainter());
-    update();
-}
-
-void MainWindow::slotAccentApplied()
-{
+    /*
     QPixmap pm = QPixmap::fromImage(_currentImage);
     QPainter painter(&pm);
 
-    QSharedPointer<AccentPainter> accent = createAccentPainter();
+    QSharedPointer<AccentPainter> accent = createMarkerAccentPainter();
     accent->paint(&painter, pm.rect(), _rsview->selectedRegion());
 
     updateImage(pm.toImage());
 
     _statusbar->showMessage(tr("Selected accent applied."));
+    */
 }
 
 void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
@@ -183,7 +179,8 @@ void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
         }
         else {
             _colorsDock->setVisible(false);
-            slotAccentChanged();
+            _rsview->setAccentPainter(createMarkerAccentPainter());
+            update();
         }
     }
     else {
@@ -198,10 +195,9 @@ QSharedPointer<AccentPainter> MainWindow::createDefaultAccentPainter()
     return QSharedPointer<AccentPainter>(new SelectionAccentPainter(RegionColor, ShaderColor));
 }
 
-QSharedPointer<AccentPainter> MainWindow::createAccentPainter()
+QSharedPointer<AccentPainter> MainWindow::createMarkerAccentPainter()
 {
-    QColor color = _markerWidget->markerColor();
-    return QSharedPointer<AccentPainter>(new MarkerAccentPainter(color));
+    return QSharedPointer<AccentPainter>(new MarkerAccentPainter(Qt::yellow));
 }
 
 bool MainWindow::saveImage(const QString &fileName)
@@ -408,8 +404,7 @@ void MainWindow::setupUi()
 
     _markerDock = new QDockWidget(tr("Marker"), this);
     _markerWidget = new MarkerWidget(_markerDock);
-    connect(_markerWidget, &MarkerWidget::signalAccentChanged, this, &MainWindow::slotAccentChanged);
-    connect(_markerWidget, &MarkerWidget::signalAccentApplied, this, &MainWindow::slotAccentApplied);
+    connect(_markerWidget, &MarkerWidget::signalResetMarker, this, &MainWindow::slotResetMarker);
     setupDockWidget(_markerDock, _awesome->icon(fa::lightbulbo), _markerWidget);
 
     // toolbar
