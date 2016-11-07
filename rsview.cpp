@@ -205,17 +205,23 @@ bool RsView::processingWheelEvents(QWheelEvent* wheelEvent){
     int dy = 0;
     const int step = 1;
     int delta = (wheelEvent->delta() > 0) ? step : -step;
-    if (wheelEvent->modifiers() & Qt::ShiftModifier) {
-        dx = delta;
-    } else  if (wheelEvent->modifiers() & Qt::ControlModifier){
-        dy = delta;
-    } else {
-        dx = dy = delta;
-    }
-    if (wheelEvent->buttons() == Qt::LeftButton) {
-        _regionContext->setOffset(dx, dy);
-    } else {
+    switch(wheelEvent->buttons()){
+      case Qt::LeftButton:
+        if (wheelEvent->modifiers() == Qt::NoModifier){
+            dx = dy = delta;
+            _regionContext->setOffset(dx, dy);
+        }
+        break;
+      case Qt::NoButton:
+        if (wheelEvent->modifiers() & Qt::ShiftModifier) {
+            dx = delta;
+        } else if (wheelEvent->modifiers() & Qt::ControlModifier){
+            dy = delta;
+        } else {
+            dx = dy = delta;
+        }
         _regionContext->updateHighlightedRegion(dx, dy);
+        break;
     }
     update();
     return true;
