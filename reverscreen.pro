@@ -63,20 +63,22 @@ LIBS += -lopencv_core2413.dll -lopencv_imgproc2413.dll
 
 QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 
-RC_ICONS += images/reverscreen.ico
+RC_ICONS += icons/reverscreen6.ico
 }
 
 unix {
 INCLUDEPATH += /usr/local/include
 LIBS += -L/usr/local/lib
 LIBS += -lopencv_core -lopencv_imgproc -lz
-ICON = images/reverscreen-64.hqx
+ICON = icons/reverscreen.icns
+}
+
+osx {
+QMAKE_INFO_PLIST = Info.plist
 }
 
 QMAKE_CXXFLAGS += -Wno-deprecated-declarations
 
 include(QtAwesome/QtAwesome.pri)
 
-SUBDIRS += \
-    QtAwesome/QtAwesome.pro \
-    QtAwesome/QtAwesome.pro
+SUBDIRS += QtAwesome/QtAwesome.pro

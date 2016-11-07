@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/reverscreen.ico</file>
+        <file>icons/reverscreen.ico</file>
     </qresource>
 </RCC>

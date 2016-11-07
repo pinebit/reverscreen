@@ -33,6 +33,7 @@ private slots:
     void slotActionCrop();
 
     void slotSelectionStarted();
+    void slotSelectionCancelled();
     void slotMouseMove(const QPoint& pos);
 
     void slotAccentChanged();
@@ -44,7 +45,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
-
+    void closeEvent(QCloseEvent *event);
 
 private:
     bool saveImage(const QString &fileName);

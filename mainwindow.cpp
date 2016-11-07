@@ -18,6 +18,7 @@
 #include <QDesktopWidget>
 #include <QDebug>
 #include <QMimeData>
+#include <QSettings>
 
 #include "awesomeservice.h"
 #include "mainwindow.h"
@@ -41,6 +42,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     setupUi();
     enableDisableUi();
+
+    QSettings settings;
+    restoreGeometry(settings.value("geometry").toByteArray());
+    restoreState(settings.value("windowState").toByteArray());
 }
 
 void MainWindow::slotActionCapture()
@@ -101,7 +106,7 @@ void MainWindow::slotActionCrop()
 {
     QRect cropRegion = _rsview->selectedRegion();
     if (!RegionContext::isValidRegion(cropRegion)) {
-        QMessageBox::warning(this, tr("No region selected"), tr("Please use mouse to select a region to crop."));
+        QMessageBox::warning(this, tr("No region selected"), tr("Please select a region to crop."));
         return;
     }
 
@@ -116,6 +121,13 @@ void MainWindow::slotSelectionStarted()
     if (_colorsDock->isVisible()) {
         _colorsWidget->setSelectedColor();
     }
+
+    _actionCrop->setEnabled(true);
+}
+
+void MainWindow::slotSelectionCancelled()
+{
+    _actionCrop->setEnabled(false);
 }
 
 void MainWindow::slotMouseMove(const QPoint &pos)
@@ -124,6 +136,9 @@ void MainWindow::slotMouseMove(const QPoint &pos)
         QColor color(_currentImage.pixel(pos));
         _colorsWidget->setCurrentColor(color);
     }
+
+    bool hasSelection = _rsview && RegionContext::isValidRegion(_rsview->selectedRegion());
+    _actionCrop->setEnabled(hasSelection);
 }
 
 void MainWindow::slotAccentChanged()
@@ -391,6 +406,7 @@ void MainWindow::setupUi()
     _rsview = new RsView(_scrollArea, false);
     _rsview->setAccentPainter(createDefaultAccentPainter());
     connect(_rsview, &RsView::signalSelectionStarted, this, &MainWindow::slotSelectionStarted);
+    connect(_rsview, &RsView::signalSelectionCancelled, this, &MainWindow::slotSelectionCancelled);
     connect(_rsview, &RsView::signalMouseMove, this, &MainWindow::slotMouseMove);
 
     _scrollArea->setWidget(_rsview);
@@ -471,4 +487,12 @@ void MainWindow::dropEvent(QDropEvent *event)
             return;
         }
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QSettings settings;
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("windowState", saveState());
+    QMainWindow::closeEvent(event);
 }
