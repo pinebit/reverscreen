@@ -7,15 +7,17 @@
 #include "rsview.h"
 #include "accent/accentpainter.h"
 #include "accent/rectangleaccentpainter.h"
+#include "accent/selectionaccentpainter.h"
 #include "assistant/snapassistant.h"
 
-RsView::RsView(QWidget *parent, bool fullWidgetMode)
+RsView::RsView(QWidget *parent, bool drawShading)
     : QWidget(parent)
+    , _drawShading(drawShading)
     , _keyControlPressed(false)
-    , _keyShiftPressed(false)
-    , _fullWidgetMode(fullWidgetMode)
-    , _regionContext(new RegionContext(fullWidgetMode))
-    , _highlightAccentPainter(new RectangleAccentPainter(QPen(Qt::red, 1, Qt::DashLine)))
+    , _regionContext(new RegionContext())
+    , _highlightSolidLineAccentPainter(new RectangleSolidLineAccentPainter())
+    , _selectedDashLineAccentPainter(new SelectionDashLineAccentPainter())
+    , _highlightDashLineAccentPainter(new RectangleDashLineAccentPainter())
 {
     setAutoFillBackground(false);
     setMouseTracking(true);
@@ -26,6 +28,7 @@ RsView::RsView(QWidget *parent, bool fullWidgetMode)
 void RsView::setImage(const QImage& image){
     _image = image;
 
+    _snapAssistant.clear();
     _regionContext->clearAll();
     _regionContext->setScopeRegion(_image.rect());
 
@@ -34,17 +37,13 @@ void RsView::setImage(const QImage& image){
 }
 
 void RsView::setSnapAssistant(const QSharedPointer<SnapAssistant>& snapAssistant){
-    _regionContext->setSnapAssistant(snapAssistant);
+    _snapAssistant = snapAssistant;
     update();
 }
 
 void RsView::setAccentPainter(const QSharedPointer<AccentPainter>& accentPainter) {
-    _accentPainter = accentPainter;
+    _selectedSolidLineAccentPainter = accentPainter;
     update();
-}
-
-void RsView::setRegionContext(const QSharedPointer<RegionContext>& regionContext){
-    _regionContext = regionContext;
 }
 
 QSharedPointer<RegionContext>& RsView::getRegionContext(){
@@ -52,7 +51,7 @@ QSharedPointer<RegionContext>& RsView::getRegionContext(){
 }
 
 QRect RsView::selectedRegion() const {
-    return _regionContext->selectedRegion();
+    return _regionContext->customRegion();
 }
 
 void RsView::paintEvent(QPaintEvent *event){
@@ -63,68 +62,58 @@ void RsView::paintEvent(QPaintEvent *event){
     }
 
     QPainter painter(this);
-
     painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
     painter.drawImage(0, 0, _image);
 
-    if (_accentPainter != NULL) {
-        const QRect& selectedRegion = _regionContext->selectedRegion();
-        const QRect& highlightedRegion = _regionContext->highlightedRegion();
+    if (!_selectedSolidLineAccentPainter) {
+        return;
+    }
+    const QRect& customRegion = _regionContext->customRegion();
+    const QRect& highlightedRegion = _regionContext->highlightedRegion();
 
-        if (!_regionContext->fullWidgetMode()) {
-            if (!RegionContext::isValidRegion(selectedRegion)){
-                return;
-            }
+    // todo:  add configuration parameter
+    if (!_drawShading) {
+        if (!RegionContext::isValidRegion(customRegion)){
+            return;
         }
+    }
+    if (customRegion.contains(highlightedRegion, false) || customRegion.intersects(highlightedRegion) ) {
+        QRect intersectedRegion = (customRegion.intersects(highlightedRegion))
+                ? customRegion.intersected(highlightedRegion)
+                : highlightedRegion;
         if (!_keyControlPressed) {
-            _accentPainter->paint(&painter, _regionContext->scopeRegion(), selectedRegion);
-
-            if (selectedRegion.contains(highlightedRegion, false) || selectedRegion.intersects(highlightedRegion) ) {
-                QRect intersectedRegion = (selectedRegion.intersects(highlightedRegion))
-                        ? selectedRegion.intersected(highlightedRegion)
-                        : highlightedRegion;
-
-                _highlightAccentPainter->paint(&painter, selectedRegion, intersectedRegion);
-            }
+            _selectedDashLineAccentPainter->paint(&painter,  _regionContext->scopeRegion(), customRegion);
+            _highlightSolidLineAccentPainter->paint(&painter, customRegion, intersectedRegion);
+        } else {
+            _selectedSolidLineAccentPainter->paint(&painter, _regionContext->scopeRegion(), customRegion);
+            _highlightDashLineAccentPainter->paint(&painter, customRegion, intersectedRegion);
         }
-        else {
-            _accentPainter->paint(&painter, _regionContext->scopeRegion(), highlightedRegion);
-        }
+    } else {
+        _selectedSolidLineAccentPainter->paint(&painter, _regionContext->scopeRegion(), customRegion);
     }
 }
 
 void RsView::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
-        _regionContext->updateStartPoint(event->pos());
+        const QPoint& point = event->pos();
+        _regionContext->setCustomRegion(QRect(point, point));
         update();
         event->accept();
         emit signalSelectionStarted();
     }
 }
 
-void RsView::mouseReleaseEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton) {
-        event->accept();
-
-        bool preferHighlightSelection = _keyControlPressed && !_fullWidgetMode;
-        if (preferHighlightSelection && _regionContext->hasHighlightedRegion()) {
-            _regionContext->setSelectedRegion(_regionContext->highlightedRegion());
-        }
-
-        if (!_regionContext->hasSelectedRegion()){
-            emit signalSelectionCancelled();
-        } else {
-            emit signalSelectionFinished();
-        }
-    }
-}
-
 void RsView::mouseMoveEvent(QMouseEvent *event) {
     event->accept();
-
     if (event->buttons() == Qt::LeftButton) {
-        if (!_regionContext->isNull()) {
-            _regionContext->updateEndPoint(event->pos());
+        if (!_snapAssistant.isNull()) {
+            const QPoint& point = event->pos();
+
+            QRect customRegion = _regionContext->customRegion(false);
+            customRegion.setBottomRight(point);
+            _regionContext->setCustomRegion(customRegion);
+            _regionContext->setHighlightedRegion(_snapAssistant->snap(_regionContext->customRegion()));
+
             update();
         }
     } else {
@@ -132,121 +121,102 @@ void RsView::mouseMoveEvent(QMouseEvent *event) {
     }
 }
 
+void RsView::mouseReleaseEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        event->accept();
+        if (_regionContext->hasSelectedRegion()){
+            emit signalSelectionFinished();
+        } else {
+            emit signalSelectionCancelled();
+        }
+    }
+}
+
 bool RsView::eventFilter(QObject *obj, QEvent *event) {
     Q_UNUSED(obj);
-    if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        switch (keyEvent->key()){
-        case Qt::Key_Escape: {
-            _regionContext->clearRegion();
-            emit signalSelectionCancelled();
-            update();
-            return true;
-        }
-        case Qt::Key_A: {
-            if (keyEvent->modifiers() & Qt::ControlModifier) {
-                QRect region = _image.rect();
-                _regionContext->setSelectedRegion(region);
-                _regionContext->setHighlightedRegion(region);
-                update();
-            }
-            return true;
-        }
-        case Qt::Key_Up:{
-            if (keyEvent->modifiers() & Qt::ControlModifier) {
-                _regionContext->updateHighlightedRegion(0, -1);
-            } else if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                _regionContext->changeHighlightedRegion(0, -1);
-            } else{
-                _regionContext->translateHighlightedRegion(0, -1);
-            }
-            update();
-            return true;
-        }
-        case Qt::Key_Left:{
-            if (keyEvent->modifiers() & Qt::ControlModifier) {
-                _regionContext->updateHighlightedRegion(-1, 0);
-            } else if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                _regionContext->changeHighlightedRegion(-1, 0);
-            } else{
-                _regionContext->translateHighlightedRegion(-1, 0);
-            }
-            update();
-            return true;
-        }
-        case Qt::Key_Right:{
-            if (keyEvent->modifiers() & Qt::ControlModifier) {
-                _regionContext->updateHighlightedRegion(1, 0);
-            } else if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                _regionContext->changeHighlightedRegion(1, 0);
-            } else{
-                _regionContext->translateHighlightedRegion(1, 0);
-            }
-            update();
-            return true;
-        }
-        case Qt::Key_Down:{
-            if (keyEvent->modifiers() & Qt::ControlModifier) {
-                _regionContext->updateHighlightedRegion(0, 1);
-            } else if (keyEvent->modifiers() & Qt::ShiftModifier) {
-                _regionContext->changeHighlightedRegion(0, 1);
-            } else{
-                _regionContext->translateHighlightedRegion(0, 1);
-            }
-            update();
-            return true;
-        }
-        case Qt::Key_Shift: {
-            _keyShiftPressed = true;
-            update();
-            return true;
-        }
-        case Qt::Key_Control: {
-            _keyControlPressed = true;
-            update();
-            return true;
-        }
-        default:
-            break;
-        }
-    }
-    if (event->type() == QEvent::KeyRelease) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        switch (keyEvent->key()){
-        case Qt::Key_Shift: {
-            _keyShiftPressed = false;
-            update();
-            return true;
-        }
-        case Qt::Key_Control: {
-            _keyControlPressed = false;
-            update();
-            return true;
-        }
-        default:
-            break;
-        }
-    }
-    if (event->type() == QEvent::Wheel) {
-        QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
-        int dx = 0;
-        int dy = 0;
-        const int step = 1;
-        int delta = (wheelEvent->delta() > 0) ? step : -step;
-        if (wheelEvent->modifiers() & Qt::ShiftModifier) {
-            dx = delta;
-        } else  if (wheelEvent->modifiers() & Qt::ControlModifier){
-            dy = delta;
-        } else {
-            dx = dy = delta;
-        }
-        _regionContext->updateHighlightedRegion(dx, dy);
-        update();
-        return true;
+    switch (event->type()) {
+    case QEvent::KeyPress:
+        return processingKeyPressEvents(static_cast<QKeyEvent*>(event));
+    case QEvent::KeyRelease:
+        return processingKeyReleaseEvents(static_cast<QKeyEvent*>(event));
+    case  QEvent::Wheel:
+        return processingWheelEvents(static_cast<QWheelEvent*>(event));
+    default:
+        break;
     }
     return false;
 }
 
-bool RsView::usedHighlightedRegion() const {
-    return _keyControlPressed;
+bool RsView::processingKeyPressEvents(QKeyEvent* keyEvent){
+    switch (keyEvent->key()){
+    case Qt::Key_Escape: {
+        _regionContext->clearRegion();
+        emit signalSelectionCancelled();
+        update();
+        return true;
+    }
+    case Qt::Key_A: {
+        if (keyEvent->modifiers() & Qt::ControlModifier) {
+            QRect region = _image.rect();
+            _regionContext->setCustomRegion(region);
+            _regionContext->setHighlightedRegion(region);
+            update();
+            return true;
+        }
+        break;
+    }
+    case Qt::Key_Control: {
+        _keyControlPressed = true;
+        _regionContext->setRegionType(RegionType::customRegion);
+        update();
+        return true;
+    }
+    default:
+        break;
+    }
+    return false;
+}
+
+bool RsView::processingKeyReleaseEvents(QKeyEvent* keyEvent){
+    switch (keyEvent->key()){
+    case Qt::Key_A: {
+        if (keyEvent->modifiers() & Qt::ControlModifier) {
+            if (_regionContext->hasSelectedRegion()){
+                emit signalSelectionFinished();
+                return true;
+            }
+        }
+        break;
+    }
+    case Qt::Key_Control: {
+        _keyControlPressed = false;
+        _regionContext->setRegionType(RegionType::highlightedRegion);
+        update();
+        return true;
+    }
+    default:
+        break;
+    }
+    return false;
+}
+
+bool RsView::processingWheelEvents(QWheelEvent* wheelEvent){
+    int dx = 0;
+    int dy = 0;
+    const int step = 1;
+    int delta = (wheelEvent->delta() > 0) ? step : -step;
+    if (wheelEvent->modifiers() & Qt::ShiftModifier) {
+        dx = delta;
+    } else  if (wheelEvent->modifiers() & Qt::ControlModifier){
+        dy = delta;
+    } else {
+        dx = dy = delta;
+    }
+    if (wheelEvent->buttons() == Qt::LeftButton) {
+        _regionContext->setOffset(dx, dy);
+    } else {
+        _regionContext->updateHighlightedRegion(dx, dy);
+    }
+    update();
+    return true;
 }

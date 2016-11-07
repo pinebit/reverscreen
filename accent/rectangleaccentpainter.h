@@ -14,3 +14,15 @@ public:
 private:
     QPen _pen;
 };
+
+class RectangleSolidLineAccentPainter : public RectangleAccentPainter
+{
+public:
+    RectangleSolidLineAccentPainter();
+};
+
+class RectangleDashLineAccentPainter : public RectangleAccentPainter
+{
+public:
+    RectangleDashLineAccentPainter();
+};

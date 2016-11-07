@@ -18,17 +18,14 @@ class RsView : public QWidget
     Q_OBJECT
 
 public:
-    RsView(QWidget *parent, bool modeScreenshot);
+    RsView(QWidget *parent, bool drawShading);
 
     void setImage(const QImage& image);
     void setSnapAssistant(const QSharedPointer<SnapAssistant>& snapAssistant);
     void setAccentPainter(const QSharedPointer<AccentPainter>& accentPainter);
-    void setRegionContext(const QSharedPointer<RegionContext>& regionContext);
     QSharedPointer<RegionContext>& getRegionContext();
     
     QRect selectedRegion() const;
-
-    bool usedHighlightedRegion() const;
 
 signals:
     void signalMouseMove(const QPoint& point);
@@ -43,14 +40,21 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
 
+    bool processingKeyPressEvents(QKeyEvent* keyEvent);
+    bool processingKeyReleaseEvents(QKeyEvent* keyEvent);
+    bool processingWheelEvents(QWheelEvent* wheelEvent);
+
 private:
     QImage _image;
 
+    bool _drawShading;
     bool _keyControlPressed;
-    bool _keyShiftPressed;
-    bool _fullWidgetMode;
 
-    QSharedPointer<AccentPainter> _accentPainter;
     QSharedPointer<RegionContext> _regionContext;
-    QSharedPointer<AccentPainter> _highlightAccentPainter;
+    QSharedPointer<SnapAssistant> _snapAssistant;
+
+    QSharedPointer<AccentPainter> _selectedSolidLineAccentPainter;
+    QSharedPointer<AccentPainter> _highlightSolidLineAccentPainter;
+    QSharedPointer<AccentPainter> _selectedDashLineAccentPainter;
+    QSharedPointer<AccentPainter> _highlightDashLineAccentPainter;
 };

@@ -7,30 +7,21 @@
 const int RegionContext::_minimumWidth = 4;
 const int RegionContext::_minimumHeight = 4;
 
-RegionContext::RegionContext(bool fullWidgetMode)
-    : _fullWidgetMode(fullWidgetMode)
-    , _regionType(RegionType::allRegion){
+RegionContext::RegionContext()
+    : _regionType(RegionType::highlightedRegion)
+    , _offset(0,0) {
 }
 
-bool RegionContext::fullWidgetMode() const {
-    return _fullWidgetMode;
-}
-
-bool RegionContext::isNull() const {
-    return _snapAssistant.isNull();
+void RegionContext::setRegionType(const RegionType& regionType){
+    _regionType = regionType;
 }
 
 void RegionContext::clearAll() {
-    _snapAssistant.clear();
-    _scopeRegion = _selectedRegion = _highlightedRegion = QRect();
+    _scopeRegion = _customRegion = _highlightedRegion = QRect();
 }
 
 void RegionContext::clearRegion() {
-    _selectedRegion = _highlightedRegion = QRect();
-}
-
-void RegionContext::setSnapAssistant(const QSharedPointer<SnapAssistant>& snapAssistant) {
-    _snapAssistant = snapAssistant;
+    _customRegion = _highlightedRegion = QRect();
 }
 
 void RegionContext::setScopeRegion(const QRect& scope){
@@ -41,17 +32,15 @@ QRect RegionContext::scopeRegion() const {
     return _scopeRegion;
 }
 
-void RegionContext::setSelectedRegion(const QRect& selectedRegion){
-    _selectedRegion = selectedRegion;
+void RegionContext::setCustomRegion(const QRect& customRegion){
+    _customRegion = customRegion;
 }
 
-QRect RegionContext::selectedRegion() const {
-    return _selectedRegion.normalized();
-}
-
-bool RegionContext::hasSelectedRegion() const {
-    return (selectedRegion().width() >= _minimumWidth
-         && selectedRegion().height() >= _minimumHeight);
+QRect RegionContext::customRegion(bool bNormalized) const {
+    if (bNormalized) {
+        return _customRegion.normalized();
+    }
+    return _customRegion;
 }
 
 void RegionContext::setHighlightedRegion(const QRect& highlightedRegion){
@@ -59,45 +48,28 @@ void RegionContext::setHighlightedRegion(const QRect& highlightedRegion){
 }
 
 QRect RegionContext::highlightedRegion() const {
-    QRect normalizedSelectedRegion(selectedRegion());
+    QRect normalizedCustomRegion(customRegion());
     QRect region(_highlightedRegion.normalized());
-    if (normalizedSelectedRegion.contains(region, false)) {
-        return ((normalizedSelectedRegion.intersects(region))
-                ? normalizedSelectedRegion.intersected(region)
+    region.adjust(-_offset.x(), -_offset.y(),
+                  _offset.x(), _offset.y());
+    if (normalizedCustomRegion.contains(region, false)) {
+        return ((normalizedCustomRegion.intersects(region))
+                ? normalizedCustomRegion.intersected(region)
                 : region);
     }
     return region;
 }
 
-bool RegionContext::hasHighlightedRegion() const {
-    return (highlightedRegion().width() >= _minimumWidth
-         && highlightedRegion().height() >= _minimumHeight);
+QRect RegionContext::selectedRegion() const{
+    if (_regionType == RegionType::highlightedRegion) {
+        return highlightedRegion();
+    }
+    return customRegion();
 }
 
-void RegionContext::translateHighlightedRegion(int dx, int dy){
-    if (_highlightedRegion.isNull()){
-        return;
-    }
-
-    QRect region = _highlightedRegion.translated(dx, dy);
-    updateHighlightedRegion(region);
-}
-
-void RegionContext::changeHighlightedRegion(int dx, int dy){
-    if (_highlightedRegion.isNull()){
-        return;
-    }
-
-    QRect region(_highlightedRegion);
-    int width = region.width() + dx;
-    int height = region.height() + dy;
-    if (width >= _minimumWidth){
-        region.setWidth(width);
-    }
-    if (height >= _minimumHeight){
-        region.setHeight(height);
-    }
-    updateHighlightedRegion(region);
+bool RegionContext::hasSelectedRegion() const {
+    return (selectedRegion().width() >= _minimumWidth
+         && selectedRegion().height() >= _minimumHeight);
 }
 
 void RegionContext::updateHighlightedRegion(int dx, int dy){
@@ -147,28 +119,22 @@ void RegionContext::updateHighlightedRegion(const QRect& region){
     }
 }
 
-void RegionContext::updateStartPoint(const QPoint& point){
-    _selectedRegion.setTopLeft(point);
-    _selectedRegion.setBottomRight(point);
-}
-
-void RegionContext::updateEndPoint(const QPoint& point){
-    _selectedRegion.setBottomRight(point);
-    _highlightedRegion = _snapAssistant->snap(selectedRegion());
-}
-
-bool RegionContext::isNullRegion(const QRect& region) {
-    return region.isNull();
-}
-
 bool RegionContext::isValidRegion(const QRect& region) {
     return (region.width() > 1 && region.height() > 1);
 }
 
-void RegionContext::setRegionType(RegionType::Value regionType){
-    _regionType = regionType;
-}
-
-RegionType::Value RegionContext::getRegionType() const{
-    return _regionType;
+void RegionContext::setOffset(int dx, int dy){
+    // correction offset
+    QPoint offset(_offset + QPoint(dx, dy));
+    QRect normalizedHighlightedRegion(_highlightedRegion.normalized());
+    QRect region = normalizedHighlightedRegion.adjusted(-offset.x(), -offset.y(),
+                                                        offset.x(), offset.y());
+    if (normalizedHighlightedRegion.contains(region, true)){
+        _offset = QPoint(0,0);
+        return;
+    }
+    QRect normalizedCustomRegion(customRegion());
+    if (normalizedCustomRegion.contains(region, false)){
+        _offset = offset;
+    }
 }

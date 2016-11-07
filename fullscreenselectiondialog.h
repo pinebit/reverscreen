@@ -18,7 +18,6 @@ public:
     FullscreenSelectionDialog(QWidget* parent, const QImage& image, QSharedPointer<AccentPainter> accentPainter);
 
     QSharedPointer<RegionContext>& getRegionContext();
-    bool usedHighlightedRegion() const;
 
 private slots:
     void slotBuildCompleted(QSharedPointer<CvModel> model);
