@@ -13,6 +13,7 @@ public:
     RegionContext();
 
     void setRegionType(const RegionType&);
+    const RegionType& regionType() const;
 
     void clearAll();
     void clearRegion();

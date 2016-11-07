@@ -104,14 +104,14 @@ void MainWindow::slotActionOpen()
 
 void MainWindow::slotActionCrop()
 {
-    QRect cropRegion = _rsview->selectedRegion();
-    if (!RegionContext::isValidRegion(cropRegion)) {
+    QRect selectedRegion = _rsview->selectedRegion();
+    if (!RegionContext::isValidRegion(selectedRegion)) {
         QMessageBox::warning(this, tr("No region selected"), tr("Please select a region to crop."));
         return;
     }
 
-    QSize size = cropRegion.size();
-    updateImage(_currentImage.copy(cropRegion));
+    QSize size = selectedRegion.size();
+    updateImage(_currentImage.copy(selectedRegion));
 
     _statusbar->showMessage(tr("Cropped image size: %1x%2").arg(size.width()).arg(size.height()));
 }

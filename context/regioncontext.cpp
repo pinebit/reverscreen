@@ -16,6 +16,10 @@ void RegionContext::setRegionType(const RegionType& regionType){
     _regionType = regionType;
 }
 
+const RegionType& RegionContext::regionType() const{
+    return _regionType;
+}
+
 void RegionContext::clearAll() {
     _scopeRegion = _customRegion = _highlightedRegion = QRect();
 }

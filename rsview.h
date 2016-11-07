@@ -48,7 +48,7 @@ private:
     QImage _image;
 
     bool _drawShading;
-    bool _keyControlPressed;
+    Qt::MouseButton _mouseButtonPressed;
 
     QSharedPointer<RegionContext> _regionContext;
     QSharedPointer<SnapAssistant> _snapAssistant;
