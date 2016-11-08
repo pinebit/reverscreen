@@ -101,8 +101,6 @@ void RsView::mousePressEvent(QMouseEvent *event) {
         _regionContext->setCustomRegion(QRect(point, point));
         update();
         event->accept();
-        _dragTrack.clear();
-        _dragTrack << event->pos();
         emit signalSelectionStarted();
     }
 }

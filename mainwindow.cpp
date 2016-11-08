@@ -141,19 +141,22 @@ void MainWindow::slotMouseMove(const QPoint &pos)
     _actionCrop->setEnabled(hasSelection);
 }
 
-void MainWindow::slotResetMarker()
+void MainWindow::slotMarkerUndo()
 {
-    /*
-    QPixmap pm = QPixmap::fromImage(_currentImage);
-    QPainter painter(&pm);
+    // TODO: implement me
+    qWarning() << "MainWindow::slotMarkerUndo()";
+}
 
-    QSharedPointer<AccentPainter> accent = createMarkerAccentPainter();
-    accent->paint(&painter, pm.rect(), _rsview->selectedRegion());
+void MainWindow::slotMarkerShapeChanged(MarkerWidget::MarkerShape shape)
+{
+    // TODO: implement me
+    qWarning() << "MainWindow::slotMarkerShapeChanged" << shape;
+}
 
-    updateImage(pm.toImage());
-
-    _statusbar->showMessage(tr("Selected accent applied."));
-    */
+void MainWindow::slotMarkerColorChanged(QColor color)
+{
+    // TODO: implement me
+    qWarning() << "MainWindow::slotMarkerColorChanged" << color;
 }
 
 void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
@@ -395,12 +398,16 @@ void MainWindow::setupUi()
 
     // docked widgets
     _colorsDock = new QDockWidget(tr("Colors"), this);
+    _colorsDock->setObjectName("ColorsDockWidget");
     _colorsWidget = new ColorsWidget(_colorsDock);
     setupDockWidget(_colorsDock, _awesome->icon(fa::eyedropper), _colorsWidget);
 
     _markerDock = new QDockWidget(tr("Marker"), this);
+    _markerDock->setObjectName("MarkerDockWidget");
     _markerWidget = new MarkerWidget(_markerDock);
-    connect(_markerWidget, &MarkerWidget::signalResetMarker, this, &MainWindow::slotResetMarker);
+    connect(_markerWidget, &MarkerWidget::signalUndo, this, &MainWindow::slotMarkerUndo);
+    connect(_markerWidget, &MarkerWidget::signalShapeChanged, this, &MainWindow::slotMarkerShapeChanged);
+    connect(_markerWidget, &MarkerWidget::signalColorChanged, this, &MainWindow::slotMarkerColorChanged);
     setupDockWidget(_markerDock, _awesome->icon(fa::lightbulbo), _markerWidget);
 
     // toolbar
@@ -411,6 +418,8 @@ void MainWindow::setupUi()
     _toolbar->addAction(_actionCrop);
     _toolbar->addAction(_colorsDock->toggleViewAction());
     _toolbar->addAction(_markerDock->toggleViewAction());
+
+    _toolbar->setObjectName("Toolbar");
 
     WidgetUtils::centerWindow(this);
 }
