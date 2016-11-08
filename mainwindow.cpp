@@ -197,7 +197,8 @@ QSharedPointer<AccentPainter> MainWindow::createDefaultAccentPainter()
 
 QSharedPointer<AccentPainter> MainWindow::createMarkerAccentPainter()
 {
-    return QSharedPointer<AccentPainter>(new MarkerAccentPainter(Qt::yellow));
+    QColor color = _markerWidget->getMarkerColor();
+    return QSharedPointer<AccentPainter>(new MarkerAccentPainter(color));
 }
 
 bool MainWindow::saveImage(const QString &fileName)
@@ -323,6 +324,8 @@ void MainWindow::enableDisableUi()
         }
         action->setEnabled(hasImage);
     }
+
+    _actionCrop->setDisabled(true);
 }
 
 void MainWindow::setupUi()

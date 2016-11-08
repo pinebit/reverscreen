@@ -21,6 +21,10 @@ public:
 
     explicit MarkerWidget(QWidget *parent);
 
+    QColor getMarkerColor() const {
+        return _currentColor;
+    }
+
 signals:
     void signalUndo();
     void signalShapeChanged(MarkerShape markerShape);
