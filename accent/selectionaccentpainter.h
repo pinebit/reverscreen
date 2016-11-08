@@ -9,7 +9,7 @@
 class SelectionAccentPainter : public AccentPainter
 {
 public:
-    SelectionAccentPainter(const QColor& rectColor, const QColor& shadeColor);
+    SelectionAccentPainter(const QPen& pen, const QBrush& brush);
 
     void paint(QPainter *painter, const QRect& scope, const QRect& region);
 
@@ -18,4 +18,17 @@ private:
 
     CinemaAccentPainter _cinemaScopePainter;
     RectangleAccentPainter _rectangleSelectedPainter;
+};
+
+
+class SelectionSolidLineAccentPainter : public SelectionAccentPainter
+{
+public:
+    SelectionSolidLineAccentPainter();
+};
+
+class SelectionDashLineAccentPainter : public SelectionAccentPainter
+{
+public:
+    SelectionDashLineAccentPainter();
 };

@@ -53,7 +53,7 @@ private:
     void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
     void delay(int millisecondsToWait);
     void updateImage(const QImage& image);
-    void updateImage(const QSharedPointer<RegionContext>& regionContext, bool bHighlightedRegion);
+    void updateImage(const QSharedPointer<RegionContext>& regionContext);
 
     void enableDisableUi();
     void handleDockWidgetVisibityChange(QDockWidget* dockWidget);

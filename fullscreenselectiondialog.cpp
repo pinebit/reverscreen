@@ -35,10 +35,6 @@ QSharedPointer<RegionContext>& FullscreenSelectionDialog::getRegionContext(){
     return _rsview->getRegionContext();
 }
 
-bool FullscreenSelectionDialog::usedHighlightedRegion() const{
-    return _rsview->usedHighlightedRegion();
-}
-
 void FullscreenSelectionDialog::slotBuildCompleted(QSharedPointer<CvModel> model){
     QSharedPointer<SnapAssistant> assistant(new CvSnapAssistant(model));
     _rsview->setSnapAssistant(assistant);

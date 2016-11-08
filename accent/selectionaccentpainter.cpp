@@ -4,9 +4,14 @@
 #include <QPen>
 #include <QDebug>
 
-SelectionAccentPainter::SelectionAccentPainter(const QColor& rectColor, const QColor& shadeColor)
-    : _cinemaScopePainter(shadeColor, 100)
-    , _rectangleSelectedPainter(QPen(rectColor, 1, Qt::SolidLine))
+static const QColor RegionColor = Qt::red;
+static const QColor ShaderColor = QColor::fromRgba(0x50a0a0a0);
+static const QPen RegionSolidLinePen(RegionColor, 1, Qt::SolidLine);
+static const QPen RegionDashLinePen(RegionColor, 1, Qt::DashLine);
+
+SelectionAccentPainter::SelectionAccentPainter(const QPen& pen, const QBrush& brush)
+    : _cinemaScopePainter(brush)
+    , _rectangleSelectedPainter(pen)
 {
 }
 
@@ -37,4 +42,14 @@ void SelectionAccentPainter::drawSizeBanner(QPainter *painter, const QRect &rect
 
         painter->drawText(bannerRect, text, Qt::AlignHCenter | Qt::AlignVCenter);
     }
+}
+
+SelectionSolidLineAccentPainter::SelectionSolidLineAccentPainter()
+    : SelectionAccentPainter(RegionSolidLinePen,
+                             QBrush(QColor(ShaderColor.red(), ShaderColor.green(), ShaderColor.blue(), 100))){
+}
+
+SelectionDashLineAccentPainter::SelectionDashLineAccentPainter()
+    : SelectionAccentPainter(RegionDashLinePen,
+                             QBrush(QColor(ShaderColor.red(), ShaderColor.green(), ShaderColor.blue(), 100))){
 }

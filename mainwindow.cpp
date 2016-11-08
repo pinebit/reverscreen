@@ -34,9 +34,6 @@
 #include "widgetutils.h"
 #include "cv/cvmodelbuilder.h"
 
-static const QColor RegionColor = Qt::red;
-static const QColor ShaderColor = QColor::fromRgba(0x50a0a0a0);
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , _modelBuilder(new CvModelBuilder(this))
@@ -61,7 +58,7 @@ void MainWindow::slotActionCapture()
 
     FullscreenSelectionDialog dialog(this, _currentImage, createDefaultAccentPainter());
     if (dialog.exec() == QDialog::Accepted) {
-        updateImage(dialog.getRegionContext(), dialog.usedHighlightedRegion());
+        updateImage(dialog.getRegionContext());
 
         _statusbar->showMessage(tr("A screen region is captured."));
     }
@@ -107,14 +104,14 @@ void MainWindow::slotActionOpen()
 
 void MainWindow::slotActionCrop()
 {
-    QRect cropRegion = _rsview->selectedRegion();
-    if (!RegionContext::isValidRegion(cropRegion)) {
+    QRect selectedRegion = _rsview->selectedRegion();
+    if (!RegionContext::isValidRegion(selectedRegion)) {
         QMessageBox::warning(this, tr("No region selected"), tr("Please select a region to crop."));
         return;
     }
 
-    QSize size = cropRegion.size();
-    updateImage(_currentImage.copy(cropRegion));
+    QSize size = selectedRegion.size();
+    updateImage(_currentImage.copy(selectedRegion));
 
     _statusbar->showMessage(tr("Cropped image size: %1x%2").arg(size.width()).arg(size.height()));
 }
@@ -195,7 +192,7 @@ void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
 
 QSharedPointer<AccentPainter> MainWindow::createDefaultAccentPainter()
 {
-    return QSharedPointer<AccentPainter>(new SelectionAccentPainter(RegionColor, ShaderColor));
+    return QSharedPointer<AccentPainter>(new SelectionSolidLineAccentPainter());
 }
 
 QSharedPointer<AccentPainter> MainWindow::createAccentPainter()
@@ -208,10 +205,10 @@ QSharedPointer<AccentPainter> MainWindow::createAccentPainter()
         accent = new RectangleAccentPainter(QPen(color, 3));
         break;
     case MarkerWidget::Cinema:
-        accent = new CinemaAccentPainter(color);
+        accent = new CinemaAccentPainter(QBrush(QColor(color.red(), color.green(), color.blue(), 100)));
         break;
     case MarkerWidget::Hatching:
-        accent = new HatchingAccentPainter(color);
+        accent = new HatchingAccentPainter(QBrush(color, Qt::BDiagPattern));
         break;
     default:
         qFatal("Unknown AccentMode");
@@ -298,19 +295,18 @@ void MainWindow::updateImage(const QImage& image)
     _modelBuilder->buildAsync(_currentImage, CvModelBuilderOptions());
 }
 
-void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext, bool bHighlightedRegion)
+void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext)
 {
     setCursor(Qt::WaitCursor);
 
-    QRect selectedRegion = regionContext->selectedRegion();
+    QRect customRegion = regionContext->customRegion();
     QRect highlightedRegion = regionContext->highlightedRegion();
-    if (selectedRegion.isEmpty() && highlightedRegion.isEmpty()) {
+    if (customRegion.isEmpty() && highlightedRegion.isEmpty()) {
         return;
     }
 
-    QRect cropRegion = (bHighlightedRegion) ? highlightedRegion : selectedRegion;
-
-    QImage image = _currentImage.copy(cropRegion);
+    QRect selectedsRegion = regionContext->selectedRegion();
+    QImage image = _currentImage.copy(selectedsRegion);
     if (image.format() != QImage::Format_RGBA8888) {
         _currentImage = image.convertToFormat(QImage::Format_RGBA8888);
     } else {
@@ -318,12 +314,12 @@ void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext,
     }
     _rsview->setImage(_currentImage);
 
-    if (!bHighlightedRegion) {
+    if (customRegion == selectedsRegion) {
         // Moves the highlightedRegion
-        highlightedRegion.translate(-selectedRegion.topLeft());
+        highlightedRegion.translate(-customRegion.topLeft());
 
         QSharedPointer<RegionContext>& viewRegionContext = _rsview->getRegionContext();
-        viewRegionContext->setSelectedRegion(highlightedRegion);
+        viewRegionContext->setCustomRegion(highlightedRegion);
         viewRegionContext->setHighlightedRegion(QRect());
         update();
     }
