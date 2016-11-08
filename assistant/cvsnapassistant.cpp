@@ -3,6 +3,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <limits>
 
+#include <QDebug>
+
 using namespace cv;
 using namespace std;
 
@@ -15,6 +17,23 @@ inline QRect convertRect(const Rect& rect) {
 
 inline Point convertPoint(const QPoint& point) {
     return Point(point.x(), point.y());
+}
+
+inline QPoint convertPoint(const Point& point) {
+    return QPoint(point.x, point.y);
+}
+
+inline bool intersection(Point o1, Point p1, Point o2, Point p2)
+{
+    Point d1 = p1 - o1;
+    Point d2 = p2 - o2;
+
+    float cross = d1.x * d2.y - d1.y * d2.x;
+    if (abs(cross) < 1e-8) {
+        return false;
+    }
+
+    return true;
 }
 
 CvSnapAssistant::CvSnapAssistant(QSharedPointer<CvModel> model)
@@ -51,4 +70,44 @@ QRect CvSnapAssistant::snap(const QRect &rect)
     }
 
     return rect;
+}
+
+QPolygon CvSnapAssistant::marker(const QList<QPoint> &track)
+{
+    QPolygon polygon;
+
+    if (track.length() < 2) {
+        return polygon;
+    }
+
+    vector<Point> cloud;
+
+    QPoint prev = track.first();
+    for (int i = 1; i < track.length(); i++) {
+        QPoint curr = track.at(i);
+
+        for (auto const& box: _model->boundingBoxes()) {
+            Rect tr(convertPoint(prev), convertPoint(curr));
+            Rect xr = box & tr;
+            if (xr.area() > 0) {
+                cloud.push_back(Point(box.x, box.y));
+                cloud.push_back(Point(box.x + box.width, box.y));
+                cloud.push_back(Point(box.x, box.y + box.height));
+                cloud.push_back(Point(box.x + box.width, box.y + box.height));
+            }
+        }
+    }
+
+    if (cloud.size() < 4) {
+        return polygon;
+    }
+
+    vector<Point> hull;
+    convexHull(cloud, hull);
+
+    for (auto const& hp: hull) {
+        polygon << convertPoint(hp);
+    }
+
+    return polygon;
 }

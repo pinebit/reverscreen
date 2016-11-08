@@ -30,7 +30,7 @@
 #include "accent/selectionaccentpainter.h"
 #include "accent/rectangleaccentpainter.h"
 #include "accent/cinemaaccentpainter.h"
-#include "accent/hatchingaccentpainter.h"
+#include "accent/markeraccentpainter.h"
 #include "widgetutils.h"
 #include "cv/cvmodelbuilder.h"
 
@@ -141,23 +141,22 @@ void MainWindow::slotMouseMove(const QPoint &pos)
     _actionCrop->setEnabled(hasSelection);
 }
 
-void MainWindow::slotAccentChanged()
+void MainWindow::slotMarkerUndo()
 {
-    _rsview->setAccentPainter(createAccentPainter());
-    update();
+    // TODO: implement me
+    qWarning() << "MainWindow::slotMarkerUndo()";
 }
 
-void MainWindow::slotAccentApplied()
+void MainWindow::slotMarkerShapeChanged(MarkerWidget::MarkerShape shape)
 {
-    QPixmap pm = QPixmap::fromImage(_currentImage);
-    QPainter painter(&pm);
+    // TODO: implement me
+    qWarning() << "MainWindow::slotMarkerShapeChanged" << shape;
+}
 
-    QSharedPointer<AccentPainter> accent = createAccentPainter();
-    accent->paint(&painter, pm.rect(), _rsview->selectedRegion());
-
-    updateImage(pm.toImage());
-
-    _statusbar->showMessage(tr("Selected accent applied."));
+void MainWindow::slotMarkerColorChanged(QColor color)
+{
+    // TODO: implement me
+    qWarning() << "MainWindow::slotMarkerColorChanged" << color;
 }
 
 void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
@@ -180,7 +179,8 @@ void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
         }
         else {
             _colorsDock->setVisible(false);
-            slotAccentChanged();
+            _rsview->setAccentPainter(createMarkerAccentPainter());
+            update();
         }
     }
     else {
@@ -195,26 +195,10 @@ QSharedPointer<AccentPainter> MainWindow::createDefaultAccentPainter()
     return QSharedPointer<AccentPainter>(new SelectionSolidLineAccentPainter());
 }
 
-QSharedPointer<AccentPainter> MainWindow::createAccentPainter()
+QSharedPointer<AccentPainter> MainWindow::createMarkerAccentPainter()
 {
-    QColor color = _markerWidget->accentColor();
-    AccentPainter* accent = NULL;
-
-    switch (_markerWidget->accentMode()) {
-    case MarkerWidget::Rectangle:
-        accent = new RectangleAccentPainter(QPen(color, 3));
-        break;
-    case MarkerWidget::Cinema:
-        accent = new CinemaAccentPainter(QBrush(QColor(color.red(), color.green(), color.blue(), 100)));
-        break;
-    case MarkerWidget::Hatching:
-        accent = new HatchingAccentPainter(QBrush(color, Qt::BDiagPattern));
-        break;
-    default:
-        qFatal("Unknown AccentMode");
-    }
-
-    return QSharedPointer<AccentPainter>(accent);
+    QColor color = _markerWidget->getMarkerColor();
+    return QSharedPointer<AccentPainter>(new MarkerAccentPainter(color));
 }
 
 bool MainWindow::saveImage(const QString &fileName)
@@ -340,6 +324,8 @@ void MainWindow::enableDisableUi()
         }
         action->setEnabled(hasImage);
     }
+
+    _actionCrop->setDisabled(true);
 }
 
 void MainWindow::setupUi()
@@ -415,13 +401,16 @@ void MainWindow::setupUi()
 
     // docked widgets
     _colorsDock = new QDockWidget(tr("Colors"), this);
+    _colorsDock->setObjectName("ColorsDockWidget");
     _colorsWidget = new ColorsWidget(_colorsDock);
     setupDockWidget(_colorsDock, _awesome->icon(fa::eyedropper), _colorsWidget);
 
     _markerDock = new QDockWidget(tr("Marker"), this);
+    _markerDock->setObjectName("MarkerDockWidget");
     _markerWidget = new MarkerWidget(_markerDock);
-    connect(_markerWidget, &MarkerWidget::signalAccentChanged, this, &MainWindow::slotAccentChanged);
-    connect(_markerWidget, &MarkerWidget::signalAccentApplied, this, &MainWindow::slotAccentApplied);
+    connect(_markerWidget, &MarkerWidget::signalUndo, this, &MainWindow::slotMarkerUndo);
+    connect(_markerWidget, &MarkerWidget::signalShapeChanged, this, &MainWindow::slotMarkerShapeChanged);
+    connect(_markerWidget, &MarkerWidget::signalColorChanged, this, &MainWindow::slotMarkerColorChanged);
     setupDockWidget(_markerDock, _awesome->icon(fa::lightbulbo), _markerWidget);
 
     // toolbar
@@ -432,6 +421,8 @@ void MainWindow::setupUi()
     _toolbar->addAction(_actionCrop);
     _toolbar->addAction(_colorsDock->toggleViewAction());
     _toolbar->addAction(_markerDock->toggleViewAction());
+
+    _toolbar->setObjectName("Toolbar");
 
     WidgetUtils::centerWindow(this);
 }

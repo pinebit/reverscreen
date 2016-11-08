@@ -13,6 +13,7 @@ public:
     CvSnapAssistant(QSharedPointer<CvModel> model);
 
     QRect snap(const QRect& rect);
+    QPolygon marker(const QList<QPoint>& track);
 
 private:
     QSharedPointer<CvModel> _model;

@@ -1,45 +1,42 @@
 #pragma once
 
 #include <QWidget>
-
+#include <QList>
 
 class ColorActionWidget;
+class QToolButton;
+
 
 class MarkerWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    enum AccentMode {
-        Rectangle,
-        Cinema,
-        Hatching
+    enum MarkerShape {
+        Fill,
+        Frame
     };
 
-    Q_ENUM(AccentMode)
+    Q_ENUM(MarkerShape)
 
     explicit MarkerWidget(QWidget *parent);
 
-    AccentMode accentMode() const {
-        return _accentMode;
-    }
-
-    QColor accentColor() const {
-        return _accentColor;
+    QColor getMarkerColor() const {
+        return _currentColor;
     }
 
 signals:
-    void signalAccentChanged();
-    void signalAccentApplied();
+    void signalUndo();
+    void signalShapeChanged(MarkerShape markerShape);
+    void signalColorChanged(QColor color);
 
 private slots:
-    void slotSelectColorDialog();
+    void slotColorButtonToggled(QColor color);
 
 private:
-    void updateColor(QColor color);
-    void updateMode(AccentMode accentMode);
+    void updateMode(MarkerShape markerShape);
+    QToolButton* createColorSwitch(const QColor& color);
 
-    AccentMode _accentMode;
-    QColor  _accentColor;
-    ColorActionWidget* _colorAction;
+    QList<QToolButton*> _colorButtons;
+    QColor _currentColor;
 };

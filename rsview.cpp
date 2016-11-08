@@ -62,6 +62,7 @@ void RsView::paintEvent(QPaintEvent *event){
     }
 
     QPainter painter(this);
+
     painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
     painter.drawImage(0, 0, _image);
 

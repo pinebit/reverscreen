@@ -2,16 +2,15 @@
 
 #include "accent/accentpainter.h"
 
-#include <QBrush>
+#include <QColor>
 
-class HatchingAccentPainter : public AccentPainter
+class MarkerAccentPainter : public AccentPainter
 {
 public:
-    HatchingAccentPainter(const QBrush& brush);
+    MarkerAccentPainter(const QColor& color);
 
     void paint(QPainter *painter, const QRect& scope, const QRect& region);
 
 private:
-    QBrush _brush;
+    QColor _color;
 };
-

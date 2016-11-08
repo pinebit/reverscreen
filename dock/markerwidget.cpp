@@ -1,38 +1,46 @@
 #include "dock/markerwidget.h"
 #include "controls/coloractionwidget.h"
 #include "widgetutils.h"
+#include "awesomeservice.h"
 
 #include <QVBoxLayout>
 #include <QGroupBox>
-#include <QRadioButton>
 #include <QPushButton>
-#include <QColorDialog>
 #include <QMetaEnum>
+#include <QRadioButton>
+#include <QToolButton>
 
 
 MarkerWidget::MarkerWidget(QWidget *parent)
     : QWidget(parent)
-    , _accentMode(Rectangle)
-    , _accentColor(Qt::blue)
 {
     QVBoxLayout* vlayout = new QVBoxLayout(this);
 
     vlayout->addSpacing(8);
-    vlayout->addWidget(WidgetUtils::createInfoLabel(tr("Select an accent region, choose parameters\nand click Apply button.")));
+    vlayout->addWidget(WidgetUtils::createInfoLabel(tr("Use marker to highlight a region of interest.")));
     vlayout->addSpacing(8);
 
-    // accent mode
-    QGroupBox *groupBox = new QGroupBox(tr("Accent type:"));
+    // undo button
+    QPushButton* undoButton = new QPushButton(tr("Undo"));
+    undoButton->setIcon(AwesomeService::awesome()->icon(fa::undo));
+    undoButton->setMaximumWidth(100);
+    connect(undoButton, &QPushButton::clicked, this, &MarkerWidget::signalUndo);
+
+    vlayout->addWidget(undoButton);
+    vlayout->addSpacing(8);
+
+    // marker shape
+    QGroupBox *groupBox = new QGroupBox(tr("Mode:"));
     QVBoxLayout *vbox = new QVBoxLayout;
 
-    QMetaEnum metaEnum = QMetaEnum::fromType<AccentMode>();
+    QMetaEnum metaEnum = QMetaEnum::fromType<MarkerShape>();
     for (int i = 0; i < metaEnum.keyCount(); i++) {
         int value = metaEnum.value(i);
 
         QRadioButton *rb = new QRadioButton(metaEnum.key(i));
         connect(rb, &QRadioButton::toggled, this, [this, rb, value]() {
             if (rb->isChecked()) {
-                updateMode((AccentMode)value);
+                updateMode((MarkerShape)value);
             }
         });
 
@@ -48,45 +56,72 @@ MarkerWidget::MarkerWidget(QWidget *parent)
     vlayout->addWidget(groupBox);
     vlayout->addSpacing(8);
 
-    // color selection
-    QAction* changeAction = new QAction(tr("Change..."), this);
-    connect(changeAction, &QAction::triggered, this, [this]() { this->slotSelectColorDialog(); });
-    _colorAction = new ColorActionWidget(_accentColor, changeAction);
+    // marker color
+    groupBox = new QGroupBox(tr("Color:"));
+    QHBoxLayout *hbox = new QHBoxLayout;
 
-    vlayout->addWidget(_colorAction);
-    vlayout->addSpacing(8);
+    hbox->addWidget(createColorSwitch(Qt::yellow));
+    hbox->addWidget(createColorSwitch(Qt::green));
+    hbox->addWidget(createColorSwitch(Qt::red));
 
-    // apply button
-    QPushButton* applyButton = new QPushButton(tr("Apply"));
-    connect(applyButton, &QPushButton::clicked, this, &MarkerWidget::signalAccentApplied);
+    _colorButtons.first()->setChecked(true);
 
-    vlayout->addWidget(WidgetUtils::createInfoLabel(tr("Note: pressing Apply will merge the accent.\nYou cannot modify a merged accent.")));
-    vlayout->addSpacing(8);
-    vlayout->addWidget(applyButton);
+    groupBox->setLayout(hbox);
+
+    vlayout->addWidget(groupBox);
 
     vlayout->addStretch();
 }
 
-void MarkerWidget::slotSelectColorDialog()
+void MarkerWidget::slotColorButtonToggled(QColor color)
 {
-    QColorDialog dialog(_accentColor, this);
-    if (dialog.exec() == QDialog::Accepted) {
-        updateColor(dialog.selectedColor());
+    QToolButton* button = static_cast<QToolButton*>(sender());
+
+    if (!button->isChecked()) {
+        if (_currentColor == color) {
+            button->setChecked(true);
+        }
+        return;
+    }
+
+    bool colorChanged = _currentColor != color;
+    _currentColor = color;
+
+    foreach (QToolButton* tb, _colorButtons) {
+        if (tb != button) {
+            tb->setChecked(false);
+        }
+    }
+
+    if (colorChanged) {
+        emit signalColorChanged(color);
     }
 }
 
-void MarkerWidget::updateColor(QColor color)
+void MarkerWidget::updateMode(MarkerShape markerShape)
 {
-    _accentColor = color;
-    _colorAction->updateColor(_accentColor);
-
-    emit signalAccentChanged();
+    emit signalShapeChanged(markerShape);
 }
 
-void MarkerWidget::updateMode(AccentMode accentMode)
+QToolButton *MarkerWidget::createColorSwitch(const QColor &color)
 {
-    _accentMode = accentMode;
+    QPixmap pm(64, 64);
+    pm.fill(color);
 
-    emit signalAccentChanged();
+    QToolButton* button = new QToolButton;
+    button->setIcon(pm);
+    button->setIconSize(QSize(64, 64));
+    button->setCheckable(true);
+    button->setStyleSheet("QToolButton {"
+                          "border: none;"
+                          "}"
+                          "QToolButton:checked {"
+                          "border: 3px solid black;"
+                          "background-color: palette(base);}");
+    connect(button, &QToolButton::toggled, this, [color, this] () { this->slotColorButtonToggled(color); });
+
+    _colorButtons << button;
+
+    return button;
 }
 

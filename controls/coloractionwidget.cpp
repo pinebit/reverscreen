@@ -26,6 +26,7 @@ ColorActionWidget::ColorActionWidget(QColor initialColor, QAction* action, QWidg
     if (_action) {
         QToolButton* button = new QToolButton();
         button->setDefaultAction(_action);
+        button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         layout->addWidget(button);
     }
 
