@@ -74,7 +74,7 @@ void RsView::paintEvent(QPaintEvent *event){
 
     // todo:  add configuration parameter
     if (!_drawShading) {
-        if (!RegionContext::isValidRegion(customRegion)){
+        if (!RegionContext::isValidRegion(customRegion) && !RegionContext::isValidRegion(highlightedRegion)){
             return;
         }
     }
@@ -90,13 +90,18 @@ void RsView::paintEvent(QPaintEvent *event){
             _highlightDashLineAccentPainter->paint(&painter, customRegion, intersectedRegion);
         }
     } else {
-        _selectedSolidLineAccentPainter->paint(&painter, _regionContext->scopeRegion(), customRegion);
+        if (_regionContext->regionType() == RegionType::highlightedRegion) {
+            _selectedSolidLineAccentPainter->paint(&painter, _regionContext->scopeRegion(), highlightedRegion);
+        } else {
+            _selectedSolidLineAccentPainter->paint(&painter, _regionContext->scopeRegion(), customRegion);
+        }
     }
 }
 
 void RsView::mousePressEvent(QMouseEvent *event) {
     _mouseButtonPressed = event->button();
     if (_mouseButtonPressed == Qt::LeftButton) {
+        _regionContext->clearRegion();
         const QPoint& point = event->pos();
         _regionContext->setCustomRegion(QRect(point, point));
         update();
@@ -116,6 +121,11 @@ void RsView::mouseMoveEvent(QMouseEvent *event) {
         customRegion.setBottomRight(point);
         _regionContext->setCustomRegion(customRegion);
         _regionContext->setHighlightedRegion(_snapAssistant->snap(_regionContext->customRegion()));
+        if (event->modifiers() & Qt::ControlModifier){
+            _regionContext->setRegionType(RegionType::customRegion);
+        } else {
+            _regionContext->setRegionType(RegionType::highlightedRegion);
+        }
         update();
     } else {
         emit signalMouseMove(event->pos());

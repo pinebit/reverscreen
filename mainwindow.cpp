@@ -125,6 +125,13 @@ void MainWindow::slotSelectionStarted()
     _actionCrop->setEnabled(true);
 }
 
+void MainWindow::slotSelectionFinished() {
+    if (_colorsDock->isVisible()) {
+        _colorsWidget->setSelectedColor();
+    }
+    _actionCrop->setEnabled(true);
+}
+
 void MainWindow::slotSelectionCancelled()
 {
     _actionCrop->setEnabled(false);
@@ -136,6 +143,7 @@ void MainWindow::slotMouseMove(const QPoint &pos)
         QColor color(_currentImage.pixel(pos));
         _colorsWidget->setCurrentColor(color);
     }
+
 
     bool hasSelection = _rsview && RegionContext::isValidRegion(_rsview->selectedRegion());
     _actionCrop->setEnabled(hasSelection);
@@ -301,10 +309,11 @@ void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext)
     if (customRegion == selectedsRegion) {
         // Moves the highlightedRegion
         highlightedRegion.translate(-customRegion.topLeft());
+        customRegion.moveTo(QPoint(0,0));
 
         QSharedPointer<RegionContext>& viewRegionContext = _rsview->getRegionContext();
-        viewRegionContext->setCustomRegion(highlightedRegion);
-        viewRegionContext->setHighlightedRegion(QRect());
+        viewRegionContext->setCustomRegion(customRegion);
+        viewRegionContext->setHighlightedRegion(highlightedRegion);
         update();
     }
 
@@ -392,6 +401,7 @@ void MainWindow::setupUi()
     _rsview = new RsView(_scrollArea, false);
     _rsview->setAccentPainter(createDefaultAccentPainter());
     connect(_rsview, &RsView::signalSelectionStarted, this, &MainWindow::slotSelectionStarted);
+    connect(_rsview, &RsView::signalSelectionFinished, this, &MainWindow::slotSelectionFinished);
     connect(_rsview, &RsView::signalSelectionCancelled, this, &MainWindow::slotSelectionCancelled);
     connect(_rsview, &RsView::signalMouseMove, this, &MainWindow::slotMouseMove);
 
