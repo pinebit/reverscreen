@@ -63,7 +63,7 @@ LIBS += -lopencv_core2413.dll -lopencv_imgproc2413.dll
 
 QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 
-RC_ICONS += icons/reverscreen6.ico
+RC_ICONS += icons/reverscreen.ico
 }
 
 unix {
