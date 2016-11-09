@@ -12,16 +12,6 @@ MarkerAccentPainter::MarkerAccentPainter(const QColor& color, bool fill)
     _color.setAlpha(150);
 }
 
-void MarkerAccentPainter::paint(QPainter *painter, const QRect &scope, const QRect &region)
-{
-    Q_UNUSED(scope);
-    Q_ASSERT(painter != NULL);
-
-    QBrush brush(_color);
-    painter->fillRect(region, brush);
-}
-
-
 void MarkerAccentPainter::paint(QPainter *painter, const QPainterPath &path)
 {
     if (_fill) {

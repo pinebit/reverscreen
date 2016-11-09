@@ -16,16 +16,14 @@ SOURCES += main.cpp\
     awesomeservice.cpp \
     accent/rectangleaccentpainter.cpp \
     accent/cinemaaccentpainter.cpp \
-    accent/selectionaccentpainter.cpp \
-    assistant/cvsnapassistant.cpp \
-    context/regioncontext.cpp \
     widgetutils.cpp \
     rsview.cpp \
     dock/markerwidget.cpp \
     accent/markeraccentpainter.cpp \
     userselection.cpp \
     renderer/markerselectionrenderer.cpp \
-    renderer/cvselectionrenderer.cpp
+    renderer/cvselectionrenderer.cpp \
+    renderer/cinemaselectionrenderer.cpp
 
 HEADERS  += mainwindow.h \
     cv/cvmodelbuilder.h \
@@ -38,10 +36,6 @@ HEADERS  += mainwindow.h \
     accent/accentpainter.h \
     accent/rectangleaccentpainter.h \
     accent/cinemaaccentpainter.h \
-    accent/selectionaccentpainter.h \
-    assistant/snapassistant.h \
-    assistant/cvsnapassistant.h \
-    context/regioncontext.h \
     widgetutils.h \
     rsview.h \
     dock/markerwidget.h \
@@ -49,7 +43,8 @@ HEADERS  += mainwindow.h \
     userselection.h \
     renderer/selectionrenderer.h \
     renderer/markerselectionrenderer.h \
-    renderer/cvselectionrenderer.h
+    renderer/cvselectionrenderer.h \
+    renderer/cinemaselectionrenderer.h
     
 RESOURCES += \
     reverscreen.qrc

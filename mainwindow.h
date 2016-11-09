@@ -15,7 +15,6 @@ class MarkerWidget;
 class AccentPainter;
 class CvModelBuilder;
 class CvModel;
-class RegionContext;
 
 class MainWindow : public QMainWindow
 {
@@ -59,7 +58,7 @@ private:
     void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
     void delay(int millisecondsToWait);
     void updateImage(const QImage& image);
-    void updateImage(const QSharedPointer<RegionContext>& regionContext);
+    void updateImage(const QRect& selection);
 
     void handleDockWidgetVisibityChange(QDockWidget* dockWidget);
     QSharedPointer<AccentPainter> createDefaultAccentPainter();

@@ -7,13 +7,11 @@
 #include <QPaintEvent>
 #include <QPainterPath>
 
-#include "context/regioncontext.h"
-#include "userselection.h"
-
 class SnapAssistant;
 class AccentPainter;
 class RegionContext;
 class SelectionRenderer;
+class UserSelection;
 
 // UI control enabling region selection on a given image
 class RsView : public QWidget
@@ -21,15 +19,11 @@ class RsView : public QWidget
     Q_OBJECT
 
 public:
-    RsView(QWidget *parent, bool drawShading);
+    RsView(QWidget *parent);
 
     void setImage(const QImage& image);
-    void setSnapAssistant(const QSharedPointer<SnapAssistant>& snapAssistant);
-    void setAccentPainter(const QSharedPointer<AccentPainter>& accentPainter);
+    void setSelectionAccentPainter(const QSharedPointer<AccentPainter>& accentPainter);
     void setSelectionRenderer(const QSharedPointer<SelectionRenderer>& selectionRenderer);
-    QSharedPointer<RegionContext>& getRegionContext();
-    
-    QRect selectedRegion() const;
 
     const UserSelection* userSelection() const {
         return _userSelection;
@@ -62,14 +56,6 @@ private:
     QPainterPath _selectionDrawing;
     QSharedPointer<AccentPainter> _selectionAccentPainter;
 
-    bool _drawShading;
-    Qt::MouseButton _mouseButtonPressed;
-
-    QSharedPointer<RegionContext> _regionContext;
-    QSharedPointer<SnapAssistant> _snapAssistant;
-
-    QSharedPointer<AccentPainter> _selectedSolidLineAccentPainter;
-    QSharedPointer<AccentPainter> _highlightSolidLineAccentPainter;
-    QSharedPointer<AccentPainter> _selectedDashLineAccentPainter;
-    QSharedPointer<AccentPainter> _highlightDashLineAccentPainter;
+    QSharedPointer<AccentPainter> _cinemaAccentPainter;
+    QSharedPointer<SelectionRenderer> _cinemaSelectionRenderer;
 };
