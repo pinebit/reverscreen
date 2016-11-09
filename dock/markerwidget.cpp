@@ -13,6 +13,7 @@
 
 MarkerWidget::MarkerWidget(QWidget *parent)
     : QWidget(parent)
+    , _currentShape(Fill)
 {
     QVBoxLayout* vlayout = new QVBoxLayout(this);
 
@@ -94,13 +95,14 @@ void MarkerWidget::slotColorButtonToggled(QColor color)
     }
 
     if (colorChanged) {
-        emit signalColorChanged(color);
+        emit signalMarkerChanged();
     }
 }
 
 void MarkerWidget::updateMode(MarkerShape markerShape)
 {
-    emit signalShapeChanged(markerShape);
+    _currentShape = markerShape;
+    emit signalMarkerChanged();
 }
 
 QToolButton *MarkerWidget::createColorSwitch(const QColor &color)

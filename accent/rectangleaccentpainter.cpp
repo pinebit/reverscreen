@@ -7,20 +7,8 @@ RectangleAccentPainter::RectangleAccentPainter(const QPen& pen)
 {
 }
 
-void RectangleAccentPainter::paint(QPainter *painter, const QRect& scope, const QRect& region) {
-    Q_UNUSED(scope);
-    Q_ASSERT(painter != NULL);
-
+void RectangleAccentPainter::paint(QPainter *painter, const QPainterPath &path)
+{
     painter->setPen(_pen);
-    painter->drawRect(region.adjusted(0, 0, -1, -1));
-}
-
-RectangleSolidLineAccentPainter::RectangleSolidLineAccentPainter()
-    : RectangleAccentPainter(QPen(Qt::red, 1, Qt::SolidLine))
-{
-}
-
-RectangleDashLineAccentPainter::RectangleDashLineAccentPainter()
-    : RectangleAccentPainter(QPen(Qt::red, 1, Qt::DashLine))
-{
+    painter->drawPath(path);
 }

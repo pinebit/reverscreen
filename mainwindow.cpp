@@ -26,26 +26,31 @@
 #include "dock/colorswidget.h"
 #include "dock/markerwidget.h"
 #include "fullscreenselectiondialog.h"
-#include "assistant/cvsnapassistant.h"
-#include "accent/selectionaccentpainter.h"
 #include "accent/rectangleaccentpainter.h"
 #include "accent/cinemaaccentpainter.h"
 #include "accent/markeraccentpainter.h"
 #include "widgetutils.h"
 #include "cv/cvmodelbuilder.h"
+#include "selector/markerselector.h"
+#include "selector/cvselector.h"
+#include "userselection.h"
+#include "params.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , _modelBuilder(new CvModelBuilder(this))
+    , _model(QSharedPointer<CvModel>(0))
+    , _state(EmptyState)
 {
     connect(_modelBuilder, &CvModelBuilder::signalBuildCompleted, this, &MainWindow::slotBuildCompleted);
 
     setupUi();
-    enableDisableUi();
 
     QSettings settings;
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray());
+
+    changeState(EmptyState);
 }
 
 void MainWindow::slotActionCapture()
@@ -58,7 +63,7 @@ void MainWindow::slotActionCapture()
 
     FullscreenSelectionDialog dialog(this, _currentImage, createDefaultAccentPainter());
     if (dialog.exec() == QDialog::Accepted) {
-        updateImage(dialog.getRegionContext());
+        updateImage(dialog.getSelectedRect());
 
         _statusbar->showMessage(tr("A screen region is captured."));
     }
@@ -104,49 +109,47 @@ void MainWindow::slotActionOpen()
 
 void MainWindow::slotActionCrop()
 {
-    QRect selectedRegion = _rsview->selectedRegion();
-    if (!RegionContext::isValidRegion(selectedRegion)) {
+    QRect selection = _rsview->preferredSelection();
+    if (selection.isNull()) {
         QMessageBox::warning(this, tr("No region selected"), tr("Please select a region to crop."));
         return;
     }
 
-    QSize size = selectedRegion.size();
-    updateImage(_currentImage.copy(selectedRegion));
+    QSize size = selection.size();
+    updateImage(_currentImage.copy(selection));
 
     _statusbar->showMessage(tr("Cropped image size: %1x%2").arg(size.width()).arg(size.height()));
 }
 
-void MainWindow::slotSelectionStarted()
+void MainWindow::slotSelectionChanged()
 {
-    if (_colorsDock->isVisible()) {
+    _actionCrop->setEnabled(_state == CropState && !_rsview->preferredSelection().isNull());
+
+    QRect rect = _rsview->preferredSelection();
+    if (rect.isNull()) {
+        _sizeWidget->setVisible(false);
+    }
+    else {
+        _sizeWidget->setVisible(true);
+        _sizeWidget->setText(tr("Selection: %1x%2").arg(rect.width()).arg(rect.height()));
+    }
+}
+
+void MainWindow::slotSelectionFinished()
+{
+    if (_state == ColorState) {
         _colorsWidget->setSelectedColor();
     }
 
-    _actionCrop->setEnabled(true);
-}
-
-void MainWindow::slotSelectionFinished() {
-    if (_colorsDock->isVisible()) {
-        _colorsWidget->setSelectedColor();
-    }
-    _actionCrop->setEnabled(true);
-}
-
-void MainWindow::slotSelectionCancelled()
-{
-    _actionCrop->setEnabled(false);
+    slotSelectionChanged();
 }
 
 void MainWindow::slotMouseMove(const QPoint &pos)
 {
-    if (_colorsDock->isVisible()) {
+    if (_state == ColorState) {
         QColor color(_currentImage.pixel(pos));
         _colorsWidget->setCurrentColor(color);
     }
-
-
-    bool hasSelection = _rsview && RegionContext::isValidRegion(_rsview->selectedRegion());
-    _actionCrop->setEnabled(hasSelection);
 }
 
 void MainWindow::slotMarkerUndo()
@@ -155,27 +158,19 @@ void MainWindow::slotMarkerUndo()
     qWarning() << "MainWindow::slotMarkerUndo()";
 }
 
-void MainWindow::slotMarkerShapeChanged(MarkerWidget::MarkerShape shape)
+void MainWindow::slotMarkerChanged()
 {
-    // TODO: implement me
-    qWarning() << "MainWindow::slotMarkerShapeChanged" << shape;
-}
-
-void MainWindow::slotMarkerColorChanged(QColor color)
-{
-    // TODO: implement me
-    qWarning() << "MainWindow::slotMarkerColorChanged" << color;
+    _rsview->setSelectionAccentPainter(createMarkerAccentPainter());
 }
 
 void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
 {
-    QSharedPointer<SnapAssistant> assistant(new CvSnapAssistant(model));
-    _rsview->setSnapAssistant(assistant);
-    _rsview->setCursor(Qt::CrossCursor);
-
     setCursor(Qt::ArrowCursor);
+    _model = model;
 
-    enableDisableUi();
+    _rsview->setSelectionRenderer(QSharedPointer<MarkerSelector>(new MarkerSelector(model)));
+
+    changeState(CropState);
     show();
 }
 
@@ -183,30 +178,30 @@ void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
 {
     if (dockWidget->isVisible()) {
         if (_colorsDock == dockWidget) {
-            _markerDock->setVisible(false);
+            changeState(ColorState);
         }
         else {
-            _colorsDock->setVisible(false);
-            _rsview->setAccentPainter(createMarkerAccentPainter());
-            update();
+            changeState(MarkerState);
         }
     }
     else {
-        if (dockWidget == _markerDock) {
-            _rsview->setAccentPainter(createDefaultAccentPainter());
+        if (!_colorsDock->isVisible() && !_markerDock->isVisible()) {
+            changeState(CropState);
         }
     }
 }
 
 QSharedPointer<AccentPainter> MainWindow::createDefaultAccentPainter()
 {
-    return QSharedPointer<AccentPainter>(new SelectionSolidLineAccentPainter());
+    QPen pen(Params::SelectionAccentColor);
+    return QSharedPointer<AccentPainter>(new RectangleAccentPainter(pen));
 }
 
 QSharedPointer<AccentPainter> MainWindow::createMarkerAccentPainter()
 {
-    QColor color = _markerWidget->getMarkerColor();
-    return QSharedPointer<AccentPainter>(new MarkerAccentPainter(color));
+    bool fill = _markerWidget->markerShape() == MarkerWidget::Fill;
+    MarkerAccentPainter* painter = new MarkerAccentPainter(_markerWidget->markerColor(), fill);
+    return QSharedPointer<AccentPainter>(painter);
 }
 
 bool MainWindow::saveImage(const QString &fileName)
@@ -287,54 +282,21 @@ void MainWindow::updateImage(const QImage& image)
     _modelBuilder->buildAsync(_currentImage, CvModelBuilderOptions());
 }
 
-void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext)
+void MainWindow::updateImage(const QRect& selection)
 {
     setCursor(Qt::WaitCursor);
 
-    QRect customRegion = regionContext->customRegion();
-    QRect highlightedRegion = regionContext->highlightedRegion();
-    if (customRegion.isEmpty() && highlightedRegion.isEmpty()) {
-        return;
-    }
-
-    QRect selectedsRegion = regionContext->selectedRegion();
-    QImage image = _currentImage.copy(selectedsRegion);
+    QImage image = _currentImage.copy(selection);
     if (image.format() != QImage::Format_RGBA8888) {
         _currentImage = image.convertToFormat(QImage::Format_RGBA8888);
     } else {
         _currentImage = image;
     }
+
     _rsview->setImage(_currentImage);
-
-    if (customRegion == selectedsRegion) {
-        // Moves the highlightedRegion
-        highlightedRegion.translate(-customRegion.topLeft());
-        customRegion.moveTo(QPoint(0,0));
-
-        QSharedPointer<RegionContext>& viewRegionContext = _rsview->getRegionContext();
-        viewRegionContext->setCustomRegion(customRegion);
-        viewRegionContext->setHighlightedRegion(highlightedRegion);
-        update();
-    }
 
     _colorsWidget->clearColors();
     _modelBuilder->buildAsync(_currentImage, CvModelBuilderOptions());
-}
-
-void MainWindow::enableDisableUi()
-{
-    bool hasImage = !_currentImage.isNull();
-    bool skipFirst = true;
-
-    foreach (QAction* action, _toolbar->actions()) {
-        if (skipFirst) {
-            skipFirst = false;
-            continue;
-        }
-        action->setEnabled(hasImage);
-    }
-
-    _actionCrop->setDisabled(true);
 }
 
 void MainWindow::setupUi()
@@ -368,7 +330,15 @@ void MainWindow::setupUi()
     _statusbar = new QStatusBar(this);
     _statusbar->setFont(font);
     setStatusBar(_statusbar);
-    _statusbar->showMessage(tr("Click Capture, paste from the clipboard or drag and drop an image here."));
+    _statusbar->showMessage(tr("Click Capture or paste from the clipboard or drag and drop an image here."));
+
+    _sizeWidget = new QLabel(_statusbar);
+    _sizeWidget->setFrameShape(QFrame::Panel);
+    _sizeWidget->setFrameShadow(QFrame::Sunken);
+    _sizeWidget->setText("-");
+    _sizeWidget->setMinimumWidth(200);
+    _sizeWidget->setAlignment(Qt::AlignCenter);
+    _statusbar->addPermanentWidget(_sizeWidget);
 
     // actions
     _actionCapture = new QAction(_awesome->icon(fa::cameraretro), tr("Capture"), this);
@@ -398,11 +368,10 @@ void MainWindow::setupUi()
 
     _scrollArea->viewport()->installEventFilter(this);
 
-    _rsview = new RsView(_scrollArea, false);
-    _rsview->setAccentPainter(createDefaultAccentPainter());
-    connect(_rsview, &RsView::signalSelectionStarted, this, &MainWindow::slotSelectionStarted);
+    _rsview = new RsView(_scrollArea);
+    _rsview->setSelectionAccentPainter(createDefaultAccentPainter());
+    connect(_rsview, &RsView::signalSelectionChanged, this, &MainWindow::slotSelectionChanged);
     connect(_rsview, &RsView::signalSelectionFinished, this, &MainWindow::slotSelectionFinished);
-    connect(_rsview, &RsView::signalSelectionCancelled, this, &MainWindow::slotSelectionCancelled);
     connect(_rsview, &RsView::signalMouseMove, this, &MainWindow::slotMouseMove);
 
     _scrollArea->setWidget(_rsview);
@@ -419,8 +388,7 @@ void MainWindow::setupUi()
     _markerDock->setObjectName("MarkerDockWidget");
     _markerWidget = new MarkerWidget(_markerDock);
     connect(_markerWidget, &MarkerWidget::signalUndo, this, &MainWindow::slotMarkerUndo);
-    connect(_markerWidget, &MarkerWidget::signalShapeChanged, this, &MainWindow::slotMarkerShapeChanged);
-    connect(_markerWidget, &MarkerWidget::signalColorChanged, this, &MainWindow::slotMarkerColorChanged);
+    connect(_markerWidget, &MarkerWidget::signalMarkerChanged, this, &MainWindow::slotMarkerChanged);
     setupDockWidget(_markerDock, _awesome->icon(fa::lightbulbo), _markerWidget);
 
     // toolbar
@@ -447,6 +415,66 @@ void MainWindow::setupDockWidget(QDockWidget *dockWidget, QIcon icon, QWidget *c
 
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
     connect(dockWidget, &QDockWidget::visibilityChanged, this, [this, dockWidget]() { handleDockWidgetVisibityChange(dockWidget); });
+}
+
+void MainWindow::changeState(MainWindow::State state)
+{
+    _state = state;
+
+    bool hasImage = !_currentImage.isNull();
+    bool skipFirst = true;
+
+    foreach (QAction* action, _toolbar->actions()) {
+        if (skipFirst) {
+            skipFirst = false;
+            continue;
+        }
+        action->setEnabled(hasImage);
+    }
+
+    switch (state) {
+        case EmptyState:
+        {
+            _markerDock->setVisible(false);
+            _colorsDock->setVisible(false);
+            break;
+        }
+        case CropState:
+        {
+            _actionCrop->setEnabled(!_rsview->preferredSelection().isNull());
+            _markerDock->setVisible(false);
+            _colorsDock->setVisible(false);
+            CvSelector* csr = new CvSelector(_model);
+            _rsview->setSelectionRenderer(QSharedPointer<CvSelector>(csr));
+            _rsview->setSelectionAccentPainter(createDefaultAccentPainter());
+            _rsview->setCursor(Qt::CrossCursor);
+            _rsview->setShadeMode(RsView::EnabledWhenSelected);
+            break;
+        }
+        case ColorState:
+        {
+            _actionCrop->setEnabled(false);
+            _markerDock->setVisible(false);
+            _rsview->setSelectionRenderer(QSharedPointer<Selector>(0));
+            _rsview->setSelectionAccentPainter(QSharedPointer<AccentPainter>(0));
+            _rsview->setCursor(Qt::CrossCursor);
+            _rsview->setShadeMode(RsView::Disabled);
+            break;
+        }
+        case MarkerState:
+        {
+            _actionCrop->setEnabled(false);
+            _colorsDock->setVisible(false);
+            MarkerSelector* msr = new MarkerSelector(_model);
+            _rsview->setSelectionRenderer(QSharedPointer<MarkerSelector>(msr));
+            _rsview->setSelectionAccentPainter(createMarkerAccentPainter());
+            _rsview->setCursor(Qt::IBeamCursor);
+            _rsview->setShadeMode(RsView::Disabled);
+            break;
+        }
+    }
+
+    update();
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)

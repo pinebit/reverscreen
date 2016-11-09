@@ -7,16 +7,15 @@
 #include <QAction>
 #include <QScrollArea>
 #include <QDockWidget>
-
-#include <dock/markerwidget.h>
+#include <QLabel>
 
 class QtAwesome;
 class RsView;
 class ColorsWidget;
+class MarkerWidget;
 class AccentPainter;
 class CvModelBuilder;
 class CvModel;
-class RegionContext;
 
 class MainWindow : public QMainWindow
 {
@@ -33,14 +32,12 @@ private slots:
     void slotActionSave();
     void slotActionCrop();
 
-    void slotSelectionStarted();
+    void slotSelectionChanged();
     void slotSelectionFinished();
-    void slotSelectionCancelled();
     void slotMouseMove(const QPoint& pos);
 
     void slotMarkerUndo();
-    void slotMarkerShapeChanged(MarkerWidget::MarkerShape shape);
-    void slotMarkerColorChanged(QColor color);
+    void slotMarkerChanged();
 
     void slotBuildCompleted(QSharedPointer<CvModel> model);
 
@@ -51,27 +48,40 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private:
+    enum State {
+        EmptyState,
+        CropState,
+        ColorState,
+        MarkerState
+    };
+
     bool saveImage(const QString &fileName);
     bool openImage(const QString &fileName);
     void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
     void delay(int millisecondsToWait);
     void updateImage(const QImage& image);
-    void updateImage(const QSharedPointer<RegionContext>& regionContext);
+    void updateImage(const QRect& selection);
 
-    void enableDisableUi();
     void handleDockWidgetVisibityChange(QDockWidget* dockWidget);
     QSharedPointer<AccentPainter> createDefaultAccentPainter();
     QSharedPointer<AccentPainter> createMarkerAccentPainter();
     void setupUi();
     void setupDockWidget(QDockWidget* dockWidget, QIcon icon, QWidget* contentWidget);
 
+    void changeState(State state);
+
     QImage _currentImage;
     CvModelBuilder* _modelBuilder;
+    QSharedPointer<CvModel> _model;
+    State _state;
 
     QtAwesome* _awesome;
     RsView* _rsview;
     MarkerWidget* _markerWidget;
     ColorsWidget* _colorsWidget;
+    QDockWidget* _markerDock;
+    QDockWidget* _colorsDock;
+    QLabel* _sizeWidget;
 
     QScrollArea* _scrollArea;
 
@@ -83,8 +93,5 @@ private:
     QAction* _actionCopy;
     QAction* _actionSave;
     QAction* _actionCrop;
-
-    QDockWidget* _markerDock;
-    QDockWidget* _colorsDock;
 };
 

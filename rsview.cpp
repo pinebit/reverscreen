@@ -7,51 +7,55 @@
 #include "rsview.h"
 #include "accent/accentpainter.h"
 #include "accent/rectangleaccentpainter.h"
-#include "accent/selectionaccentpainter.h"
-#include "assistant/snapassistant.h"
+#include "accent/cinemaaccentpainter.h"
+#include "selector/selector.h"
+#include "selector/cinemaselector.h"
+#include "userselection.h"
+#include "params.h"
 
-RsView::RsView(QWidget *parent, bool drawShading)
+RsView::RsView(QWidget *parent)
     : QWidget(parent)
-    , _drawShading(drawShading)
-    , _mouseButtonPressed(Qt::NoButton)
-    , _regionContext(new RegionContext())
-    , _highlightSolidLineAccentPainter(new RectangleSolidLineAccentPainter())
-    , _selectedDashLineAccentPainter(new SelectionDashLineAccentPainter())
-    , _highlightDashLineAccentPainter(new RectangleDashLineAccentPainter())
+    , _userSelection(new UserSelection(this))
+    , _selector(0)
 {
     setAutoFillBackground(false);
     setMouseTracking(true);
 
     parent->installEventFilter(this);
+
+    _cinemaAccentPainter = QSharedPointer<AccentPainter>(new CinemaAccentPainter(Params::ShadeColor));
+    _shadeMode = Enabled;
+
+    connect(_userSelection, &UserSelection::signalSelectionChanged, this, &RsView::slotUserSelectionChanged);
 }
 
 void RsView::setImage(const QImage& image){
     _image = image;
-
-    _snapAssistant.clear();
-    _regionContext->clearAll();
-    _regionContext->setScopeRegion(_image.rect());
+    _cinemaSelector = QSharedPointer<Selector>(new CinemaSelector(_image.rect()));
+    _userSelection->clear();
+    _selectionDrawing = QPainterPath();
+    _preferredSelection = QRect();
 
     resize(image.size());
     update();
 }
 
-void RsView::setSnapAssistant(const QSharedPointer<SnapAssistant>& snapAssistant){
-    _snapAssistant = snapAssistant;
+void RsView::setSelectionAccentPainter(const QSharedPointer<AccentPainter>& accentPainter) {
+    _selectionAccentPainter = accentPainter;
     update();
 }
 
-void RsView::setAccentPainter(const QSharedPointer<AccentPainter>& accentPainter) {
-    _selectedSolidLineAccentPainter = accentPainter;
+void RsView::setSelectionRenderer(const QSharedPointer<Selector> &selectionRenderer)
+{
+    _selector = selectionRenderer;
+    _userSelection->clear();
     update();
 }
 
-QSharedPointer<RegionContext>& RsView::getRegionContext(){
-    return _regionContext;
-}
-
-QRect RsView::selectedRegion() const {
-    return _regionContext->selectedRegion();
+void RsView::setShadeMode(RsView::ShadeMode shadeMode)
+{
+    _shadeMode = shadeMode;
+    update();
 }
 
 void RsView::paintEvent(QPaintEvent *event){
@@ -66,81 +70,42 @@ void RsView::paintEvent(QPaintEvent *event){
     painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
     painter.drawImage(0, 0, _image);
 
-    if (!_selectedSolidLineAccentPainter) {
-        return;
-    }
-    const QRect& customRegion = _regionContext->customRegion();
-    const QRect& highlightedRegion = _regionContext->highlightedRegion();
+    bool hasSelection = _userSelection->isSelected();
 
-    // todo:  add configuration parameter
-    if (!_drawShading) {
-        if (!RegionContext::isValidRegion(customRegion) && !RegionContext::isValidRegion(highlightedRegion)){
-            return;
+    if (_shadeMode != Disabled) {
+        if (_shadeMode == Enabled || (_shadeMode == EnabledWhenSelected && hasSelection)) {
+            _cinemaAccentPainter->paint(&painter, _cinemaDrawing);
         }
     }
-    if (customRegion.contains(highlightedRegion, false) || customRegion.intersects(highlightedRegion) ) {
-        QRect intersectedRegion = (customRegion.intersects(highlightedRegion))
-                ? customRegion.intersected(highlightedRegion)
-                : highlightedRegion;
-        if (_regionContext->regionType() == RegionType::highlightedRegion) {
-            _selectedDashLineAccentPainter->paint(&painter,  _regionContext->scopeRegion(), customRegion);
-            _highlightSolidLineAccentPainter->paint(&painter, customRegion, intersectedRegion);
-        } else {
-            _selectedSolidLineAccentPainter->paint(&painter, _regionContext->scopeRegion(), customRegion);
-            _highlightDashLineAccentPainter->paint(&painter, customRegion, intersectedRegion);
-        }
-    } else {
-        if (_regionContext->regionType() == RegionType::highlightedRegion) {
-            _selectedSolidLineAccentPainter->paint(&painter, _regionContext->scopeRegion(), highlightedRegion);
-        } else {
-            _selectedSolidLineAccentPainter->paint(&painter, _regionContext->scopeRegion(), customRegion);
-        }
+
+    if (hasSelection && !_selectionAccentPainter.isNull()) {
+        _selectionAccentPainter->paint(&painter, _selectionDrawing);
     }
 }
 
 void RsView::mousePressEvent(QMouseEvent *event) {
-    _mouseButtonPressed = event->button();
-    if (_mouseButtonPressed == Qt::LeftButton) {
-        _regionContext->clearRegion();
-        const QPoint& point = event->pos();
-        _regionContext->setCustomRegion(QRect(point, point));
-        update();
+    if (event->button() == Qt::LeftButton) {
+        _userSelection->clear();
+        _userSelection->add(event->pos());
+        _preferredSelection = QRect();
         event->accept();
-        emit signalSelectionStarted();
     }
 }
 
 void RsView::mouseMoveEvent(QMouseEvent *event) {
     event->accept();
+
     if (event->buttons() == Qt::LeftButton) {
-        if (_snapAssistant.isNull()) {
-            return;
-        }
-        const QPoint& point = event->pos();
-        QRect customRegion = _regionContext->customRegion(false);
-        customRegion.setBottomRight(point);
-        _regionContext->setCustomRegion(customRegion);
-        _regionContext->setHighlightedRegion(_snapAssistant->snap(_regionContext->customRegion()));
-        if (event->modifiers() & Qt::ControlModifier){
-            _regionContext->setRegionType(RegionType::customRegion);
-        } else {
-            _regionContext->setRegionType(RegionType::highlightedRegion);
-        }
-        update();
+        _userSelection->add(event->pos());
     } else {
         emit signalMouseMove(event->pos());
     }
 }
 
 void RsView::mouseReleaseEvent(QMouseEvent *event) {
-    _mouseButtonPressed = Qt::NoButton;
     if (event->button() == Qt::LeftButton) {
         event->accept();
-        if (_regionContext->hasSelectedRegion()){
-            emit signalSelectionFinished();
-        } else {
-            emit signalSelectionCancelled();
-        }
+        emit signalSelectionFinished();
     }
 }
 
@@ -156,79 +121,75 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
     default:
         break;
     }
+
     return false;
 }
 
-bool RsView::processingKeyPressEvents(QKeyEvent* keyEvent){
-    switch (keyEvent->key()){
+bool RsView::processingKeyPressEvents(QKeyEvent* keyEvent) {
+    switch (keyEvent->key()) {
     case Qt::Key_Escape: {
-        _regionContext->clearRegion();
+        _userSelection->clear();
         emit signalSelectionCancelled();
         update();
         return true;
     }
-    case Qt::Key_A: {
-        if (keyEvent->modifiers() & Qt::ControlModifier) {
-            QRect region = _image.rect();
-            _regionContext->setCustomRegion(region);
-            _regionContext->setHighlightedRegion(region);
-            update();
-            return true;
-        }
-        break;
-    }
     case Qt::Key_Control: {
-        if (_mouseButtonPressed & Qt::LeftButton) {
-            _regionContext->setRegionType(RegionType::customRegion);
-        }
-        update();
+        slotUserSelectionChanged();
         return true;
     }
     default:
         break;
     }
+
     return false;
 }
 
-bool RsView::processingKeyReleaseEvents(QKeyEvent* keyEvent){
-    switch (keyEvent->key()){
-    case Qt::Key_A: {
-        if (keyEvent->modifiers() & Qt::ControlModifier) {
-            if (_regionContext->hasSelectedRegion()){
-                emit signalSelectionFinished();
-                return true;
-            }
-        }
-        break;
-    }
+bool RsView::processingKeyReleaseEvents(QKeyEvent* keyEvent) {
+    switch (keyEvent->key()) {
     case Qt::Key_Control: {
-        if (_mouseButtonPressed & Qt::LeftButton) {
-            _regionContext->setRegionType(RegionType::highlightedRegion);
-        }
-        update();
+        slotUserSelectionChanged();
         return true;
     }
     default:
         break;
     }
+
     return false;
 }
 
-bool RsView::processingWheelEvents(QWheelEvent* wheelEvent){
-    int dx = 0;
-    int dy = 0;
-    const int step = 1;
-    int delta = (wheelEvent->delta() > 0) ? step : -step;
-    switch(wheelEvent->buttons()){
-      case Qt::LeftButton:
-        if (wheelEvent->modifiers() == Qt::NoModifier){
-            dx = dy = delta;
-            _regionContext->setOffset(dx, dy);
-            update();
-            return true;
-        }
-      default:
-        break;
-    }
+bool RsView::processingWheelEvents(QWheelEvent* wheelEvent) {
+    Q_UNUSED(wheelEvent);
+    // TODO:
     return false;
+}
+
+void RsView::slotUserSelectionChanged()
+{
+    if (!(QApplication::mouseButtons() & Qt::LeftButton)) {
+        // do not handle selection changes when not selecting
+        return;
+    }
+
+    if (_shadeMode != Disabled) {
+        QRect selection = _cinemaSelector->select(_userSelection);
+        _cinemaDrawing = _cinemaSelector->render(selection);
+    }
+
+    if (!_selector.isNull()) {
+        QRect selection = _selector->select(_userSelection);
+
+        Qt::KeyboardModifiers modifiers = QApplication::queryKeyboardModifiers();
+        if (Qt::ControlModifier & modifiers) {
+            _preferredSelection = _userSelection->getRect();
+        }
+        else {
+            _preferredSelection = selection;
+        }
+
+        _selectionDrawing = _selector->render(_preferredSelection);
+    }
+
+    emit signalSelectionChanged();
+
+    update();
 }

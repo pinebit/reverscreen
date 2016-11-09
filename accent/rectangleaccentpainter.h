@@ -9,20 +9,8 @@ class RectangleAccentPainter : public AccentPainter
 public:
     RectangleAccentPainter(const QPen& pen);
 
-    void paint(QPainter* painter, const QRect& scope, const QRect& region);
+    void paint(QPainter *painter, const QPainterPath &path);
 
 private:
     QPen _pen;
-};
-
-class RectangleSolidLineAccentPainter : public RectangleAccentPainter
-{
-public:
-    RectangleSolidLineAccentPainter();
-};
-
-class RectangleDashLineAccentPainter : public RectangleAccentPainter
-{
-public:
-    RectangleDashLineAccentPainter();
 };

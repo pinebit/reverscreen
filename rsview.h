@@ -5,12 +5,13 @@
 #include <QImage>
 #include <QSharedPointer>
 #include <QPaintEvent>
-
-#include "context/regioncontext.h"
+#include <QPainterPath>
 
 class SnapAssistant;
 class AccentPainter;
 class RegionContext;
+class Selector;
+class UserSelection;
 
 // UI control enabling region selection on a given image
 class RsView : public QWidget
@@ -18,20 +19,32 @@ class RsView : public QWidget
     Q_OBJECT
 
 public:
-    RsView(QWidget *parent, bool drawShading);
+    enum ShadeMode {
+        Enabled,
+        EnabledWhenSelected,
+        Disabled
+    };
+
+    RsView(QWidget *parent);
 
     void setImage(const QImage& image);
-    void setSnapAssistant(const QSharedPointer<SnapAssistant>& snapAssistant);
-    void setAccentPainter(const QSharedPointer<AccentPainter>& accentPainter);
-    QSharedPointer<RegionContext>& getRegionContext();
-    
-    QRect selectedRegion() const;
+    void setSelectionAccentPainter(const QSharedPointer<AccentPainter>& accentPainter);
+    void setSelectionRenderer(const QSharedPointer<Selector>& selectionRenderer);
+    void setShadeMode(ShadeMode shadeMode);
+
+    const UserSelection* userSelection() const {
+        return _userSelection;
+    }
+
+    QRect preferredSelection() const {
+        return _preferredSelection;
+    }
 
 signals:
     void signalMouseMove(const QPoint& point);
-    void signalSelectionStarted();
-    void signalSelectionFinished();
+    void signalSelectionChanged();
     void signalSelectionCancelled();
+    void signalSelectionFinished();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);
@@ -44,17 +57,21 @@ protected:
     bool processingKeyReleaseEvents(QKeyEvent* keyEvent);
     bool processingWheelEvents(QWheelEvent* wheelEvent);
 
+private slots:
+    void slotUserSelectionChanged();
+
 private:
     QImage _image;
+    UserSelection* _userSelection;
+    ShadeMode _shadeMode;
+    QRect _preferredSelection;
 
-    bool _drawShading;
-    Qt::MouseButton _mouseButtonPressed;
+    QPainterPath _cinemaDrawing;
+    QPainterPath _selectionDrawing;
 
-    QSharedPointer<RegionContext> _regionContext;
-    QSharedPointer<SnapAssistant> _snapAssistant;
+    QSharedPointer<Selector> _selector;
+    QSharedPointer<Selector> _cinemaSelector;
 
-    QSharedPointer<AccentPainter> _selectedSolidLineAccentPainter;
-    QSharedPointer<AccentPainter> _highlightSolidLineAccentPainter;
-    QSharedPointer<AccentPainter> _selectedDashLineAccentPainter;
-    QSharedPointer<AccentPainter> _highlightDashLineAccentPainter;
+    QSharedPointer<AccentPainter> _selectionAccentPainter;
+    QSharedPointer<AccentPainter> _cinemaAccentPainter;
 };

@@ -21,14 +21,17 @@ public:
 
     explicit MarkerWidget(QWidget *parent);
 
-    QColor getMarkerColor() const {
+    QColor markerColor() const {
         return _currentColor;
+    }
+
+    MarkerShape markerShape() const {
+        return _currentShape;
     }
 
 signals:
     void signalUndo();
-    void signalShapeChanged(MarkerShape markerShape);
-    void signalColorChanged(QColor color);
+    void signalMarkerChanged();
 
 private slots:
     void slotColorButtonToggled(QColor color);
@@ -39,4 +42,5 @@ private:
 
     QList<QToolButton*> _colorButtons;
     QColor _currentColor;
+    MarkerShape _currentShape;
 };
