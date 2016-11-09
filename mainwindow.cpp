@@ -123,7 +123,16 @@ void MainWindow::slotActionCrop()
 
 void MainWindow::slotSelectionChanged()
 {
-    _actionCrop->setEnabled(_state == CropState && _rsview->userSelection()->isSelected());
+    _actionCrop->setEnabled(_state == CropState && !_rsview->preferredSelection().isNull());
+
+    QRect rect = _rsview->preferredSelection();
+    if (rect.isNull()) {
+        _sizeWidget->setVisible(false);
+    }
+    else {
+        _sizeWidget->setVisible(true);
+        _sizeWidget->setText(tr("Selection: %1x%2").arg(rect.width()).arg(rect.height()));
+    }
 }
 
 void MainWindow::slotSelectionFinished()
@@ -321,7 +330,15 @@ void MainWindow::setupUi()
     _statusbar = new QStatusBar(this);
     _statusbar->setFont(font);
     setStatusBar(_statusbar);
-    _statusbar->showMessage(tr("Click Capture, paste from the clipboard or drag and drop an image here."));
+    _statusbar->showMessage(tr("Click Capture or paste from the clipboard or drag and drop an image here."));
+
+    _sizeWidget = new QLabel(_statusbar);
+    _sizeWidget->setFrameShape(QFrame::Panel);
+    _sizeWidget->setFrameShadow(QFrame::Sunken);
+    _sizeWidget->setText("-");
+    _sizeWidget->setMinimumWidth(200);
+    _sizeWidget->setAlignment(Qt::AlignCenter);
+    _statusbar->addPermanentWidget(_sizeWidget);
 
     // actions
     _actionCapture = new QAction(_awesome->icon(fa::cameraretro), tr("Capture"), this);
@@ -353,7 +370,7 @@ void MainWindow::setupUi()
 
     _rsview = new RsView(_scrollArea);
     _rsview->setSelectionAccentPainter(createDefaultAccentPainter());
-    connect(_rsview->userSelection(), &UserSelection::signalSelectionChanged, this, &MainWindow::slotSelectionChanged);
+    connect(_rsview, &RsView::signalSelectionChanged, this, &MainWindow::slotSelectionChanged);
     connect(_rsview, &RsView::signalSelectionFinished, this, &MainWindow::slotSelectionFinished);
     connect(_rsview, &RsView::signalMouseMove, this, &MainWindow::slotMouseMove);
 
@@ -424,7 +441,7 @@ void MainWindow::changeState(MainWindow::State state)
         }
         case CropState:
         {
-            _actionCrop->setEnabled(_rsview->userSelection()->isSelected());
+            _actionCrop->setEnabled(!_rsview->preferredSelection().isNull());
             _markerDock->setVisible(false);
             _colorsDock->setVisible(false);
             CvSelector* csr = new CvSelector(_model);

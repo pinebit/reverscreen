@@ -42,9 +42,9 @@ public:
 
 signals:
     void signalMouseMove(const QPoint& point);
-    void signalSelectionStarted();
-    void signalSelectionFinished();
+    void signalSelectionChanged();
     void signalSelectionCancelled();
+    void signalSelectionFinished();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);

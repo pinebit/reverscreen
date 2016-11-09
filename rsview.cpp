@@ -128,6 +128,7 @@ bool RsView::processingKeyPressEvents(QKeyEvent* keyEvent) {
     switch (keyEvent->key()) {
     case Qt::Key_Escape: {
         _userSelection->clear();
+        emit signalSelectionCancelled();
         update();
         return true;
     }
@@ -186,6 +187,8 @@ void RsView::slotUserSelectionChanged()
 
         _selectionDrawing = _selector->render(_preferredSelection);
     }
+
+    emit signalSelectionChanged();
 
     update();
 }

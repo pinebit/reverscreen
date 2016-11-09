@@ -7,6 +7,7 @@
 #include <QAction>
 #include <QScrollArea>
 #include <QDockWidget>
+#include <QLabel>
 
 class QtAwesome;
 class RsView;
@@ -80,6 +81,7 @@ private:
     ColorsWidget* _colorsWidget;
     QDockWidget* _markerDock;
     QDockWidget* _colorsDock;
+    QLabel* _sizeWidget;
 
     QScrollArea* _scrollArea;
 
