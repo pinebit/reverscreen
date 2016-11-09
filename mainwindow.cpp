@@ -313,7 +313,7 @@ void MainWindow::setupUi()
 
     // geometry & title
     setWindowTitle(tr("REVERSCREEN"));
-    setMinimumSize(QSize(600, 400));
+    setMinimumSize(QSize(600, 450));
 
     // font
     QFont font;
@@ -344,6 +344,7 @@ void MainWindow::setupUi()
     _sizeWidget->setText("-");
     _sizeWidget->setMinimumWidth(200);
     _sizeWidget->setAlignment(Qt::AlignCenter);
+    _sizeWidget->setVisible(false);
     _statusbar->addPermanentWidget(_sizeWidget);
 
     // actions
