@@ -24,7 +24,7 @@ void UserSelection::add(const QPoint &point)
         _track << point;
     }
 
-    _isSelected = true;
+    _isSelected = _track.size() >= 2;
 
     emit signalSelectionChanged();
 }

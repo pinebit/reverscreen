@@ -121,12 +121,21 @@ void MainWindow::slotActionCrop()
 
 void MainWindow::slotSelectionChanged()
 {
-    _actionCrop->setEnabled(_rsview->userSelection()->isSelected());
+    _actionCrop->setEnabled(_state == CropState && _rsview->userSelection()->isSelected());
+}
+
+void MainWindow::slotSelectionFinished()
+{
+    if (_state == ColorState) {
+        _colorsWidget->setSelectedColor();
+    }
+
+    slotSelectionChanged();
 }
 
 void MainWindow::slotMouseMove(const QPoint &pos)
 {
-    if (_colorsDock->isVisible()) {
+    if (_state == ColorState) {
         QColor color(_currentImage.pixel(pos));
         _colorsWidget->setCurrentColor(color);
     }
@@ -341,6 +350,7 @@ void MainWindow::setupUi()
     _rsview = new RsView(_scrollArea);
     _rsview->setSelectionAccentPainter(createDefaultAccentPainter());
     connect(_rsview->userSelection(), &UserSelection::signalSelectionChanged, this, &MainWindow::slotSelectionChanged);
+    connect(_rsview, &RsView::signalSelectionFinished, this, &MainWindow::slotSelectionFinished);
     connect(_rsview, &RsView::signalMouseMove, this, &MainWindow::slotMouseMove);
 
     _scrollArea->setWidget(_rsview);
@@ -390,6 +400,17 @@ void MainWindow::changeState(MainWindow::State state)
 {
     _state = state;
 
+    bool hasImage = !_currentImage.isNull();
+    bool skipFirst = true;
+
+    foreach (QAction* action, _toolbar->actions()) {
+        if (skipFirst) {
+            skipFirst = false;
+            continue;
+        }
+        action->setEnabled(hasImage);
+    }
+
     switch (state) {
         case EmptyState:
         {
@@ -404,7 +425,9 @@ void MainWindow::changeState(MainWindow::State state)
             _colorsDock->setVisible(false);
             CvSelectionRenderer* csr = new CvSelectionRenderer(_model);
             _rsview->setSelectionRenderer(QSharedPointer<CvSelectionRenderer>(csr));
+            _rsview->setSelectionAccentPainter(createDefaultAccentPainter());
             _rsview->setCursor(Qt::CrossCursor);
+            _rsview->setSelectionShading(true);
             break;
         }
         case ColorState:
@@ -412,7 +435,9 @@ void MainWindow::changeState(MainWindow::State state)
             _actionCrop->setEnabled(false);
             _markerDock->setVisible(false);
             _rsview->setSelectionRenderer(QSharedPointer<SelectionRenderer>(0));
+            _rsview->setSelectionAccentPainter(QSharedPointer<AccentPainter>(0));
             _rsview->setCursor(Qt::CrossCursor);
+            _rsview->setSelectionShading(false);
             break;
         }
         case MarkerState:
@@ -421,20 +446,11 @@ void MainWindow::changeState(MainWindow::State state)
             _colorsDock->setVisible(false);
             MarkerSelectionRenderer* msr = new MarkerSelectionRenderer(_model);
             _rsview->setSelectionRenderer(QSharedPointer<MarkerSelectionRenderer>(msr));
+            _rsview->setSelectionAccentPainter(createMarkerAccentPainter());
             _rsview->setCursor(Qt::IBeamCursor);
+            _rsview->setSelectionShading(false);
             break;
         }
-    }
-
-    bool hasImage = !_currentImage.isNull();
-    bool skipFirst = true;
-
-    foreach (QAction* action, _toolbar->actions()) {
-        if (skipFirst) {
-            skipFirst = false;
-            continue;
-        }
-        action->setEnabled(hasImage);
     }
 
     update();

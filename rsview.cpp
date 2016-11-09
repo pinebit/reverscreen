@@ -23,6 +23,7 @@ RsView::RsView(QWidget *parent)
     parent->installEventFilter(this);
 
     _cinemaAccentPainter = QSharedPointer<AccentPainter>(new CinemaAccentPainter(Qt::gray));
+    _cinemaEnabled = true;
 
     connect(_userSelection, &UserSelection::signalSelectionChanged, this, &RsView::slotUserSelectionChanged);
 }
@@ -49,6 +50,12 @@ void RsView::setSelectionRenderer(const QSharedPointer<SelectionRenderer> &selec
     update();
 }
 
+void RsView::setSelectionShading(bool enabled)
+{
+    _cinemaEnabled = enabled;
+    update();
+}
+
 void RsView::paintEvent(QPaintEvent *event){
     Q_UNUSED(event);
 
@@ -61,8 +68,11 @@ void RsView::paintEvent(QPaintEvent *event){
     painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
     painter.drawImage(0, 0, _image);
 
-    if (_userSelection->isSelected()) {
+    if (_cinemaEnabled) {
         _cinemaAccentPainter->paint(&painter, _cinemaDrawing);
+    }
+
+    if (_userSelection->isSelected() && !_selectionAccentPainter.isNull()) {
         _selectionAccentPainter->paint(&painter, _selectionDrawing);
     }
 }
@@ -72,7 +82,6 @@ void RsView::mousePressEvent(QMouseEvent *event) {
         _userSelection->clear();
         _userSelection->add(event->pos());
         event->accept();
-        update();
     }
 }
 
@@ -81,7 +90,6 @@ void RsView::mouseMoveEvent(QMouseEvent *event) {
 
     if (event->buttons() == Qt::LeftButton) {
         _userSelection->add(event->pos());
-        update();
     } else {
         emit signalMouseMove(event->pos());
     }
@@ -175,9 +183,13 @@ bool RsView::processingWheelEvents(QWheelEvent* wheelEvent) {
 
 void RsView::slotUserSelectionChanged()
 {
-    if (!_selectionRenderer.isNull()) {
+    if (_cinemaEnabled) {
         _cinemaDrawing = _cinemaSelectionRenderer->render(_userSelection);
-        _selectionDrawing = _selectionRenderer->render(_userSelection);
-        update();
     }
+
+    if (!_selectionRenderer.isNull()) {
+        _selectionDrawing = _selectionRenderer->render(_userSelection);
+    }
+
+    update();
 }

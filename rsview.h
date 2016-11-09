@@ -24,6 +24,7 @@ public:
     void setImage(const QImage& image);
     void setSelectionAccentPainter(const QSharedPointer<AccentPainter>& accentPainter);
     void setSelectionRenderer(const QSharedPointer<SelectionRenderer>& selectionRenderer);
+    void setSelectionShading(bool enabled);
 
     const UserSelection* userSelection() const {
         return _userSelection;
@@ -54,9 +55,10 @@ private:
     UserSelection* _userSelection;
     QSharedPointer<SelectionRenderer> _selectionRenderer;
     QPainterPath _selectionDrawing;
-    QPainterPath _cinemaDrawing;
     QSharedPointer<AccentPainter> _selectionAccentPainter;
 
+    bool _cinemaEnabled;
+    QPainterPath _cinemaDrawing;
     QSharedPointer<AccentPainter> _cinemaAccentPainter;
     QSharedPointer<SelectionRenderer> _cinemaSelectionRenderer;
 };

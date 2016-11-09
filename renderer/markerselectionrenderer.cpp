@@ -14,7 +14,9 @@ QPainterPath MarkerSelectionRenderer::render(const UserSelection *selection)
 
     if (selection->isSelected()) {
         QPolygon polygon = _cvModel->getConvexHull(selection->track());
-        path.addRoundedRect(polygon.boundingRect(), ROUND_CORNER_SIZE, ROUND_CORNER_SIZE);
+        QRect brect = polygon.boundingRect();
+        brect.adjust(-ROUND_CORNER_SIZE, -ROUND_CORNER_SIZE, ROUND_CORNER_SIZE, ROUND_CORNER_SIZE);
+        path.addRoundedRect(brect, ROUND_CORNER_SIZE, ROUND_CORNER_SIZE);
     }
 
     return path;
