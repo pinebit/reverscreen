@@ -54,6 +54,7 @@ private:
     UserSelection* _userSelection;
     QSharedPointer<SelectionRenderer> _selectionRenderer;
     QPainterPath _selectionDrawing;
+    QPainterPath _cinemaDrawing;
     QSharedPointer<AccentPainter> _selectionAccentPainter;
 
     QSharedPointer<AccentPainter> _cinemaAccentPainter;

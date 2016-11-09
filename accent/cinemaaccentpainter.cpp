@@ -6,7 +6,7 @@ CinemaAccentPainter::CinemaAccentPainter(const QColor& color)
 {
     QColor transparentColor = color;
     transparentColor.setAlpha(150);
-    _brush.setColor(transparentColor);
+    _brush = QBrush(transparentColor);
 }
 
 void CinemaAccentPainter::paint(QPainter *painter, const QPainterPath &path)

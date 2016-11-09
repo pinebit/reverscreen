@@ -145,6 +145,7 @@ void MainWindow::slotMarkerChanged()
 
 void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
 {
+    setCursor(Qt::ArrowCursor);
     _model = model;
 
     _rsview->setSelectionRenderer(QSharedPointer<MarkerSelectionRenderer>(new MarkerSelectionRenderer(model)));
@@ -170,7 +171,8 @@ void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
 
 QSharedPointer<AccentPainter> MainWindow::createDefaultAccentPainter()
 {
-    return QSharedPointer<AccentPainter>(new CinemaAccentPainter(Qt::darkRed));
+    QPen pen(Qt::red);
+    return QSharedPointer<AccentPainter>(new RectangleAccentPainter(pen));
 }
 
 QSharedPointer<AccentPainter> MainWindow::createMarkerAccentPainter()

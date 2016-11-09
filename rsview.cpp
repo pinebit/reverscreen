@@ -61,9 +61,8 @@ void RsView::paintEvent(QPaintEvent *event){
     painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
     painter.drawImage(0, 0, _image);
 
-    _cinemaAccentPainter->paint(&painter, _cinemaSelectionRenderer->render(_userSelection));
-
-    if (!_selectionDrawing.isEmpty()) {
+    if (_userSelection->isSelected()) {
+        _cinemaAccentPainter->paint(&painter, _cinemaDrawing);
         _selectionAccentPainter->paint(&painter, _selectionDrawing);
     }
 }
@@ -89,17 +88,10 @@ void RsView::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void RsView::mouseReleaseEvent(QMouseEvent *event) {
-    /*
-    _mouseButtonPressed = Qt::NoButton;
     if (event->button() == Qt::LeftButton) {
         event->accept();
-        if (_regionContext->hasSelectedRegion()){
-            emit signalSelectionFinished();
-        } else {
-            emit signalSelectionCancelled();
-        }
+        emit signalSelectionFinished();
     }
-    */
 }
 
 bool RsView::eventFilter(QObject *obj, QEvent *event) {
@@ -184,6 +176,7 @@ bool RsView::processingWheelEvents(QWheelEvent* wheelEvent) {
 void RsView::slotUserSelectionChanged()
 {
     if (!_selectionRenderer.isNull()) {
+        _cinemaDrawing = _cinemaSelectionRenderer->render(_userSelection);
         _selectionDrawing = _selectionRenderer->render(_userSelection);
         update();
     }
