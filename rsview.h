@@ -31,6 +31,10 @@ public:
     
     QRect selectedRegion() const;
 
+    const UserSelection* userSelection() const {
+        return _userSelection;
+    }
+
 signals:
     void signalMouseMove(const QPoint& point);
     void signalSelectionStarted();

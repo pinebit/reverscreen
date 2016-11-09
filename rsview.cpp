@@ -57,6 +57,7 @@ void RsView::setAccentPainter(const QSharedPointer<AccentPainter>& accentPainter
 void RsView::setSelectionRenderer(const QSharedPointer<SelectionRenderer> &selectionRenderer)
 {
     _selectionRenderer = selectionRenderer;
+    _userSelection->clear();
     update();
 }
 
@@ -193,20 +194,12 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
 bool RsView::processingKeyPressEvents(QKeyEvent* keyEvent){
     switch (keyEvent->key()){
     case Qt::Key_Escape: {
+        _userSelection->clear();
+        // old..
         _regionContext->clearRegion();
         emit signalSelectionCancelled();
         update();
         return true;
-    }
-    case Qt::Key_A: {
-        if (keyEvent->modifiers() & Qt::ControlModifier) {
-            QRect region = _image.rect();
-            _regionContext->setCustomRegion(region);
-            _regionContext->setHighlightedRegion(region);
-            update();
-            return true;
-        }
-        break;
     }
     case Qt::Key_Control: {
         if (_mouseButtonPressed & Qt::LeftButton) {
@@ -223,15 +216,6 @@ bool RsView::processingKeyPressEvents(QKeyEvent* keyEvent){
 
 bool RsView::processingKeyReleaseEvents(QKeyEvent* keyEvent){
     switch (keyEvent->key()){
-    case Qt::Key_A: {
-        if (keyEvent->modifiers() & Qt::ControlModifier) {
-            if (_regionContext->hasSelectedRegion()){
-                emit signalSelectionFinished();
-                return true;
-            }
-        }
-        break;
-    }
     case Qt::Key_Control: {
         if (_mouseButtonPressed & Qt::LeftButton) {
             _regionContext->setRegionType(RegionType::highlightedRegion);

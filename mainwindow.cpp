@@ -34,15 +34,18 @@
 #include "widgetutils.h"
 #include "cv/cvmodelbuilder.h"
 #include "renderer/markerselectionrenderer.h"
+#include "renderer/cvselectionrenderer.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , _modelBuilder(new CvModelBuilder(this))
+    , _model(QSharedPointer<CvModel>(0))
+    , _state(EmptyState)
 {
     connect(_modelBuilder, &CvModelBuilder::signalBuildCompleted, this, &MainWindow::slotBuildCompleted);
 
     setupUi();
-    enableDisableUi();
+    changeState(EmptyState);
 
     QSettings settings;
     restoreGeometry(settings.value("geometry").toByteArray());
@@ -117,25 +120,9 @@ void MainWindow::slotActionCrop()
     _statusbar->showMessage(tr("Cropped image size: %1x%2").arg(size.width()).arg(size.height()));
 }
 
-void MainWindow::slotSelectionStarted()
+void MainWindow::slotSelectionChanged()
 {
-    if (_colorsDock->isVisible()) {
-        _colorsWidget->setSelectedColor();
-    }
-
-    _actionCrop->setEnabled(true);
-}
-
-void MainWindow::slotSelectionFinished() {
-    if (_colorsDock->isVisible()) {
-        _colorsWidget->setSelectedColor();
-    }
-    _actionCrop->setEnabled(true);
-}
-
-void MainWindow::slotSelectionCancelled()
-{
-    _actionCrop->setEnabled(false);
+    _actionCrop->setEnabled(_rsview->userSelection()->isSelected());
 }
 
 void MainWindow::slotMouseMove(const QPoint &pos)
@@ -144,10 +131,6 @@ void MainWindow::slotMouseMove(const QPoint &pos)
         QColor color(_currentImage.pixel(pos));
         _colorsWidget->setCurrentColor(color);
     }
-
-
-    bool hasSelection = _rsview && RegionContext::isValidRegion(_rsview->selectedRegion());
-    _actionCrop->setEnabled(hasSelection);
 }
 
 void MainWindow::slotMarkerUndo()
@@ -158,8 +141,6 @@ void MainWindow::slotMarkerUndo()
 
 void MainWindow::slotMarkerChanged()
 {
-    MarkerSelectionRenderer* msr = new MarkerSelectionRenderer(_model);
-    _rsview->setSelectionRenderer(QSharedPointer<MarkerSelectionRenderer>(msr));
     _rsview->setAccentPainter(createMarkerAccentPainter());
 }
 
@@ -174,7 +155,7 @@ void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
 
     setCursor(Qt::ArrowCursor);
 
-    enableDisableUi();
+    changeState(CropState);
     show();
 }
 
@@ -182,18 +163,14 @@ void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
 {
     if (dockWidget->isVisible()) {
         if (_colorsDock == dockWidget) {
-            _markerDock->setVisible(false);
+            changeState(ColorState);
         }
         else {
-            _colorsDock->setVisible(false);
-            _rsview->setAccentPainter(createMarkerAccentPainter());
-            update();
+            changeState(MarkerState);
         }
     }
     else {
-        if (dockWidget == _markerDock) {
-            _rsview->setAccentPainter(createDefaultAccentPainter());
-        }
+        changeState(CropState);
     }
 }
 
@@ -321,22 +298,6 @@ void MainWindow::updateImage(const QSharedPointer<RegionContext>& regionContext)
     _modelBuilder->buildAsync(_currentImage, CvModelBuilderOptions());
 }
 
-void MainWindow::enableDisableUi()
-{
-    bool hasImage = !_currentImage.isNull();
-    bool skipFirst = true;
-
-    foreach (QAction* action, _toolbar->actions()) {
-        if (skipFirst) {
-            skipFirst = false;
-            continue;
-        }
-        action->setEnabled(hasImage);
-    }
-
-    _actionCrop->setDisabled(true);
-}
-
 void MainWindow::setupUi()
 {
     // awesome font
@@ -400,9 +361,7 @@ void MainWindow::setupUi()
 
     _rsview = new RsView(_scrollArea, false);
     _rsview->setAccentPainter(createDefaultAccentPainter());
-    connect(_rsview, &RsView::signalSelectionStarted, this, &MainWindow::slotSelectionStarted);
-    connect(_rsview, &RsView::signalSelectionFinished, this, &MainWindow::slotSelectionFinished);
-    connect(_rsview, &RsView::signalSelectionCancelled, this, &MainWindow::slotSelectionCancelled);
+    connect(_rsview->userSelection(), &UserSelection::signalSelectionChanged, this, &MainWindow::slotSelectionChanged);
     connect(_rsview, &RsView::signalMouseMove, this, &MainWindow::slotMouseMove);
 
     _scrollArea->setWidget(_rsview);
@@ -446,6 +405,57 @@ void MainWindow::setupDockWidget(QDockWidget *dockWidget, QIcon icon, QWidget *c
 
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
     connect(dockWidget, &QDockWidget::visibilityChanged, this, [this, dockWidget]() { handleDockWidgetVisibityChange(dockWidget); });
+}
+
+void MainWindow::changeState(MainWindow::State state)
+{
+    _state = state;
+
+    switch (state) {
+        case EmptyState:
+        {
+            _markerDock->setVisible(false);
+            _colorsDock->setVisible(false);
+            break;
+        }
+        case CropState:
+        {
+            _actionCrop->setEnabled(_rsview->userSelection()->isSelected());
+            _markerDock->setVisible(false);
+            _colorsDock->setVisible(false);
+            CvSelectionRenderer* csr = new CvSelectionRenderer(_model);
+            _rsview->setSelectionRenderer(QSharedPointer<CvSelectionRenderer>(csr));
+            break;
+        }
+        case ColorState:
+        {
+            _actionCrop->setEnabled(false);
+            _markerDock->setVisible(false);
+            _rsview->setSelectionRenderer(QSharedPointer<SelectionRenderer>(0));
+            break;
+        }
+        case MarkerState:
+        {
+            _actionCrop->setEnabled(false);
+            _colorsDock->setVisible(false);
+            MarkerSelectionRenderer* msr = new MarkerSelectionRenderer(_model);
+            _rsview->setSelectionRenderer(QSharedPointer<MarkerSelectionRenderer>(msr));
+            break;
+        }
+    }
+
+    bool hasImage = !_currentImage.isNull();
+    bool skipFirst = true;
+
+    foreach (QAction* action, _toolbar->actions()) {
+        if (skipFirst) {
+            skipFirst = false;
+            continue;
+        }
+        action->setEnabled(hasImage);
+    }
+
+    update();
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)

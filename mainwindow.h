@@ -32,9 +32,7 @@ private slots:
     void slotActionSave();
     void slotActionCrop();
 
-    void slotSelectionStarted();
-    void slotSelectionFinished();
-    void slotSelectionCancelled();
+    void slotSelectionChanged();
     void slotMouseMove(const QPoint& pos);
 
     void slotMarkerUndo();
@@ -49,6 +47,13 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private:
+    enum State {
+        EmptyState,
+        CropState,
+        ColorState,
+        MarkerState
+    };
+
     bool saveImage(const QString &fileName);
     bool openImage(const QString &fileName);
     void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
@@ -56,21 +61,25 @@ private:
     void updateImage(const QImage& image);
     void updateImage(const QSharedPointer<RegionContext>& regionContext);
 
-    void enableDisableUi();
     void handleDockWidgetVisibityChange(QDockWidget* dockWidget);
     QSharedPointer<AccentPainter> createDefaultAccentPainter();
     QSharedPointer<AccentPainter> createMarkerAccentPainter();
     void setupUi();
     void setupDockWidget(QDockWidget* dockWidget, QIcon icon, QWidget* contentWidget);
 
+    void changeState(State state);
+
     QImage _currentImage;
     CvModelBuilder* _modelBuilder;
     QSharedPointer<CvModel> _model;
+    State _state;
 
     QtAwesome* _awesome;
     RsView* _rsview;
     MarkerWidget* _markerWidget;
     ColorsWidget* _colorsWidget;
+    QDockWidget* _markerDock;
+    QDockWidget* _colorsDock;
 
     QScrollArea* _scrollArea;
 
@@ -82,8 +91,5 @@ private:
     QAction* _actionCopy;
     QAction* _actionSave;
     QAction* _actionCrop;
-
-    QDockWidget* _markerDock;
-    QDockWidget* _colorsDock;
 };
 
