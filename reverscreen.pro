@@ -21,9 +21,10 @@ SOURCES += main.cpp\
     dock/markerwidget.cpp \
     accent/markeraccentpainter.cpp \
     userselection.cpp \
-    renderer/markerselectionrenderer.cpp \
-    renderer/cvselectionrenderer.cpp \
-    renderer/cinemaselectionrenderer.cpp
+    selector/cinemaselector.cpp \
+    selector/cvselector.cpp \
+    selector/markerselector.cpp \
+    params.cpp
 
 HEADERS  += mainwindow.h \
     cv/cvmodelbuilder.h \
@@ -41,10 +42,11 @@ HEADERS  += mainwindow.h \
     dock/markerwidget.h \
     accent/markeraccentpainter.h \
     userselection.h \
-    renderer/selectionrenderer.h \
-    renderer/markerselectionrenderer.h \
-    renderer/cvselectionrenderer.h \
-    renderer/cinemaselectionrenderer.h
+    selector/selector.h \
+    selector/cinemaselector.h \
+    selector/cvselector.h \
+    selector/markerselector.h \
+    params.h
     
 RESOURCES += \
     reverscreen.qrc

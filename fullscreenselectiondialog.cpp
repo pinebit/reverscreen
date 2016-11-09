@@ -5,13 +5,13 @@
 #include "cv/cvmodelbuilder.h"
 #include "cv/cvmodel.h"
 #include "userselection.h"
-#include "renderer/cvselectionrenderer.h"
+#include "selector/cvselector.h"
 
 FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QImage &image, QSharedPointer<AccentPainter> accentPainter)
     : QDialog(parent)
     , _accentPainter(accentPainter)
 {
-    setWindowFlags(/* Qt::WindowStaysOnTopHint | */ Qt::FramelessWindowHint | Qt::Tool | Qt::SubWindow);
+    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool | Qt::SubWindow);
     setWindowState(Qt::WindowFullScreen);
     setFocusPolicy(Qt::StrongFocus);
     setFocus();
@@ -34,13 +34,13 @@ FullscreenSelectionDialog::FullscreenSelectionDialog(QWidget *parent, const QIma
 
 QRect FullscreenSelectionDialog::getSelectedRect() const
 {
-    return _rsview->userSelection()->getRect();
+    return _rsview->preferredSelection();
 }
 
 void FullscreenSelectionDialog::slotBuildCompleted(QSharedPointer<CvModel> model)
 {
     setCursor(Qt::CrossCursor);
-    _rsview->setSelectionRenderer(QSharedPointer<SelectionRenderer>(new CvSelectionRenderer(model)));
+    _rsview->setSelectionRenderer(QSharedPointer<Selector>(new CvSelector(model)));
 }
 
 void FullscreenSelectionDialog::slotSelectionFinished()

@@ -1,11 +1,12 @@
 #include "accent/cinemaaccentpainter.h"
+#include "params.h"
 
 #include <QPainter>
 
 CinemaAccentPainter::CinemaAccentPainter(const QColor& color)
 {
     QColor transparentColor = color;
-    transparentColor.setAlpha(150);
+    transparentColor.setAlpha(Params::ShadeAlpha);
     _brush = QBrush(transparentColor);
 }
 

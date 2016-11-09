@@ -1,15 +1,14 @@
 #include "markeraccentpainter.h"
+#include "params.h"
 
 #include <QBrush>
 #include <QPainter>
-
-#define DEFAULT_PEN_WIDTH 3
 
 MarkerAccentPainter::MarkerAccentPainter(const QColor& color, bool fill)
     : _color(color)
     , _fill(fill)
 {
-    _color.setAlpha(150);
+    _color.setAlpha(Params::MarkerAlpha);
 }
 
 void MarkerAccentPainter::paint(QPainter *painter, const QPainterPath &path)
@@ -19,8 +18,10 @@ void MarkerAccentPainter::paint(QPainter *painter, const QPainterPath &path)
         painter->fillPath(path, brush);
     }
     else {
-        QPen pen(_color);
-        pen.setWidth(DEFAULT_PEN_WIDTH);
+        QColor opaque(_color);
+        opaque.setAlpha(255);
+        QPen pen(opaque);
+        pen.setWidth(Params::MarkerFrameWidth);
         painter->setPen(pen);
         painter->drawPath(path);
     }

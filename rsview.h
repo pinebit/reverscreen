@@ -10,7 +10,7 @@
 class SnapAssistant;
 class AccentPainter;
 class RegionContext;
-class SelectionRenderer;
+class Selector;
 class UserSelection;
 
 // UI control enabling region selection on a given image
@@ -29,11 +29,15 @@ public:
 
     void setImage(const QImage& image);
     void setSelectionAccentPainter(const QSharedPointer<AccentPainter>& accentPainter);
-    void setSelectionRenderer(const QSharedPointer<SelectionRenderer>& selectionRenderer);
+    void setSelectionRenderer(const QSharedPointer<Selector>& selectionRenderer);
     void setShadeMode(ShadeMode shadeMode);
 
     const UserSelection* userSelection() const {
         return _userSelection;
+    }
+
+    QRect preferredSelection() const {
+        return _preferredSelection;
     }
 
 signals:
@@ -59,12 +63,15 @@ private slots:
 private:
     QImage _image;
     UserSelection* _userSelection;
-    QSharedPointer<SelectionRenderer> _selectionRenderer;
-    QPainterPath _selectionDrawing;
-    QSharedPointer<AccentPainter> _selectionAccentPainter;
-
     ShadeMode _shadeMode;
+    QRect _preferredSelection;
+
     QPainterPath _cinemaDrawing;
+    QPainterPath _selectionDrawing;
+
+    QSharedPointer<Selector> _selector;
+    QSharedPointer<Selector> _cinemaSelector;
+
+    QSharedPointer<AccentPainter> _selectionAccentPainter;
     QSharedPointer<AccentPainter> _cinemaAccentPainter;
-    QSharedPointer<SelectionRenderer> _cinemaSelectionRenderer;
 };

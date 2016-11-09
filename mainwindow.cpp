@@ -31,9 +31,10 @@
 #include "accent/markeraccentpainter.h"
 #include "widgetutils.h"
 #include "cv/cvmodelbuilder.h"
-#include "renderer/markerselectionrenderer.h"
-#include "renderer/cvselectionrenderer.h"
+#include "selector/markerselector.h"
+#include "selector/cvselector.h"
 #include "userselection.h"
+#include "params.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -44,11 +45,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(_modelBuilder, &CvModelBuilder::signalBuildCompleted, this, &MainWindow::slotBuildCompleted);
 
     setupUi();
-    changeState(EmptyState);
 
     QSettings settings;
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray());
+
+    changeState(EmptyState);
 }
 
 void MainWindow::slotActionCapture()
@@ -107,14 +109,14 @@ void MainWindow::slotActionOpen()
 
 void MainWindow::slotActionCrop()
 {
-    QRect selectedRegion = _rsview->userSelection()->getRect();
-    if (selectedRegion.isNull()) {
+    QRect selection = _rsview->preferredSelection();
+    if (selection.isNull()) {
         QMessageBox::warning(this, tr("No region selected"), tr("Please select a region to crop."));
         return;
     }
 
-    QSize size = selectedRegion.size();
-    updateImage(_currentImage.copy(selectedRegion));
+    QSize size = selection.size();
+    updateImage(_currentImage.copy(selection));
 
     _statusbar->showMessage(tr("Cropped image size: %1x%2").arg(size.width()).arg(size.height()));
 }
@@ -157,7 +159,7 @@ void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
     setCursor(Qt::ArrowCursor);
     _model = model;
 
-    _rsview->setSelectionRenderer(QSharedPointer<MarkerSelectionRenderer>(new MarkerSelectionRenderer(model)));
+    _rsview->setSelectionRenderer(QSharedPointer<MarkerSelector>(new MarkerSelector(model)));
 
     changeState(CropState);
     show();
@@ -182,7 +184,7 @@ void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
 
 QSharedPointer<AccentPainter> MainWindow::createDefaultAccentPainter()
 {
-    QPen pen(Qt::red);
+    QPen pen(Params::SelectionAccentColor);
     return QSharedPointer<AccentPainter>(new RectangleAccentPainter(pen));
 }
 
@@ -425,8 +427,8 @@ void MainWindow::changeState(MainWindow::State state)
             _actionCrop->setEnabled(_rsview->userSelection()->isSelected());
             _markerDock->setVisible(false);
             _colorsDock->setVisible(false);
-            CvSelectionRenderer* csr = new CvSelectionRenderer(_model);
-            _rsview->setSelectionRenderer(QSharedPointer<CvSelectionRenderer>(csr));
+            CvSelector* csr = new CvSelector(_model);
+            _rsview->setSelectionRenderer(QSharedPointer<CvSelector>(csr));
             _rsview->setSelectionAccentPainter(createDefaultAccentPainter());
             _rsview->setCursor(Qt::CrossCursor);
             _rsview->setShadeMode(RsView::EnabledWhenSelected);
@@ -436,7 +438,7 @@ void MainWindow::changeState(MainWindow::State state)
         {
             _actionCrop->setEnabled(false);
             _markerDock->setVisible(false);
-            _rsview->setSelectionRenderer(QSharedPointer<SelectionRenderer>(0));
+            _rsview->setSelectionRenderer(QSharedPointer<Selector>(0));
             _rsview->setSelectionAccentPainter(QSharedPointer<AccentPainter>(0));
             _rsview->setCursor(Qt::CrossCursor);
             _rsview->setShadeMode(RsView::Disabled);
@@ -446,8 +448,8 @@ void MainWindow::changeState(MainWindow::State state)
         {
             _actionCrop->setEnabled(false);
             _colorsDock->setVisible(false);
-            MarkerSelectionRenderer* msr = new MarkerSelectionRenderer(_model);
-            _rsview->setSelectionRenderer(QSharedPointer<MarkerSelectionRenderer>(msr));
+            MarkerSelector* msr = new MarkerSelector(_model);
+            _rsview->setSelectionRenderer(QSharedPointer<MarkerSelector>(msr));
             _rsview->setSelectionAccentPainter(createMarkerAccentPainter());
             _rsview->setCursor(Qt::IBeamCursor);
             _rsview->setShadeMode(RsView::Disabled);
