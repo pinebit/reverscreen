@@ -23,7 +23,9 @@ SOURCES += main.cpp\
     rsview.cpp \
     dock/markerwidget.cpp \
     accent/markeraccentpainter.cpp \
-    userselection.cpp
+    userselection.cpp \
+    renderer/markerselectionrenderer.cpp \
+    renderer/cvselectionrenderer.cpp
 
 HEADERS  += mainwindow.h \
     cv/cvmodelbuilder.h \
@@ -44,7 +46,10 @@ HEADERS  += mainwindow.h \
     rsview.h \
     dock/markerwidget.h \
     accent/markeraccentpainter.h \
-    userselection.h
+    userselection.h \
+    renderer/selectionrenderer.h \
+    renderer/markerselectionrenderer.h \
+    renderer/cvselectionrenderer.h
     
 RESOURCES += \
     reverscreen.qrc
@@ -83,4 +88,25 @@ QMAKE_CXXFLAGS += -Wno-deprecated-declarations
 
 include(QtAwesome/QtAwesome.pri)
 
-SUBDIRS += QtAwesome/QtAwesome.pro
+SUBDIRS += QtAwesome/QtAwesome.pro \
+    QtAwesome/QtAwesome.pro
+
+DISTFILES += \
+    icons/reverscreen-icon-design.xlsx \
+    website/img/reverscreen-demo.gif \
+    website/img/reverscreen-64.png \
+    website/img/rs-step-1.png \
+    website/img/rs-step-2.PNG \
+    website/img/rs-step-3.PNG \
+    website/img/rs-step-4.PNG \
+    new-rs-icon.png \
+    website/favicon.ico \
+    website/css/animate.css \
+    website/css/bootstrap.min.css \
+    website/css/styles.css \
+    website/index.html \
+    .gitignore \
+    BUILDING \
+    LICENSE \
+    README.md \
+    nsis/reverscreen.nsi
