@@ -17,6 +17,7 @@ RsView::RsView(QWidget *parent)
     : QWidget(parent)
     , _userSelection(new UserSelection(this))
     , _selector(0)
+    , _addMargins(true)
 {
     setAutoFillBackground(false);
     setMouseTracking(true);
@@ -116,8 +117,6 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
         return processingKeyPressEvents(static_cast<QKeyEvent*>(event));
     case QEvent::KeyRelease:
         return processingKeyReleaseEvents(static_cast<QKeyEvent*>(event));
-    case  QEvent::Wheel:
-        return processingWheelEvents(static_cast<QWheelEvent*>(event));
     default:
         break;
     }
@@ -133,12 +132,11 @@ bool RsView::processingKeyPressEvents(QKeyEvent* keyEvent) {
         update();
         return true;
     }
-    case Qt::Key_Control: {
+    case Qt::Key_Space:
+        _addMargins = !_addMargins;
+    case Qt::Key_Control:
         slotUserSelectionChanged();
         return true;
-    }
-    default:
-        break;
     }
 
     return false;
@@ -146,20 +144,11 @@ bool RsView::processingKeyPressEvents(QKeyEvent* keyEvent) {
 
 bool RsView::processingKeyReleaseEvents(QKeyEvent* keyEvent) {
     switch (keyEvent->key()) {
-    case Qt::Key_Control: {
+    case Qt::Key_Control:
         slotUserSelectionChanged();
         return true;
     }
-    default:
-        break;
-    }
 
-    return false;
-}
-
-bool RsView::processingWheelEvents(QWheelEvent* wheelEvent) {
-    Q_UNUSED(wheelEvent);
-    // TODO:
     return false;
 }
 
@@ -183,7 +172,13 @@ void RsView::slotUserSelectionChanged()
             _preferredSelection = _userSelection->getRect();
         }
         else {
-            _preferredSelection = selection;
+            if (_addMargins) {
+                const int& m = Params::SelectionMarginSize;
+                _preferredSelection = selection.adjusted(-m, -m, m, m);
+            }
+            else {
+                _preferredSelection = selection;
+            }
         }
 
         _selectionDrawing = _selector->render(_preferredSelection);

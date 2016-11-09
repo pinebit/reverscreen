@@ -55,7 +55,6 @@ protected:
 
     bool processingKeyPressEvents(QKeyEvent* keyEvent);
     bool processingKeyReleaseEvents(QKeyEvent* keyEvent);
-    bool processingWheelEvents(QWheelEvent* wheelEvent);
 
 private slots:
     void slotUserSelectionChanged();
@@ -65,6 +64,7 @@ private:
     UserSelection* _userSelection;
     ShadeMode _shadeMode;
     QRect _preferredSelection;
+    bool _addMargins;
 
     QPainterPath _cinemaDrawing;
     QPainterPath _selectionDrawing;

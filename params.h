@@ -10,6 +10,7 @@ struct Params
     static int    MarkerFrameWidth;
     static int    MarkerAlpha;
     static int    MarkerRoundCornerSize;
+    static int    SelectionMarginSize;
 
 private:
     Params() {}
