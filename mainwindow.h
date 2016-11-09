@@ -8,6 +8,8 @@
 #include <QScrollArea>
 #include <QDockWidget>
 #include <QLabel>
+#include <QStack>
+#include <QPainterPath>
 
 class QtAwesome;
 class RsView;
@@ -74,6 +76,7 @@ private:
     CvModelBuilder* _modelBuilder;
     QSharedPointer<CvModel> _model;
     State _state;
+    QStack<QPainterPath> _markers;
 
     QtAwesome* _awesome;
     RsView* _rsview;

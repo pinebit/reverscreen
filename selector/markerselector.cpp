@@ -22,8 +22,7 @@ QPainterPath MarkerSelector::render(const QRect &selection)
     QPainterPath path;
 
     if (!selection.isNull()) {
-        QRect rect = selection.adjusted(-Params::MarkerRoundCornerSize, -Params::MarkerRoundCornerSize, Params::MarkerRoundCornerSize, Params::MarkerRoundCornerSize);
-        path.addRoundedRect(rect, Params::MarkerRoundCornerSize, Params::MarkerRoundCornerSize);
+        path.addRoundedRect(selection, Params::MarkerRoundCornerSize, Params::MarkerRoundCornerSize);
     }
 
     return path;

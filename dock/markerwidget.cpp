@@ -22,12 +22,13 @@ MarkerWidget::MarkerWidget(QWidget *parent)
     vlayout->addSpacing(8);
 
     // undo button
-    QPushButton* undoButton = new QPushButton(tr("Undo"));
-    undoButton->setIcon(AwesomeService::awesome()->icon(fa::undo));
-    undoButton->setMaximumWidth(100);
-    connect(undoButton, &QPushButton::clicked, this, &MarkerWidget::signalUndo);
+    _undoButton = new QPushButton(tr("Undo"));
+    _undoButton->setIcon(AwesomeService::awesome()->icon(fa::undo));
+    _undoButton->setMaximumWidth(100);
+    _undoButton->setEnabled(false);
+    connect(_undoButton, &QPushButton::clicked, this, &MarkerWidget::signalUndo);
 
-    vlayout->addWidget(undoButton);
+    vlayout->addWidget(_undoButton);
     vlayout->addSpacing(8);
 
     // marker shape
@@ -72,6 +73,11 @@ MarkerWidget::MarkerWidget(QWidget *parent)
     vlayout->addWidget(groupBox);
 
     vlayout->addStretch();
+}
+
+void MarkerWidget::setUndoEnabled(bool enabled)
+{
+    _undoButton->setEnabled(enabled);
 }
 
 void MarkerWidget::slotColorButtonToggled(QColor color)

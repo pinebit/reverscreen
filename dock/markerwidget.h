@@ -5,6 +5,7 @@
 
 class ColorActionWidget;
 class QToolButton;
+class QPushButton;
 
 
 class MarkerWidget : public QWidget
@@ -29,6 +30,8 @@ public:
         return _currentShape;
     }
 
+    void setUndoEnabled(bool enabled);
+
 signals:
     void signalUndo();
     void signalMarkerChanged();
@@ -41,6 +44,7 @@ private:
     QToolButton* createColorSwitch(const QColor& color);
 
     QList<QToolButton*> _colorButtons;
+    QPushButton* _undoButton;
     QColor _currentColor;
     MarkerShape _currentShape;
 };

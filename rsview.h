@@ -31,6 +31,7 @@ public:
     void setSelectionAccentPainter(const QSharedPointer<AccentPainter>& accentPainter);
     void setSelectionRenderer(const QSharedPointer<Selector>& selectionRenderer);
     void setShadeMode(ShadeMode shadeMode);
+    void setCustomSelectionDrawings(const QList<QPainterPath>& drawings);
 
     const UserSelection* userSelection() const {
         return _userSelection;
@@ -39,6 +40,14 @@ public:
     QRect preferredSelection() const {
         return _preferredSelection;
     }
+
+    QPainterPath selectionDrawing() const {
+        return _selectionDrawing;
+    }
+
+    void clearSelection();
+
+    QPixmap renderToPixmap();
 
 signals:
     void signalMouseMove(const QPoint& point);
@@ -66,6 +75,7 @@ private:
     QRect _preferredSelection;
     bool _addMargins;
 
+    QPainterPath _customDrawings;
     QPainterPath _cinemaDrawing;
     QPainterPath _selectionDrawing;
 
@@ -73,5 +83,6 @@ private:
     QSharedPointer<Selector> _cinemaSelector;
 
     QSharedPointer<AccentPainter> _selectionAccentPainter;
+    QSharedPointer<AccentPainter> _customDrawingsAccentPainter;
     QSharedPointer<AccentPainter> _cinemaAccentPainter;
 };

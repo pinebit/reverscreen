@@ -16,8 +16,8 @@
 RsView::RsView(QWidget *parent)
     : QWidget(parent)
     , _userSelection(new UserSelection(this))
-    , _selector(0)
     , _addMargins(true)
+    , _selector(0)
 {
     setAutoFillBackground(false);
     setMouseTracking(true);
@@ -35,7 +35,9 @@ void RsView::setImage(const QImage& image){
     _cinemaSelector = QSharedPointer<Selector>(new CinemaSelector(_image.rect()));
     _userSelection->clear();
     _selectionDrawing = QPainterPath();
+    _customDrawings = QPainterPath();
     _preferredSelection = QRect();
+    _customDrawingsAccentPainter.clear();
 
     resize(image.size());
     update();
@@ -59,6 +61,38 @@ void RsView::setShadeMode(RsView::ShadeMode shadeMode)
     update();
 }
 
+void RsView::setCustomSelectionDrawings(const QList<QPainterPath> &drawings)
+{
+    _customDrawingsAccentPainter = _selectionAccentPainter;
+
+    QPainterPath united;
+    foreach (const QPainterPath& pp, drawings) {
+        united = united.united(pp);
+    }
+    _customDrawings = united;
+
+    update();
+}
+
+void RsView::clearSelection()
+{
+    _userSelection->clear();
+    emit signalSelectionCancelled();
+    update();
+}
+
+QPixmap RsView::renderToPixmap()
+{
+    QPixmap pixmap = QPixmap::fromImage(_image);
+    QPainter painter(&pixmap);
+
+    if (!_customDrawingsAccentPainter.isNull()) {
+        _customDrawingsAccentPainter->paint(&painter, _customDrawings);
+    }
+
+    return pixmap;
+}
+
 void RsView::paintEvent(QPaintEvent *event){
     Q_UNUSED(event);
 
@@ -77,6 +111,10 @@ void RsView::paintEvent(QPaintEvent *event){
         if (_shadeMode == Enabled || (_shadeMode == EnabledWhenSelected && hasSelection)) {
             _cinemaAccentPainter->paint(&painter, _cinemaDrawing);
         }
+    }
+
+    if (!_customDrawingsAccentPainter.isNull()) {
+        _customDrawingsAccentPainter->paint(&painter, _customDrawings);
     }
 
     if (hasSelection && !_selectionAccentPainter.isNull()) {
@@ -126,12 +164,9 @@ bool RsView::eventFilter(QObject *obj, QEvent *event) {
 
 bool RsView::processingKeyPressEvents(QKeyEvent* keyEvent) {
     switch (keyEvent->key()) {
-    case Qt::Key_Escape: {
-        _userSelection->clear();
-        emit signalSelectionCancelled();
-        update();
+    case Qt::Key_Escape:
+        clearSelection();
         return true;
-    }
     case Qt::Key_Space:
         _addMargins = !_addMargins;
     case Qt::Key_Control:

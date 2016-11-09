@@ -86,7 +86,7 @@ void MainWindow::slotActionPaste()
 void MainWindow::slotActionCopy()
 {
     QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setImage(_currentImage);
+    clipboard->setImage(_rsview->renderToPixmap().toImage());
 
     _statusbar->showMessage(tr("Copied to the clipboard."));
 }
@@ -140,6 +140,12 @@ void MainWindow::slotSelectionFinished()
     if (_state == ColorState) {
         _colorsWidget->setSelectedColor();
     }
+    else if (_state == MarkerState) {
+        _markers.push(_rsview->selectionDrawing());
+        _markerWidget->setUndoEnabled(true);
+        _rsview->clearSelection();
+        _rsview->setCustomSelectionDrawings(_markers.toList());
+    }
 
     slotSelectionChanged();
 }
@@ -154,13 +160,20 @@ void MainWindow::slotMouseMove(const QPoint &pos)
 
 void MainWindow::slotMarkerUndo()
 {
-    // TODO: implement me
-    qWarning() << "MainWindow::slotMarkerUndo()";
+    if (_markers.size() > 0) {
+        _markers.pop();
+        _rsview->setCustomSelectionDrawings(_markers.toList());
+    }
+
+    if (_markers.size() == 0) {
+        _markerWidget->setUndoEnabled(false);
+    }
 }
 
 void MainWindow::slotMarkerChanged()
 {
     _rsview->setSelectionAccentPainter(createMarkerAccentPainter());
+    _rsview->setCustomSelectionDrawings(_markers.toList());
 }
 
 void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
@@ -207,7 +220,7 @@ QSharedPointer<AccentPainter> MainWindow::createMarkerAccentPainter()
 bool MainWindow::saveImage(const QString &fileName)
 {
     QImageWriter writer(fileName);
-    if (!writer.write(_currentImage)) {
+    if (!writer.write(_rsview->renderToPixmap().toImage())) {
         QMessageBox::information(this, QGuiApplication::applicationDisplayName(),
                                  tr("Cannot save %1: %2")
                                  .arg(QDir::toNativeSeparators(fileName)), writer.errorString());
@@ -278,25 +291,18 @@ void MainWindow::updateImage(const QImage& image)
         _currentImage = image;
     }
 
+    _markers.clear();
+    _markerWidget->setUndoEnabled(false);
+    _colorsWidget->clearColors();
+
     _rsview->setImage(_currentImage);
     _modelBuilder->buildAsync(_currentImage, CvModelBuilderOptions());
 }
 
 void MainWindow::updateImage(const QRect& selection)
 {
-    setCursor(Qt::WaitCursor);
-
     QImage image = _currentImage.copy(selection);
-    if (image.format() != QImage::Format_RGBA8888) {
-        _currentImage = image.convertToFormat(QImage::Format_RGBA8888);
-    } else {
-        _currentImage = image;
-    }
-
-    _rsview->setImage(_currentImage);
-
-    _colorsWidget->clearColors();
-    _modelBuilder->buildAsync(_currentImage, CvModelBuilderOptions());
+    updateImage(image);
 }
 
 void MainWindow::setupUi()
