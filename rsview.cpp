@@ -23,7 +23,7 @@ RsView::RsView(QWidget *parent)
     parent->installEventFilter(this);
 
     _cinemaAccentPainter = QSharedPointer<AccentPainter>(new CinemaAccentPainter(Qt::gray));
-    _cinemaEnabled = true;
+    _shadeMode = Enabled;
 
     connect(_userSelection, &UserSelection::signalSelectionChanged, this, &RsView::slotUserSelectionChanged);
 }
@@ -50,9 +50,9 @@ void RsView::setSelectionRenderer(const QSharedPointer<SelectionRenderer> &selec
     update();
 }
 
-void RsView::setSelectionShading(bool enabled)
+void RsView::setShadeMode(RsView::ShadeMode shadeMode)
 {
-    _cinemaEnabled = enabled;
+    _shadeMode = shadeMode;
     update();
 }
 
@@ -68,7 +68,20 @@ void RsView::paintEvent(QPaintEvent *event){
     painter.setRenderHint(QPainter::HighQualityAntialiasing, true);
     painter.drawImage(0, 0, _image);
 
-    if (_cinemaEnabled) {
+    bool drawCinema = false;
+
+    switch (_shadeMode) {
+    case Enabled:
+        drawCinema = true;
+        break;
+    case EnabledWhenSelected:
+        drawCinema = _userSelection->isSelected();
+        break;
+    default:
+        break;
+    }
+
+    if (drawCinema) {
         _cinemaAccentPainter->paint(&painter, _cinemaDrawing);
     }
 
@@ -183,7 +196,7 @@ bool RsView::processingWheelEvents(QWheelEvent* wheelEvent) {
 
 void RsView::slotUserSelectionChanged()
 {
-    if (_cinemaEnabled) {
+    if (_shadeMode != Disabled) {
         _cinemaDrawing = _cinemaSelectionRenderer->render(_userSelection);
     }
 

@@ -19,12 +19,18 @@ class RsView : public QWidget
     Q_OBJECT
 
 public:
+    enum ShadeMode {
+        Enabled,
+        EnabledWhenSelected,
+        Disabled
+    };
+
     RsView(QWidget *parent);
 
     void setImage(const QImage& image);
     void setSelectionAccentPainter(const QSharedPointer<AccentPainter>& accentPainter);
     void setSelectionRenderer(const QSharedPointer<SelectionRenderer>& selectionRenderer);
-    void setSelectionShading(bool enabled);
+    void setShadeMode(ShadeMode shadeMode);
 
     const UserSelection* userSelection() const {
         return _userSelection;
@@ -57,7 +63,7 @@ private:
     QPainterPath _selectionDrawing;
     QSharedPointer<AccentPainter> _selectionAccentPainter;
 
-    bool _cinemaEnabled;
+    ShadeMode _shadeMode;
     QPainterPath _cinemaDrawing;
     QSharedPointer<AccentPainter> _cinemaAccentPainter;
     QSharedPointer<SelectionRenderer> _cinemaSelectionRenderer;

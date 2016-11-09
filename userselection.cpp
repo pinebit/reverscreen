@@ -8,10 +8,6 @@ UserSelection::UserSelection(QObject *parent)
 
 void UserSelection::clear()
 {
-    if (!_isSelected) {
-        return;
-    }
-
     _track.clear();
     _isSelected = false;
 

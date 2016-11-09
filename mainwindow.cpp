@@ -174,7 +174,9 @@ void MainWindow::handleDockWidgetVisibityChange(QDockWidget *dockWidget)
         }
     }
     else {
-        changeState(CropState);
+        if (!_colorsDock->isVisible() && !_markerDock->isVisible()) {
+            changeState(CropState);
+        }
     }
 }
 
@@ -427,7 +429,7 @@ void MainWindow::changeState(MainWindow::State state)
             _rsview->setSelectionRenderer(QSharedPointer<CvSelectionRenderer>(csr));
             _rsview->setSelectionAccentPainter(createDefaultAccentPainter());
             _rsview->setCursor(Qt::CrossCursor);
-            _rsview->setSelectionShading(true);
+            _rsview->setShadeMode(RsView::EnabledWhenSelected);
             break;
         }
         case ColorState:
@@ -437,7 +439,7 @@ void MainWindow::changeState(MainWindow::State state)
             _rsview->setSelectionRenderer(QSharedPointer<SelectionRenderer>(0));
             _rsview->setSelectionAccentPainter(QSharedPointer<AccentPainter>(0));
             _rsview->setCursor(Qt::CrossCursor);
-            _rsview->setSelectionShading(false);
+            _rsview->setShadeMode(RsView::Disabled);
             break;
         }
         case MarkerState:
@@ -448,7 +450,7 @@ void MainWindow::changeState(MainWindow::State state)
             _rsview->setSelectionRenderer(QSharedPointer<MarkerSelectionRenderer>(msr));
             _rsview->setSelectionAccentPainter(createMarkerAccentPainter());
             _rsview->setCursor(Qt::IBeamCursor);
-            _rsview->setSelectionShading(false);
+            _rsview->setShadeMode(RsView::Disabled);
             break;
         }
     }
