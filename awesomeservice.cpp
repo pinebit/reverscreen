@@ -21,9 +21,4 @@ AwesomeService::AwesomeService(QObject *parent) : QObject(parent)
 {
     _awesome = new QtAwesome(this);
     _awesome->initFontAwesome();
-    _awesome->setDefaultOption("scale-factor", 0.7);
-    _awesome->setDefaultOption("color", QColor(100,50,70));
-    _awesome->setDefaultOption("color-disabled", QColor(70,70,70,60));
-    _awesome->setDefaultOption("color-active", QColor(180,60,80));
-    _awesome->setDefaultOption("color-selected", QColor(200,70,90));
 }

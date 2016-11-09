@@ -34,6 +34,7 @@ void RsView::setImage(const QImage& image){
     _cinemaSelector = QSharedPointer<Selector>(new CinemaSelector(_image.rect()));
     _userSelection->clear();
     _selectionDrawing = QPainterPath();
+    _preferredSelection = QRect();
 
     resize(image.size());
     update();
