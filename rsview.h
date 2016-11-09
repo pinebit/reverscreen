@@ -5,12 +5,15 @@
 #include <QImage>
 #include <QSharedPointer>
 #include <QPaintEvent>
+#include <QPainterPath>
 
 #include "context/regioncontext.h"
+#include "userselection.h"
 
 class SnapAssistant;
 class AccentPainter;
 class RegionContext;
+class SelectionRenderer;
 
 // UI control enabling region selection on a given image
 class RsView : public QWidget
@@ -23,6 +26,7 @@ public:
     void setImage(const QImage& image);
     void setSnapAssistant(const QSharedPointer<SnapAssistant>& snapAssistant);
     void setAccentPainter(const QSharedPointer<AccentPainter>& accentPainter);
+    void setSelectionRenderer(const QSharedPointer<SelectionRenderer>& selectionRenderer);
     QSharedPointer<RegionContext>& getRegionContext();
     
     QRect selectedRegion() const;
@@ -44,8 +48,15 @@ protected:
     bool processingKeyReleaseEvents(QKeyEvent* keyEvent);
     bool processingWheelEvents(QWheelEvent* wheelEvent);
 
+private slots:
+    void slotUserSelectionChanged();
+
 private:
     QImage _image;
+    UserSelection* _userSelection;
+    QSharedPointer<SelectionRenderer> _selectionRenderer;
+    QPainterPath _selectionDrawing;
+    QSharedPointer<AccentPainter> _selectionAccentPainter;
 
     bool _drawShading;
     Qt::MouseButton _mouseButtonPressed;

@@ -33,6 +33,7 @@
 #include "accent/markeraccentpainter.h"
 #include "widgetutils.h"
 #include "cv/cvmodelbuilder.h"
+#include "renderer/markerselectionrenderer.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -155,23 +156,21 @@ void MainWindow::slotMarkerUndo()
     qWarning() << "MainWindow::slotMarkerUndo()";
 }
 
-void MainWindow::slotMarkerShapeChanged(MarkerWidget::MarkerShape shape)
+void MainWindow::slotMarkerChanged()
 {
-    // TODO: implement me
-    qWarning() << "MainWindow::slotMarkerShapeChanged" << shape;
-}
-
-void MainWindow::slotMarkerColorChanged(QColor color)
-{
-    // TODO: implement me
-    qWarning() << "MainWindow::slotMarkerColorChanged" << color;
+    MarkerSelectionRenderer* msr = new MarkerSelectionRenderer(_model);
+    _rsview->setSelectionRenderer(QSharedPointer<MarkerSelectionRenderer>(msr));
+    _rsview->setAccentPainter(createMarkerAccentPainter());
 }
 
 void MainWindow::slotBuildCompleted(QSharedPointer<CvModel> model)
 {
+    _model = model;
+
     QSharedPointer<SnapAssistant> assistant(new CvSnapAssistant(model));
     _rsview->setSnapAssistant(assistant);
     _rsview->setCursor(Qt::CrossCursor);
+    _rsview->setSelectionRenderer(QSharedPointer<MarkerSelectionRenderer>(new MarkerSelectionRenderer(model)));
 
     setCursor(Qt::ArrowCursor);
 
@@ -205,8 +204,9 @@ QSharedPointer<AccentPainter> MainWindow::createDefaultAccentPainter()
 
 QSharedPointer<AccentPainter> MainWindow::createMarkerAccentPainter()
 {
-    QColor color = _markerWidget->getMarkerColor();
-    return QSharedPointer<AccentPainter>(new MarkerAccentPainter(color));
+    bool fill = _markerWidget->markerShape() == MarkerWidget::Fill;
+    MarkerAccentPainter* painter = new MarkerAccentPainter(_markerWidget->markerColor(), fill);
+    return QSharedPointer<AccentPainter>(painter);
 }
 
 bool MainWindow::saveImage(const QString &fileName)
@@ -419,8 +419,7 @@ void MainWindow::setupUi()
     _markerDock->setObjectName("MarkerDockWidget");
     _markerWidget = new MarkerWidget(_markerDock);
     connect(_markerWidget, &MarkerWidget::signalUndo, this, &MainWindow::slotMarkerUndo);
-    connect(_markerWidget, &MarkerWidget::signalShapeChanged, this, &MainWindow::slotMarkerShapeChanged);
-    connect(_markerWidget, &MarkerWidget::signalColorChanged, this, &MainWindow::slotMarkerColorChanged);
+    connect(_markerWidget, &MarkerWidget::signalMarkerChanged, this, &MainWindow::slotMarkerChanged);
     setupDockWidget(_markerDock, _awesome->icon(fa::lightbulbo), _markerWidget);
 
     // toolbar

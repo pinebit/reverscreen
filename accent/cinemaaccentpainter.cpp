@@ -29,3 +29,9 @@ void CinemaAccentPainter::paint(QPainter *painter, const QRect& scope, const QRe
     QRect rightRect(region.topRight(), QPoint(scope.right(), region.bottom()));
     painter->fillRect(rightRect, _brush);
 }
+
+
+void CinemaAccentPainter::paint(QPainter *painter, const QPainterPath &path)
+{
+    // TODO:
+}

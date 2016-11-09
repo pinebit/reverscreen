@@ -24,3 +24,9 @@ RectangleDashLineAccentPainter::RectangleDashLineAccentPainter()
     : RectangleAccentPainter(QPen(Qt::red, 1, Qt::DashLine))
 {
 }
+
+
+void RectangleAccentPainter::paint(QPainter *painter, const QPainterPath &path)
+{
+    // TODO:
+}

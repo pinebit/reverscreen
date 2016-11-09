@@ -11,6 +11,7 @@ class SelectionAccentPainter : public AccentPainter
 public:
     SelectionAccentPainter(const QPen& pen, const QBrush& brush);
 
+    void paint(QPainter *painter, const QPainterPath &path);
     void paint(QPainter *painter, const QRect& scope, const QRect& region);
 
 private:

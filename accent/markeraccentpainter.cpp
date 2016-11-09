@@ -3,10 +3,13 @@
 #include <QBrush>
 #include <QPainter>
 
-MarkerAccentPainter::MarkerAccentPainter(const QColor& color)
+#define DEFAULT_PEN_WIDTH 3
+
+MarkerAccentPainter::MarkerAccentPainter(const QColor& color, bool fill)
     : _color(color)
+    , _fill(fill)
 {
-    _color.setAlpha(100);
+    _color.setAlpha(150);
 }
 
 void MarkerAccentPainter::paint(QPainter *painter, const QRect &scope, const QRect &region)
@@ -16,4 +19,19 @@ void MarkerAccentPainter::paint(QPainter *painter, const QRect &scope, const QRe
 
     QBrush brush(_color);
     painter->fillRect(region, brush);
+}
+
+
+void MarkerAccentPainter::paint(QPainter *painter, const QPainterPath &path)
+{
+    if (_fill) {
+        QBrush brush(_color);
+        painter->fillPath(path, brush);
+    }
+    else {
+        QPen pen(_color);
+        pen.setWidth(DEFAULT_PEN_WIDTH);
+        painter->setPen(pen);
+        painter->drawPath(path);
+    }
 }

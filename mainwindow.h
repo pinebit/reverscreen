@@ -8,11 +8,10 @@
 #include <QScrollArea>
 #include <QDockWidget>
 
-#include <dock/markerwidget.h>
-
 class QtAwesome;
 class RsView;
 class ColorsWidget;
+class MarkerWidget;
 class AccentPainter;
 class CvModelBuilder;
 class CvModel;
@@ -39,8 +38,7 @@ private slots:
     void slotMouseMove(const QPoint& pos);
 
     void slotMarkerUndo();
-    void slotMarkerShapeChanged(MarkerWidget::MarkerShape shape);
-    void slotMarkerColorChanged(QColor color);
+    void slotMarkerChanged();
 
     void slotBuildCompleted(QSharedPointer<CvModel> model);
 
@@ -67,6 +65,7 @@ private:
 
     QImage _currentImage;
     CvModelBuilder* _modelBuilder;
+    QSharedPointer<CvModel> _model;
 
     QtAwesome* _awesome;
     RsView* _rsview;

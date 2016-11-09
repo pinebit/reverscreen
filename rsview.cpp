@@ -9,9 +9,12 @@
 #include "accent/rectangleaccentpainter.h"
 #include "accent/selectionaccentpainter.h"
 #include "assistant/snapassistant.h"
+#include "renderer/selectionrenderer.h"
 
 RsView::RsView(QWidget *parent, bool drawShading)
     : QWidget(parent)
+    , _userSelection(new UserSelection(this))
+    , _selectionRenderer(0)
     , _drawShading(drawShading)
     , _mouseButtonPressed(Qt::NoButton)
     , _regionContext(new RegionContext())
@@ -23,6 +26,8 @@ RsView::RsView(QWidget *parent, bool drawShading)
     setMouseTracking(true);
 
     parent->installEventFilter(this);
+
+    connect(_userSelection, &UserSelection::signalSelectionChanged, this, &RsView::slotUserSelectionChanged);
 }
 
 void RsView::setImage(const QImage& image){
@@ -42,7 +47,16 @@ void RsView::setSnapAssistant(const QSharedPointer<SnapAssistant>& snapAssistant
 }
 
 void RsView::setAccentPainter(const QSharedPointer<AccentPainter>& accentPainter) {
+    _selectionAccentPainter = accentPainter;
+    update();
+
+    // old...
     _selectedSolidLineAccentPainter = accentPainter;
+}
+
+void RsView::setSelectionRenderer(const QSharedPointer<SelectionRenderer> &selectionRenderer)
+{
+    _selectionRenderer = selectionRenderer;
     update();
 }
 
@@ -96,9 +110,20 @@ void RsView::paintEvent(QPaintEvent *event){
             _selectedSolidLineAccentPainter->paint(&painter, _regionContext->scopeRegion(), customRegion);
         }
     }
+
+    if (!_selectionDrawing.isEmpty()) {
+        _selectionAccentPainter->paint(&painter, _selectionDrawing);
+    }
 }
 
 void RsView::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        _userSelection->clear();
+        _userSelection->add(event->pos());
+        event->accept();
+    }
+
+    // old...
     _mouseButtonPressed = event->button();
     if (_mouseButtonPressed == Qt::LeftButton) {
         _regionContext->clearRegion();
@@ -112,6 +137,12 @@ void RsView::mousePressEvent(QMouseEvent *event) {
 
 void RsView::mouseMoveEvent(QMouseEvent *event) {
     event->accept();
+
+    if (event->buttons() == Qt::LeftButton) {
+        _userSelection->add(event->pos());
+    }
+
+    // old...
     if (event->buttons() == Qt::LeftButton) {
         if (_snapAssistant.isNull()) {
             return;
@@ -231,4 +262,12 @@ bool RsView::processingWheelEvents(QWheelEvent* wheelEvent){
         break;
     }
     return false;
+}
+
+void RsView::slotUserSelectionChanged()
+{
+    if (!_selectionRenderer.isNull()) {
+        _selectionDrawing = _selectionRenderer->render(_userSelection);
+        update();
+    }
 }

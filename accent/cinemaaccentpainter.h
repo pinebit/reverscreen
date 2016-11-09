@@ -9,6 +9,7 @@ class CinemaAccentPainter : public AccentPainter
 public:
     CinemaAccentPainter(const QBrush& brush);
 
+    void paint(QPainter *painter, const QPainterPath &path);
     void paint(QPainter *painter, const QRect& scope, const QRect& region);
 
 private:

@@ -53,3 +53,11 @@ SelectionDashLineAccentPainter::SelectionDashLineAccentPainter()
     : SelectionAccentPainter(RegionDashLinePen,
                              QBrush(QColor(ShaderColor.red(), ShaderColor.green(), ShaderColor.blue(), 100))){
 }
+
+
+void SelectionAccentPainter::paint(QPainter *painter, const QPainterPath &path)
+{
+    QPen pen(Qt::green);
+    painter->setPen(pen);
+    painter->drawPath(path);
+}

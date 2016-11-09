@@ -20,7 +20,7 @@ void UserSelection::clear()
 
 void UserSelection::add(const QPoint &point)
 {
-    if (_track.last() != point) {
+    if (_track.isEmpty() || _track.last() != point) {
         _track << point;
     }
 
