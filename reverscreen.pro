@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     widgetutils.cpp \
     rsview.cpp \
     dock/markerwidget.cpp \
-    accent/markeraccentpainter.cpp
+    accent/markeraccentpainter.cpp \
+    userselection.cpp
 
 HEADERS  += mainwindow.h \
     cv/cvmodelbuilder.h \
@@ -42,7 +43,8 @@ HEADERS  += mainwindow.h \
     widgetutils.h \
     rsview.h \
     dock/markerwidget.h \
-    accent/markeraccentpainter.h
+    accent/markeraccentpainter.h \
+    userselection.h
     
 RESOURCES += \
     reverscreen.qrc
