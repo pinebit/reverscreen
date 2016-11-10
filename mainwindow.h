@@ -33,6 +33,7 @@ private slots:
     void slotActionCopy();
     void slotActionSave();
     void slotActionCrop();
+    void slotActionHelp();
 
     void slotSelectionChanged();
     void slotSelectionFinished();

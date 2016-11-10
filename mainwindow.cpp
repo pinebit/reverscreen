@@ -19,13 +19,15 @@
 #include <QDebug>
 #include <QMimeData>
 #include <QSettings>
+#include <QTimer>
 
 #include "awesomeservice.h"
 #include "mainwindow.h"
 #include "rsview.h"
 #include "dock/colorswidget.h"
 #include "dock/markerwidget.h"
-#include "fullscreenselectiondialog.h"
+#include "dialogs/fullscreenselectiondialog.h"
+#include "dialogs/helpdialog.h"
 #include "accent/rectangleaccentpainter.h"
 #include "accent/cinemaaccentpainter.h"
 #include "accent/markeraccentpainter.h"
@@ -409,6 +411,8 @@ void MainWindow::setupUi()
     _toolbar->setObjectName("Toolbar");
 
     WidgetUtils::centerWindow(this);
+
+    QTimer::singleShot(10, this, SLOT(slotActionHelp()));
 }
 
 void MainWindow::setupDockWidget(QDockWidget *dockWidget, QIcon icon, QWidget *contentWidget)
@@ -530,4 +534,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings.setValue("geometry", saveGeometry());
     settings.setValue("windowState", saveState());
     QMainWindow::closeEvent(event);
+}
+
+void MainWindow::slotActionHelp(){
+    QSettings settings;
+    bool showHelpDialog = !settings.contains("showHelpDialog") || settings.value("showHelpDialog").toBool();
+    if (showHelpDialog){
+        HelpDialog::showPage("/docs","index.html", this);
+    }
 }
