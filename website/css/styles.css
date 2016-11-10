@@ -19,3 +19,17 @@ body {
     letter-spacing: 0.1em;
     border: 2px dashed red;
 }
+
+li {
+    line-height: 1.7em;
+}
+
+li span {
+    color: darkred;
+    font-weight: bolder;
+}
+
+.download {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
