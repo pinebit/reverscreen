@@ -113,13 +113,14 @@ void MarkerWidget::updateMode(MarkerShape markerShape)
 
 QToolButton *MarkerWidget::createColorSwitch(const QColor &color)
 {
-    QPixmap pm(64, 64);
+    QPixmap pm(50, 50);
     pm.fill(color);
 
     QToolButton* button = new QToolButton;
-    button->setIcon(pm);
-    button->setIconSize(QSize(64, 64));
     button->setCheckable(true);
+    button->setIcon(pm);
+    button->setIconSize(QSize(50, 50));
+    button->setMaximumSize(56, 56);
     button->setStyleSheet("QToolButton {"
                           "border: none;"
                           "}"

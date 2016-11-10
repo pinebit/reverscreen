@@ -24,7 +24,7 @@
     </div>
 
     <div class="alert animated fadeIn" role="alert">
-        <blockquote>REVERSCREEN is a snipping tool that leverages computer vision algorithms to simplify precise on-screen objects selection and cropping.</blockquote>
+        <blockquote>REVERSCREEN is a snipping tool that leverages computer vision algorithms to simplify precise objects selection, highlighting and cropping.</blockquote>
     </div>
 
     <div class="panel panel-success animated fadeIn">
@@ -35,15 +35,30 @@
     </div>
 
     <div class="panel panel-success animated fadeIn">
-        <div class="panel-heading">HOW TO USE</div>
+        <div class="panel-heading">USAGE TIPS</div>
         <div class="panel-body">
             <ul>
-                <li>Start the application and click the Screenshot button to start a new snipping.</li>
-                <li>In full-screen mode, you can select an arbitrary area using left mouse button.</li>
-                <li>If you see a highlighted object (dashed red line) found by computer vision, press the Ctrl button and the selection will be snapped to this rectangle. Release the mouse button to finish the selection.</li>
-                <li>You can also do the same in windowed mode. Here, you can also use the Ctrl button to control how the selection is done and what should be cropped.</li>
-                <li>Use the Colors pane as a standard color-picker tool. The colors here are represented in the CSS hexadecimal form.</li>
-                <li>The resulted cropped image can then be Copied to the clipboard or can be Saved to a file.</li>
+
+                <li>Click <span>Capture</span> to make a new snipping, or
+                    <ul>
+                        <li>Press <span>CTRL+V</span> to paste from the Clipboard,</li>
+                        <li>Drag &amp; Drop an image from another program.</li>
+                    </ul>
+                </li>
+
+                <li>Press <span>ESC</span> key to cancel a selection at any time.</li>
+
+                <li>When selecting an area:
+                    <ul>
+                        <li><span>CTRL</span> key changes the selection mode,</li>
+                        <li><span>SPACE</span> key toggles fixed margins.</li>
+                    </ul>
+                </li>
+
+                <li>Use the <span>Marker</span> mode to highlight any objects.</li>
+                <li>Use the <span>Colors</span> mode to pick exact colors from the image.</li>
+                <li>The resulted image can be copied to the clipboard or can be saved to a file.</li>
+
             </ul>
         </div>
     </div>
@@ -51,15 +66,11 @@
     <div class="panel panel-info animated fadeIn">
         <div class="panel-heading">DOWNLOAD</div>
         <div class="panel-body text-left">
-            <p>The product is licensed under MIT license.</p>
+            <p>REVERSCREEN is licensed under the MIT license. (<a href="http://opensource.org/licenses/MIT">http://opensource.org/licenses/MIT</a>)</p>
+            <a href="release/ReverscreenSetup.zip" download="" class="btn btn-info download">REVERSCREEN for Windows (setup, 14Mb)</a>
             <p><i>Note: REVERSCREEN executable is not signed with a certificate, so expect Windows to warn you about this app is untrusted.</i></p>
-            <a href="release/ReverscreenSetup.zip" download="" class="btn btn-info">REVERSCREEN for Windows (setup, 14Mb)</a>
             <hr>
-            <p>The following are experimental builds for 64-bit MacOS and Ubuntu:</p>
-            <a href="release/REVERSCREEN-macOS.zip" download="" class="btn btn-danger">Experimental build for macOS Sierra (2Mb)</a>
-            <a href="release/REVERSCREEN-Ubuntu64.zip" download="" class="btn btn-danger">Experimental build for Ubuntu (1Mb)</a>
-            <hr>
-            <p>You can also get the <a href="https://github.com/pinebit/reverscreen">source code</a>, and build the app for your platform.</p>
+            <p>The program can be built for MacOS and Linux as well. Check <a href="https://github.com/pinebit/reverscreen">the source code</a> on GitHub for building instructions.</p>
         </div>
     </div>
 
@@ -67,7 +78,7 @@
         <hr/>
         <div class="row">
             <div class="col-sm-6">
-                Questions? <a href="mailto:pinebit@gmail.com">pinebit@gmail.com</a>
+                Contact: <a href="mailto:pinebit@gmail.com">pinebit@gmail.com</a>
             </div>
             <div class="col-sm-6 text-right">
                 <a href="http://reverscreen.com">2016 &copy; reverscreen.com</a>
