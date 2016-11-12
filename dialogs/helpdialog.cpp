@@ -6,36 +6,22 @@
 #include <QSettings>
 #include <QDir>
 
-inline QDir directoryOf(const QString &subdir)
-{
-    QDir dir(QApplication::applicationDirPath());
-#if defined(Q_OS_WIN)
-    if (dir.dirName().toLower() == "debug" || dir.dirName().toLower() == "release")
-        dir.cdUp();
-#elif defined(Q_OS_MAC)
-    if (dir.dirName() == "MacOS") {
-        dir.cdUp();
-        dir.cdUp();
-        dir.cdUp();
-    }
-#endif
-    dir.cd(subdir);
-    return dir;
-}
-
 HelpDialog::HelpDialog(const QString& path, const QString& page, QWidget* parent)
     : QDialog(parent)
 {
     setWindowFlags(Qt::Tool);
+    setWindowTitle(tr("HOW TO USE REVERSCREEN"));
 
-    textBrowser = new QTextBrowser;
+    QTextBrowser* textBrowser = new QTextBrowser;
+    textBrowser->setSource(QUrl(path + page));
+    textBrowser->setContextMenuPolicy(Qt::NoContextMenu);
+    textBrowser->setTextInteractionFlags(Qt::NoTextInteraction);
 
-    checkBox = new QCheckBox(tr("Don't show this dialog"));
+    QCheckBox* checkBox = new QCheckBox(tr("Don't show this dialog again"));
     checkBox->setCheckState(Qt::Checked);
     connect(checkBox, SIGNAL(toggled(bool)), this, SLOT(checkBoxToggled(bool)));
 
-    closeButton = new QPushButton(tr("Close"));
-    closeButton->setShortcut(tr("Esc"));
+    QPushButton* closeButton = new QPushButton(tr("Close"));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addWidget(checkBox);
@@ -47,25 +33,19 @@ HelpDialog::HelpDialog(const QString& path, const QString& page, QWidget* parent
     mainLayout->addLayout(buttonLayout);
     setLayout(mainLayout);
 
-    connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
-    
-    textBrowser->setSearchPaths(QStringList() << path);
-    textBrowser->setSource(page);
-
+    connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
+ 
     QSettings settings;
-    if (settings.contains("showHelpDialog")){
-        bool checked = settings.value("showHelpDialog").toBool();
-        checkBox->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
-    }
+    bool checked = settings.value("hideHelpDialog", true).toBool();
+    checkBox->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
 
-    resize(500,400);
+    setFixedSize(450, 300);
     move(parent->geometry().center() - geometry().center());
 }
 
 void HelpDialog::showPage(const QString& path, const QString& page, QWidget* parent)
 {
-  QString fullPath = qApp->applicationDirPath() + path;
-  HelpDialog *helpDialog = new HelpDialog(fullPath, page, parent);
+  HelpDialog *helpDialog = new HelpDialog(path, page, parent);
   helpDialog->exec();
 
 }
