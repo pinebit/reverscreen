@@ -97,5 +97,6 @@ private:
     QAction* _actionCopy;
     QAction* _actionSave;
     QAction* _actionCrop;
+    QAction* _actionHelp;
 };
 

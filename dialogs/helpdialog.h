@@ -12,7 +12,7 @@ class HelpDialog : public QDialog
 public:
     HelpDialog(const QString& path, const QString& page, QWidget* parent);
     
-    static void showPage(const QString& path, const QString& page, QWidget* parent);
+    static bool canShowDialog();
 
 private slots:
     void checkBoxToggled(bool);

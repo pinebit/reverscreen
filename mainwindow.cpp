@@ -360,14 +360,18 @@ void MainWindow::setupUi()
     _actionSave->setShortcut(QKeySequence("Ctrl+S"));
     _actionCrop = new QAction(_awesome->icon(fa::crop), tr("Crop"), this);
     _actionCrop->setShortcut(QKeySequence("Ctrl+X"));
+    _actionHelp = new QAction(tr("Help"), this);
+    _actionHelp->setShortcut(QKeySequence("F1"));
 
     addAction(_actionPaste);
+    addAction(_actionHelp);
 
     connect(_actionCapture, &QAction::triggered, this, &MainWindow::slotActionCapture);
     connect(_actionPaste, &QAction::triggered, this, &MainWindow::slotActionPaste);
     connect(_actionCopy, &QAction::triggered, this, &MainWindow::slotActionCopy);
     connect(_actionSave, &QAction::triggered, this, &MainWindow::slotActionSave);
     connect(_actionCrop, &QAction::triggered, this, &MainWindow::slotActionCrop);
+    connect(_actionHelp, &QAction::triggered, this, &MainWindow::slotActionHelp);
 
     // central widget
     _scrollArea = new QScrollArea(this);
@@ -537,6 +541,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QMainWindow::closeEvent(event);
 }
 
-void MainWindow::slotActionHelp(){
-    HelpDialog::showPage("qrc:/docs","/usage_tips.html", this);
+void MainWindow::slotActionHelp()
+{
+    bool canShowHelp = (sender() == _actionHelp) || HelpDialog::canShowDialog();
+    if (canShowHelp) {
+        HelpDialog* helpDialog = new HelpDialog("qrc:/docs","/usage_tips.html", this);
+        helpDialog->exec();
+    }
 }

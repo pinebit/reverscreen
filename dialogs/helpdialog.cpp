@@ -5,12 +5,14 @@
 #include <QGroupBox>
 #include <QSettings>
 #include <QDir>
+#include <QDebug>
+
+#define HIDE_DIALOG_SETTING_KEY  "hideHelpDialog"
 
 HelpDialog::HelpDialog(const QString& path, const QString& page, QWidget* parent)
-    : QDialog(parent)
+    : QDialog(parent, Qt::WindowSystemMenuHint | Qt::WindowTitleHint)
 {
-    setWindowFlags(Qt::Tool);
-    setWindowTitle(tr("HOW TO USE REVERSCREEN"));
+    setWindowTitle(tr("HELP"));
 
     QTextBrowser* textBrowser = new QTextBrowser;
     textBrowser->setSource(QUrl(path + page));
@@ -18,10 +20,11 @@ HelpDialog::HelpDialog(const QString& path, const QString& page, QWidget* parent
     textBrowser->setTextInteractionFlags(Qt::NoTextInteraction);
 
     QCheckBox* checkBox = new QCheckBox(tr("Don't show this dialog again"));
+    connect(checkBox, &QCheckBox::toggled, this, &HelpDialog::checkBoxToggled);
     checkBox->setCheckState(Qt::Checked);
-    connect(checkBox, SIGNAL(toggled(bool)), this, SLOT(checkBoxToggled(bool)));
 
     QPushButton* closeButton = new QPushButton(tr("Close"));
+    connect(closeButton, QPushButton::clicked, this, &HelpDialog::reject);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addWidget(checkBox);
@@ -33,28 +36,18 @@ HelpDialog::HelpDialog(const QString& path, const QString& page, QWidget* parent
     mainLayout->addLayout(buttonLayout);
     setLayout(mainLayout);
 
-    connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
- 
-    QSettings settings;
-    bool checked = settings.value("hideHelpDialog", true).toBool();
-    checkBox->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
-
     setFixedSize(450, 300);
     move(parent->geometry().center() - geometry().center());
 }
 
-void HelpDialog::showPage(const QString& path, const QString& page, QWidget* parent)
+bool HelpDialog::canShowDialog()
 {
     QSettings settings;
-    bool hideHelpDialog = settings.value("hideHelpDialog", false).toBool();
-    if (!hideHelpDialog){
-        HelpDialog *helpDialog = new HelpDialog(path, page, parent);
-        helpDialog->exec();
-    }
+    return !settings.value(HIDE_DIALOG_SETTING_KEY, false).toBool();
 }
 
 void HelpDialog::checkBoxToggled(bool checked)
 {
     QSettings settings;
-    settings.setValue("hideHelpDialog", checked);
+    settings.setValue(HIDE_DIALOG_SETTING_KEY, checked);
 }
