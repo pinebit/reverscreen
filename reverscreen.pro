@@ -10,42 +10,44 @@ SOURCES += main.cpp\
     cv/cvmodelbuilder.cpp \
     cv/cvmodel.cpp \
     cv/cvmodelbuilderoptions.cpp \
-    fullscreenselectiondialog.cpp \
+    dialogs/fullscreenselectiondialog.cpp \
+    dialogs/helpdialog.cpp \
     dock/colorswidget.cpp \
+    dock/markerwidget.cpp \
     controls/coloractionwidget.cpp \
-    awesomeservice.cpp \
     accent/rectangleaccentpainter.cpp \
     accent/cinemaaccentpainter.cpp \
-    widgetutils.cpp \
-    rsview.cpp \
-    dock/markerwidget.cpp \
     accent/markeraccentpainter.cpp \
-    userselection.cpp \
     selector/cinemaselector.cpp \
     selector/cvselector.cpp \
     selector/markerselector.cpp \
+    awesomeservice.cpp \
+    widgetutils.cpp \
+    rsview.cpp \
+    userselection.cpp \
     params.cpp
 
 HEADERS  += mainwindow.h \
     cv/cvmodelbuilder.h \
     cv/cvmodel.h \
     cv/cvmodelbuilderoptions.h \
-    fullscreenselectiondialog.h \
+    dialogs/fullscreenselectiondialog.h \
+    dialogs/helpdialog.h \
+    dock/markerwidget.h \
     dock/colorswidget.h \
     controls/coloractionwidget.h \
-    awesomeservice.h \
     accent/accentpainter.h \
     accent/rectangleaccentpainter.h \
     accent/cinemaaccentpainter.h \
-    widgetutils.h \
-    rsview.h \
-    dock/markerwidget.h \
     accent/markeraccentpainter.h \
-    userselection.h \
     selector/selector.h \
     selector/cinemaselector.h \
     selector/cvselector.h \
     selector/markerselector.h \
+    awesomeservice.h \
+    widgetutils.h \
+    rsview.h \
+    userselection.h \
     params.h
     
 RESOURCES += \

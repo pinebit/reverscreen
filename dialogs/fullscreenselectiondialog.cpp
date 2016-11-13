@@ -1,6 +1,6 @@
 #include <QLabel>
 
-#include "fullscreenselectiondialog.h"
+#include "dialogs/fullscreenselectiondialog.h"
 #include "rsview.h"
 #include "cv/cvmodelbuilder.h"
 #include "cv/cvmodel.h"
