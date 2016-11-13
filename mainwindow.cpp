@@ -538,9 +538,5 @@ void MainWindow::closeEvent(QCloseEvent *event)
 }
 
 void MainWindow::slotActionHelp(){
-    QSettings settings;
-    bool showHelpDialog = settings.value("hideHelpDialog","true").toBool();
-    if (showHelpDialog){
-        HelpDialog::showPage("qrc:/docs","/usage_tips.html", this);
-    }
+    HelpDialog::showPage("qrc:/docs","/usage_tips.html", this);
 }

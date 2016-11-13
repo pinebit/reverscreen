@@ -45,10 +45,14 @@ HelpDialog::HelpDialog(const QString& path, const QString& page, QWidget* parent
 
 void HelpDialog::showPage(const QString& path, const QString& page, QWidget* parent)
 {
-  HelpDialog *helpDialog = new HelpDialog(path, page, parent);
-  helpDialog->exec();
-
+    QSettings settings;
+    bool hideHelpDialog = settings.value("hideHelpDialog", false).toBool();
+    if (!hideHelpDialog){
+        HelpDialog *helpDialog = new HelpDialog(path, page, parent);
+        helpDialog->exec();
+    }
 }
+
 void HelpDialog::checkBoxToggled(bool checked)
 {
     QSettings settings;
