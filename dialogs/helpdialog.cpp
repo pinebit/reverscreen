@@ -52,5 +52,5 @@ void HelpDialog::showPage(const QString& path, const QString& page, QWidget* par
 void HelpDialog::checkBoxToggled(bool checked)
 {
     QSettings settings;
-    settings.setValue("showHelpDialog", checked);
+    settings.setValue("hideHelpDialog", checked);
 }
