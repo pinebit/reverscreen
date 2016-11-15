@@ -25,7 +25,9 @@ SOURCES += main.cpp\
     widgetutils.cpp \
     rsview.cpp \
     userselection.cpp \
-    params.cpp
+    params.cpp \
+    platforms/clipboard.cpp \
+    platforms/image.cpp
 
 HEADERS  += mainwindow.h \
     cv/cvmodelbuilder.h \
@@ -48,7 +50,9 @@ HEADERS  += mainwindow.h \
     widgetutils.h \
     rsview.h \
     userselection.h \
-    params.h
+    params.h \
+    platforms/clipboard.h \
+    platforms/image.h
     
 RESOURCES += \
     reverscreen.qrc
@@ -66,6 +70,7 @@ OPENCV_PATH = C:/Opencv/mingw_debug
 INCLUDEPATH += $$OPENCV_PATH/include
 LIBS += -L"$$OPENCV_PATH/x86/mingw/lib"
 LIBS += -lopencv_core2413.dll -lopencv_imgproc2413.dll
+LIBS += -lgdi32
 
 QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 
