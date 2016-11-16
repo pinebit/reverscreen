@@ -1,9 +1,7 @@
 
-#include <platforms/image.h>
+#include "image.h"
 
-#ifdef Q_OS_WIN
-
-HBITMAP convertQImageToHBITMAP(const QImage& image){
+HBITMAP image::convertQImageToHBITMAP(const QImage& image){
     if (image.isNull())
        return 0;
 
@@ -38,7 +36,7 @@ HBITMAP convertQImageToHBITMAP(const QImage& image){
     return bitmap;
 }
 
-HBITMAP captureQWidget(const QWidget& widget){
+HBITMAP image::captureQWidget(const QWidget& widget){
     HWND hWnd = (HWND)widget.winId();
     HDC displayDC = ::GetDC(hWnd);
     if (!displayDC){
@@ -56,5 +54,3 @@ HBITMAP captureQWidget(const QWidget& widget){
     ::ReleaseDC(hWnd, memoryDC);
     return bitmap;
 }
-
-#endif

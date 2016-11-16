@@ -25,9 +25,7 @@ SOURCES += main.cpp\
     widgetutils.cpp \
     rsview.cpp \
     userselection.cpp \
-    params.cpp \
-    platforms/clipboard.cpp \
-    platforms/image.cpp
+    params.cpp
 
 HEADERS  += mainwindow.h \
     cv/cvmodelbuilder.h \
@@ -50,9 +48,7 @@ HEADERS  += mainwindow.h \
     widgetutils.h \
     rsview.h \
     userselection.h \
-    params.h \
-    platforms/clipboard.h \
-    platforms/image.h
+    params.h
     
 RESOURCES += \
     reverscreen.qrc
@@ -90,6 +86,7 @@ QMAKE_INFO_PLIST = Info.plist
 
 QMAKE_CXXFLAGS += -Wno-deprecated-declarations
 
+include(platform/platform.pri)
 include(QtAwesome/QtAwesome.pri)
 
 SUBDIRS += QtAwesome/QtAwesome.pro \
@@ -114,3 +111,4 @@ DISTFILES += \
     LICENSE \
     README.md \
     nsis/reverscreen.nsi
+    
