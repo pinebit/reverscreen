@@ -24,7 +24,7 @@ HelpDialog::HelpDialog(const QString& path, const QString& page, QWidget* parent
     checkBox->setCheckState(Qt::Checked);
 
     QPushButton* closeButton = new QPushButton(tr("Close"));
-    connect(closeButton, QPushButton::clicked, this, &HelpDialog::reject);
+    connect(closeButton, &QPushButton::clicked, this, &HelpDialog::reject);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addWidget(checkBox);
