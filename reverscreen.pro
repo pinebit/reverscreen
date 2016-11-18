@@ -93,22 +93,6 @@ SUBDIRS += QtAwesome/QtAwesome.pro \
     QtAwesome/QtAwesome.pro
 
 DISTFILES += \
-    icons/reverscreen-icon-design.xlsx \
-    website/img/reverscreen-demo.gif \
-    website/img/reverscreen-64.png \
-    website/img/rs-step-1.png \
-    website/img/rs-step-2.PNG \
-    website/img/rs-step-3.PNG \
-    website/img/rs-step-4.PNG \
-    new-rs-icon.png \
-    website/favicon.ico \
-    website/css/animate.css \
-    website/css/bootstrap.min.css \
-    website/css/styles.css \
-    website/index.html \
-    .gitignore \
     BUILDING \
     LICENSE \
-    README.md \
-    nsis/reverscreen.nsi
-    
+    README.md
