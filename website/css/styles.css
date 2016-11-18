@@ -1,60 +1,35 @@
 body {
-    background-color: #F3F3F3;
-    color: #333;
-    max-width: 1300px;
+    max-width: 1000px;
     margin: 50px auto;
 }
 
-header {
-    text-align: center;
-    font-family: Arial, Helvetica, sans-serif
+.video {
+    width: 100%;
 }
 
-h1 {
-    letter-spacing: 0.3em;
+.jumbotron {
+    border: 2px solid red;
+    background-color: #fff;
 }
 
-h2 {
-    color: #777;
+.jumbotron-content {
+    margin: 0;
+    padding: 0;
+    font-weight: bolder;
+    letter-spacing: 0.1em;
+    border: 2px dashed red;
 }
 
-h1>span {
-    color: orangered;
-    letter-spacing: 0;
-    margin-right: 8px;
-    padding: 0 4px;
-    border: 1px solid orangered;
-    display: inline-block;
+li {
+    line-height: 1.7em;
 }
 
-section {
-    text-align: center;
-    margin: 250px auto;
-    color: gray;
+li span {
+    color: darkred;
+    font-weight: bolder;
 }
 
-h3 {
-    animation-delay: 0.5s;
-    font-family: Courier New, Courier, monospace
-}
-
-footer {
-    animation-delay: 1s;
-}
-
-footer a {
-    color: gray;
-    font-family: Courier New, Courier, monospace
-}
-
-footer .left {
-    text-align: left;
-    width: 50%;
-    float: left;
-}
-
-footer .right {
-    text-align: right;
-    width: 50%;
-    float: right;
+.download {
+    margin-top: 10px;
+    margin-bottom: 10px;
 }

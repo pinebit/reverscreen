@@ -1,19 +1,23 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 #include <QFileDialog>
+#include <QStatusBar>
+#include <QToolBar>
+#include <QAction>
+#include <QScrollArea>
+#include <QDockWidget>
 #include <QLabel>
-
-#include <memory>
-
-#include "imagecropwidget.h"
-
-namespace Ui {
-class MainWindow;
-}
+#include <QStack>
+#include <QPainterPath>
 
 class QtAwesome;
+class RsView;
+class ColorsWidget;
+class MarkerWidget;
+class AccentPainter;
+class CvModelBuilder;
+class CvModel;
 
 class MainWindow : public QMainWindow
 {
@@ -21,27 +25,78 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
 
 private slots:
-    void on_actionNew_triggered();
-    void on_actionCopy_triggered();
-    void on_actionSave_triggered();
-    void selectionModeChanged(ImageCropWidget::SelectionMode mode);
+    void slotActionCapture();
+    void slotActionPaste();
+    void slotActionOpen();
+    void slotActionCopy();
+    void slotActionSave();
+    void slotActionCrop();
+    void slotActionHelp();
+
+    void slotSelectionChanged();
+    void slotSelectionFinished();
+    void slotMouseMove(const QPoint& pos);
+
+    void slotMarkerUndo();
+    void slotMarkerChanged();
+
+    void slotBuildCompleted(QSharedPointer<CvModel> model);
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
+    void closeEvent(QCloseEvent *event);
 
 private:
-    QPixmap grabScreen();
-    bool cropImage(std::shared_ptr<QPixmap> image);
-    bool saveFile(const QString &fileName);
-    void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
-    void centerWindow();
-    void delay(int millisecondsToWait);
+    enum State {
+        EmptyState,
+        CropState,
+        ColorState,
+        MarkerState
+    };
 
-    Ui::MainWindow *ui;
-    QtAwesome *awesome;
-    ImageCropWidget *imageCrop;
-    QLabel* imageLabel;
-    ImageCropWidget::SelectionMode lastSelectionMode;
+    bool saveImage(const QString &fileName);
+    bool openImage(const QString &fileName);
+    void initializeImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
+    void delay(int millisecondsToWait);
+    void updateImage(const QImage& image);
+    void updateImage(const QRect& selection);
+
+    void handleDockWidgetVisibityChange(QDockWidget* dockWidget);
+    QSharedPointer<AccentPainter> createDefaultAccentPainter();
+    QSharedPointer<AccentPainter> createMarkerAccentPainter();
+    void setupUi();
+    void setupDockWidget(QDockWidget* dockWidget, QIcon icon, QWidget* contentWidget);
+
+    void changeState(State state);
+
+    QImage _currentImage;
+    CvModelBuilder* _modelBuilder;
+    QSharedPointer<CvModel> _model;
+    State _state;
+    QStack<QPainterPath> _markers;
+
+    QtAwesome* _awesome;
+    RsView* _rsview;
+    MarkerWidget* _markerWidget;
+    ColorsWidget* _colorsWidget;
+    QDockWidget* _markerDock;
+    QDockWidget* _colorsDock;
+    QLabel* _sizeWidget;
+
+    QScrollArea* _scrollArea;
+
+    QToolBar* _toolbar;
+    QStatusBar* _statusbar;
+
+    QAction* _actionCapture;
+    QAction* _actionPaste;
+    QAction* _actionCopy;
+    QAction* _actionSave;
+    QAction* _actionCrop;
+    QAction* _actionHelp;
 };
 
-#endif // MAINWINDOW_H

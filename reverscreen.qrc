@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/reverscreen.png</file>
-        <file>images/reverscreen.ico</file>
+        <file>icons/reverscreen.ico</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>docs/usage_tips.html</file>
     </qresource>
 </RCC>

@@ -1,40 +1,113 @@
 <!doctype html>
-
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>REVERSCREEN</title>
-    <meta name="description" content="computer-vision powered snipping tool">
+    <meta name="description" content="Computer Vision Powered Snipping Tool">
     <meta name="author" content="Andrei Smirnov">
+    <meta name="keywords" content="Computer Vision, Snipping, Tool, Screenshot, Snap, Screen, Grabbing, Smart">
 
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/animate.css">
-
-    <!--[if lt IE 9]>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
-  <![endif]-->
 </head>
 
 <body>
 
-    <header class="animated fadeIn">
-        <hr/>
-        <h1>REVER<span class="animated swing infinite">S</span>CREEN</h1>
-        <h2>computer-vision powered snipping tool</h2>
-        <hr/>
-    </header>
+    <div class="jumbotron text-center animated zoomIn">
+        <h1><span class="jumbotron-content">REVERSCREEN</span></h1>
+        <p>COMPUTER-VISION SNIPPING TOOL</p>
+    </div>
 
-    <section>
-        <h3 class="animated fadeInUp">coming soon...</h3>
-    </section>
+    <div class="alert animated fadeIn" role="alert">
+        <blockquote>REVERSCREEN is a snipping tool that leverages computer vision algorithms to simplify precise objects selection, highlighting and cropping.</blockquote>
+    </div>
 
-    <footer class="animated fadeIn">
+    <div class="panel panel-success animated fadeIn">
+        <div class="panel-heading">USAGE DEMO</div>
+        <div class="panel-body text-center">
+            <img class="video" src="img/reverscreen-demo.gif"><img>
+        </div>
+    </div>
+
+    <div class="panel panel-success animated fadeIn">
+        <div class="panel-heading">USAGE TIPS</div>
+        <div class="panel-body">
+            <ul>
+
+                <li>Click <span>Capture</span> to make a new snipping, or
+                    <ul>
+                        <li>Press <span>CTRL+V</span> to paste from the Clipboard,</li>
+                        <li>Drag &amp; Drop an image from another program.</li>
+                    </ul>
+                </li>
+
+                <li>Press <span>ESC</span> key to cancel a selection at any time.</li>
+
+                <li>When selecting an area:
+                    <ul>
+                        <li><span>CTRL</span> key changes the selection mode,</li>
+                        <li><span>SPACE</span> key toggles fixed margins.</li>
+                    </ul>
+                </li>
+
+                <li>Use the <span>Marker</span> mode to highlight any objects.</li>
+                <li>Use the <span>Colors</span> mode to pick exact colors from the image.</li>
+                <li>The resulted image can be copied to the clipboard or can be saved to a file.</li>
+
+            </ul>
+        </div>
+    </div>
+
+    <div class="panel panel-info animated fadeIn">
+        <div class="panel-heading">DOWNLOAD</div>
+        <div class="panel-body text-left">
+            <p>REVERSCREEN is licensed under the MIT license. (<a href="http://opensource.org/licenses/MIT">http://opensource.org/licenses/MIT</a>)</p>
+            <a href="release/ReverscreenSetup.zip" download="" class="btn btn-info download">REVERSCREEN for Windows (setup, 14Mb)</a>
+            <p><i>Note: REVERSCREEN executable is not signed with a certificate, so expect Windows to warn you about this app is untrusted.</i></p>
+            <hr>
+            <p>The program can be built for MacOS and Linux as well. Check <a href="https://github.com/pinebit/reverscreen">the source code</a> on GitHub for building instructions.</p>
+        </div>
+    </div>
+
+    <footer>
         <hr/>
-        <a class="left" href="mailto:info@reverscreen.com">info@reverscreen.com</a>
-        <a class="right" href="http://reverscreen.com">2016 &copy; reverscreen.com</a>
+        <div class="row">
+            <div class="col-sm-6">
+                Contact: <a href="mailto:pinebit@gmail.com">pinebit@gmail.com</a>
+            </div>
+            <div class="col-sm-6 text-right">
+                <a href="http://reverscreen.com">2016 &copy; reverscreen.com</a>
+            </div>
+        </div>
     </footer>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <!--[if lt IE 9]>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+    <![endif]-->
+
+    <script>
+        (function(i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function() {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-86493922-1', 'auto');
+        ga('send', 'pageview');
+    </script>
 
 </body>
 
