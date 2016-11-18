@@ -66,6 +66,7 @@ OPENCV_PATH = C:/Opencv/mingw_debug
 INCLUDEPATH += $$OPENCV_PATH/include
 LIBS += -L"$$OPENCV_PATH/x86/mingw/lib"
 LIBS += -lopencv_core2413.dll -lopencv_imgproc2413.dll
+LIBS += -lgdi32
 
 QMAKE_LFLAGS_RELEASE += -static -static-libgcc
 
@@ -85,6 +86,7 @@ QMAKE_INFO_PLIST = Info.plist
 
 QMAKE_CXXFLAGS += -Wno-deprecated-declarations
 
+include(platform/platform.pri)
 include(QtAwesome/QtAwesome.pri)
 
 SUBDIRS += QtAwesome/QtAwesome.pro \
@@ -109,3 +111,4 @@ DISTFILES += \
     LICENSE \
     README.md \
     nsis/reverscreen.nsi
+    

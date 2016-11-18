@@ -37,6 +37,7 @@
 #include "selector/cvselector.h"
 #include "userselection.h"
 #include "params.h"
+#include <platform/platform.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -75,21 +76,18 @@ void MainWindow::slotActionCapture()
 
 void MainWindow::slotActionPaste()
 {
-    QClipboard *clipboard = QApplication::clipboard();
-    QImage image = clipboard->image();
-    if (image.isNull()) {
+    QImage image;
+    if (!tryPasteFromClipboard(image)) {
         _statusbar->showMessage(tr("Clipboard has no image."));
+        return;
     }
-    else {
-        updateImage(image);
-    }
+    updateImage(image);
+    _statusbar->showMessage(tr("Pasted from the clipboard."));
 }
 
 void MainWindow::slotActionCopy()
 {
-    QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setImage(_rsview->renderToPixmap().toImage());
-
+    copyToClipboard(_rsview->renderToPixmap().toImage());
     _statusbar->showMessage(tr("Copied to the clipboard."));
 }
 
