@@ -21,7 +21,7 @@
 #include <QSettings>
 #include <QTimer>
 
-#include "awesomeservice.h"
+#include "services/awesomeservice.h"
 #include "mainwindow.h"
 #include "rsview.h"
 #include "dock/colorswidget.h"
@@ -541,7 +541,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::slotActionHelp()
 {
-    bool canShowHelp = (sender() == _actionHelp) || HelpDialog::canShowDialog();
+    bool canShowHelp = true; //(sender() == _actionHelp) || HelpDialog::canShowDialog();
     if (canShowHelp) {
         HelpDialog* helpDialog = new HelpDialog("qrc:/docs","/usage_tips.html", this);
         helpDialog->exec();

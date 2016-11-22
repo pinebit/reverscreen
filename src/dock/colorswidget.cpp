@@ -1,7 +1,7 @@
 #include "dock/colorswidget.h"
 #include "controls/coloractionwidget.h"
 #include "widgetutils.h"
-#include "awesomeservice.h"
+#include "services/awesomeservice.h"
 
 #include <QGuiApplication>
 #include <QVBoxLayout>

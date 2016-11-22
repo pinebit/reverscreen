@@ -8,5 +8,3 @@ HEADERS += $$PWD/QtAwesome.h \
     $$PWD/QtAwesomeAnim.h
     
 RESOURCES += $$PWD/QtAwesome.qrc
-
-

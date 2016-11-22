@@ -1,0 +1,2 @@
+
+include(QtAwesome/QtAwesome.pri)

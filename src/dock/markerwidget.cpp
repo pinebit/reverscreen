@@ -1,7 +1,7 @@
 #include "dock/markerwidget.h"
 #include "controls/coloractionwidget.h"
 #include "widgetutils.h"
-#include "awesomeservice.h"
+#include "services/awesomeservice.h"
 
 #include <QVBoxLayout>
 #include <QGroupBox>
